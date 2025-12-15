@@ -9,7 +9,16 @@ import SwiftUI
 
 struct TodayView: View {
     var body: some View {
-        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Hello, world!@*/Text("Hello, world!")/*@END_MENU_TOKEN@*/
+        NavigationStack {
+            VStack {
+                Spacer()
+                
+                Text("Hello, world!")
+                
+                Spacer()
+            }
+            .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 

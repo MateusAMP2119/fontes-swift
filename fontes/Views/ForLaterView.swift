@@ -13,7 +13,7 @@ struct ForLaterView: View {
             List {
                 Text("Saved items will appear here")
             }
-            .navigationTitle("For Later")
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 }

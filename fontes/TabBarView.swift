@@ -8,26 +8,44 @@
 import SwiftUI
 
 struct TabBarView: View {
+    @State private var searchText: String = ""
+    @State private var selectedTab: TabIdentifier = .today
+    
+    enum TabIdentifier: String, CaseIterable {
+        case today, forYou, forLater, search
+        
+        var title: String {
+            switch self {
+            case .today: return "Today"
+            case .forYou: return "For You"
+            case .forLater: return "For Later"
+            case .search: return "Search"
+            }
+        }
+    }
+    
     var body: some View {
-        TabView {
-            TodayView()
-                .tabItem {
-                    Label("Today", systemImage: "person")
-                }
-
-            ForYouView()
-                .tabItem {
-                    Label("For You", systemImage: "sparkles")
-                }
-            ForLaterView()
-                .tabItem {
-                    Label("For Later", systemImage: "bookmark")
-                }
+        VStack(spacing: 0) {
+            HeaderView(title: selectedTab.title)
             
-            SearchView()
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
+            TabView(selection: $selectedTab) {
+                Tab("Today", systemImage: "person", value: .today) {
+                    TodayView()
                 }
+                
+                Tab("For you", systemImage: "person", value: .forYou) {
+                    ForYouView()
+                }
+                
+                Tab("For later", systemImage: "person", value: .forLater) {
+                    ForLaterView()
+                }
+                
+                Tab("Discover", systemImage: "magnifyingglass", value: .search, role: .search) {
+                    SearchView()
+                    .searchable(text: $searchText)
+                }
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ struct ForYouView: View {
                         .padding()
                 }
             }
-            .navigationTitle("For You")
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 }
