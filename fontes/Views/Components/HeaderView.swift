@@ -25,6 +25,7 @@ struct HeaderView: View {
                 // Right: Stats and Settings
                 HStack(spacing: 6) {
                     Button {
+                        isSettingsPresented = true
                         print("Stats tapped")
                     } label: {
                         HStack(spacing: 6) {
@@ -35,16 +36,7 @@ struct HeaderView: View {
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundStyle(.black)
                         }
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Rectangle()
-                        .fill(Color.clear)
-                        .frame(width: 1, height: 14)
-                    
-                    Button {
-                        isSettingsPresented = true
-                    } label: {
+
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundStyle(.primary)
