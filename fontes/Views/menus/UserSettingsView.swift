@@ -1,18 +1,30 @@
-
 import SwiftUI
+
+// 1. Define a simplistic Route enum to manage where we can go
+enum SettingsRoute: Hashable {
+    case createAccount
+    case login
+    case notifications
+    case privacy
+}
 
 struct UserSettingsView: View {
     @Environment(\.dismiss) var dismiss
     @AppStorage("isDarkMode") private var isDarkMode = false
+    
+    // 2. Add a State for programmatic navigation (Optional, but good for deep linking)
+    @State private var path = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Form {
                 // MARK: - Profile Section
                 Section {
                     VStack(spacing: 16) {
+                        
+                        // Refactored: Standard Button, Navigation handled below
                         Button {
-                            CreateAccountView()
+                            path.append(SettingsRoute.createAccount)
                         } label: {
                             Text("Create account")
                                 .font(.headline)
@@ -22,26 +34,23 @@ struct UserSettingsView: View {
                                 .background(Color.black)
                                 .cornerRadius(8)
                         }
+                        .buttonStyle(.plain) // Removes default list row styling
                         
+                        // Refactored: Text Button
                         Button {
-                            LoginView()
+                            path.append(SettingsRoute.login)
                         } label: {
                             Text("Already have an account?")
                                 .font(.subheadline)
                                 .foregroundColor(.primary)
                                 .underline()
                         }
+                        .buttonStyle(.plain)
 
                         HStack {
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 1)
-                            Text("or use")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 1)
+                            Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
+                            Text("or use").font(.caption).foregroundColor(.gray)
+                            Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
                         }
                         
                         Button {
@@ -60,10 +69,10 @@ struct UserSettingsView: View {
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
+                                    .stroke(Color.gray.opacity(0.3),
+                                            lineWidth: 1))
                         }
-                        
+                            
                         Button {
                             // action for apple sign in
                         } label: {
@@ -77,8 +86,7 @@ struct UserSettingsView: View {
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1))
                         }
                     }
                     .padding(.vertical, 8)
@@ -89,47 +97,48 @@ struct UserSettingsView: View {
                 // MARK: - Appearance Section
                 Section {
                     Toggle(isOn: $isDarkMode) {
-                        Label {
-                            Text("Dark Mode")
-                        } icon: {
-                            Image(systemName: "moon.fill")
-                                .foregroundColor(.purple)
-                        }
+                        Label("Dark Mode", systemImage: "moon.fill")
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundColor(.purple)
                     }
                 } header: {
                     Text("Appearance")
                 }
                 
                 // MARK: - General Settings
-                Section {
-                    NavigationLink {
-                        Text("Notifications Settings")
-                    } label: {
+                Section("General") {
+                    // It is okay to use standard NavigationLinks for simple list items
+                    // where you WANT the chevron (arrow).
+                    NavigationLink(value: SettingsRoute.notifications) {
                         Label("Notifications", systemImage: "bell.badge")
                     }
                     
-                    NavigationLink {
-                        Text("Privacy Policy")
-                    } label: {
+                    NavigationLink(value: SettingsRoute.privacy) {
                         Label("Privacy", systemImage: "hand.raised")
                     }
-                } header: {
-                    Text("General")
                 }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button (role: .close){
-                        dismiss()
-                    }
+                    Button("Close", role: .cancel) { dismiss() }
+                }
+            }
+            // 3. CENTRALIZED NAVIGATION DESTINATIONS
+            // This is the "Switchboard" for your view
+            .navigationDestination(for: SettingsRoute.self) { route in
+                switch route {
+                case .createAccount:
+                    CreateAccountView()
+                case .login:
+                    LoginView()
+                case .notifications:
+                    Text("Notifications Settings")
+                case .privacy:
+                    Text("Privacy Policy")
                 }
             }
         }
     }
-}
-
-#Preview {
-    UserSettingsView()
 }
