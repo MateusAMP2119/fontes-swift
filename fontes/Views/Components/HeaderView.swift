@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HeaderView: View {
     var title: String = "Today"
+    @Binding var isSettingsPresented: Bool
     
     var body: some View {
         ZStack {
@@ -22,31 +23,39 @@ struct HeaderView: View {
                 Spacer()
                 
                 // Right: Stats and Settings
-                Button {
-                    print("Right pill tapped")
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "flame.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(.orange)
-                        Text("2")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.black)
-                        Rectangle()
-                            .fill(Color.clear)
-                            .frame(width: 1, height: 14)
+                HStack(spacing: 6) {
+                    Button {
+                        print("Stats tapped")
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "flame.fill")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundStyle(.orange)
+                            Text("2")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.black)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3)) // Making it slightly visible like a separator
+                        .frame(width: 1, height: 14)
+                    
+                    Button {
+                        isSettingsPresented = true
+                    } label: {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundStyle(.primary)
                     }
-                    .contentShape(Rectangle())
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .glassEffect(
-                        .regular.tint(.clear).interactive()
-                    )
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .glassEffect(
+                    .regular.tint(.clear).interactive()
+                )
             }
             
             // Center (Foreground): Dynamic page
@@ -66,12 +75,12 @@ struct HeaderView: View {
                 )
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 20)
         .padding(.top, 8)
         .background(Color.clear)
     }
 }
 
 #Preview {
-    HeaderView()
+    HeaderView(isSettingsPresented: .constant(false))
 }
