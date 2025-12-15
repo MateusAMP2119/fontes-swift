@@ -5,6 +5,7 @@ struct UserSettingsView: View {
     @Environment(\.dismiss) var dismiss
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var isLoggedIn = false // Mock authentication state
+    @State private var email = ""
 
     var body: some View {
         NavigationStack {
@@ -32,47 +33,77 @@ struct UserSettingsView: View {
                             isLoggedIn = false
                         }
                     } else {
-                        VStack(spacing: 12) {
-                            HStack(spacing: 12) {
-                                Button {
-                                    isLoggedIn = true
-                                } label: {
-                                    Text("Log In")
-                                        .bold()
-                                        .frame(maxWidth: .infinity)
-                                }
-                                .buttonStyle(.bordered)
-                                .tint(.primary)
-                                
-                                Button {
-                                    isLoggedIn = true
-                                } label: {
-                                    Text("Sign Up")
-                                        .bold()
-                                        .frame(maxWidth: .infinity)
-                                }
-                                .buttonStyle(.borderedProminent)
+                        VStack(spacing: 16) {
+                            TextField("Email", text: $email)
+                                .textFieldStyle(.plain)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                            
+                            Button {
+                                isLoggedIn = true
+                            } label: {
+                                Text("Continue")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.black)
+                                    .cornerRadius(8)
+                            }
+
+                            HStack {
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(height: 1)
+                                Text("or use")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(height: 1)
                             }
                             
                             Button {
                                 isLoggedIn = true
                             } label: {
-                                Label("Continue with Google", systemImage: "globe")
-                                    .frame(maxWidth: .infinity)
+                                HStack {
+                                    Image("google_logo")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                    Text("Sign in with Google")
+                                }
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
                             }
-                            .buttonStyle(.bordered)
-                            .tint(.primary)
-
+                            
                             Button {
                                 isLoggedIn = true
                             } label: {
-                                Label("Continue with Apple", systemImage: "apple.logo")
-                                    .frame(maxWidth: .infinity)
+                                HStack {
+                                    Image(systemName: "apple.logo")
+                                    Text("Sign in with Apple")
+                                }
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
                             }
-                            .buttonStyle(.bordered)
-                            .tint(.primary)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 8)
                     }
                 } header: {
                     Text("Profile")
