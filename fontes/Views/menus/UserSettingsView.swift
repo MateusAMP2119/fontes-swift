@@ -5,30 +5,26 @@ struct UserSettingsView: View {
     @Environment(\.dismiss) var dismiss
     @AppStorage("isDarkMode") private var isDarkMode = false
 
-
-
     var body: some View {
         NavigationStack {
             Form {
                 // MARK: - Profile Section
                 Section {
                     VStack(spacing: 16) {
-                        Text("Create account")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.black)
-                            .cornerRadius(8)
-                            .overlay(
-                                NavigationLink(destination: CreateAccountView()) {
-                                    Color.clear
-                                }
-                                .opacity(0)
-                            )
+                        Button {
+                            CreateAccountView()
+                        } label: {
+                            Text("Create account")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.black)
+                                .cornerRadius(8)
+                        }
                         
                         Button {
-                            // navigate to login
+                            LoginView()
                         } label: {
                             Text("Already have an account?")
                                 .font(.subheadline)

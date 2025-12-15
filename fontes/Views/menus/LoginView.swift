@@ -1,11 +1,10 @@
 
 import SwiftUI
 
-struct CreateAccountView: View {
+struct LoginView: View {
     @Environment(\.dismiss) var dismiss
     @State private var email = ""
     @State private var password = ""
-    @State private var confirmPassword = ""
     
     var body: some View {
         Form {
@@ -16,10 +15,7 @@ struct CreateAccountView: View {
                     .keyboardType(.emailAddress)
                 
                 SecureField("Password", text: $password)
-                    .textContentType(.newPassword)
-                
-                SecureField("Verify Password", text: $confirmPassword)
-                    .textContentType(.newPassword)
+                    .textContentType(.password)
             } header: {
                 Text("Account Details")
             }
@@ -27,9 +23,9 @@ struct CreateAccountView: View {
             Section {
                 VStack(spacing: 16) {
                     Button {
-                        // Action for create account
+                        // Action for login
                     } label: {
-                        Text("Create Account")
+                        Text("Login")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -37,20 +33,23 @@ struct CreateAccountView: View {
                             .background(Color.black)
                             .cornerRadius(8)
                     }
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Already have an account?")
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                            .underline()
-                    }
+                    
+                    Text("Don't have an account?")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .underline()
+                        .overlay(
+                            NavigationLink(destination: CreateAccountView()) {
+                                Color.clear
+                            }
+                            .opacity(0)
+                        )
                     
                     HStack {
                         Rectangle()
                             .fill(Color.gray.opacity(0.3))
                             .frame(height: 1)
-                        Text("or use")
+                        Text("or continue with")
                             .font(.caption)
                             .foregroundColor(.gray)
                         Rectangle()
@@ -59,7 +58,7 @@ struct CreateAccountView: View {
                     }
                     
                     Button {
-                        // Action for Google sign up
+                        // Action for Google login
                     } label: {
                         HStack {
                             Image("google_logo")
@@ -79,7 +78,7 @@ struct CreateAccountView: View {
                     }
                     
                     Button {
-                        // Action for Apple sign up
+                        // Action for Apple login
                     } label: {
                         HStack {
                             Image(systemName: "apple.logo")
@@ -98,11 +97,11 @@ struct CreateAccountView: View {
                 .padding(.vertical, 8)
             }
         }
-        .navigationTitle("Create Account")
+        .navigationTitle("Login")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    CreateAccountView()
+    LoginView()
 }

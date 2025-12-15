@@ -29,11 +29,10 @@ struct TabBarView: View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 0) {
                 HeaderView(title: selectedTab.title, isSettingsPresented: $isSettingsPresented)
-                    .id(selectedTab)
                     .zIndex(1)
                 
                 TabView(selection: $selectedTab) {
-                    Tab("Today", systemImage: "person", value: .today) {
+                    Tab("Today", systemImage: "text.rectangle.page", value: .today) {
                         TodayView()
                     }
                     
@@ -41,7 +40,7 @@ struct TabBarView: View {
                         ForYouView()
                     }
                     
-                    Tab("For later", systemImage: "person", value: .forLater) {
+                    Tab("For later", systemImage: "bookmark", value: .forLater) {
                         ForLaterView()
                     }
                     
