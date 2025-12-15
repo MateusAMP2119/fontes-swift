@@ -11,52 +11,54 @@ struct ShortcutMenuView: View {
     var title: String
     
     var body: some View {
-        Menu {
-            Button {
-                print("Rename tapped")
-            } label: {
-                Label("Rename", systemImage: "pencil")
-            }
-            
-            Button {
-                print("Choose Icon tapped")
-            } label: {
-                Label("Choose Icon", systemImage: "square.dashed")
-            }
-            
-            Button {
-                print("Duplicate tapped")
-            } label: {
-                Label("Duplicate", systemImage: "plus.square.on.square")
-            }
-            
-            Button {
-                print("Move tapped")
-            } label: {
-                Label("Move", systemImage: "folder")
-            }
-            
-            Divider()
-            
-            Button {
-                print("Add to Home Screen tapped")
-            } label: {
-                Label("Add to Home Screen", systemImage: "plus.app")
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Text(title)
-                    .font(.system(size: 16, weight: .semibold))
+        HStack {
+            Menu {
+                Button {
+                    print("Rename tapped")
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
                 
-                Image(systemName: "chevron.down.circle.fill")
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.secondary)
-                    .font(.system(size: 20))
+                Button {
+                    print("Choose Icon tapped")
+                } label: {
+                    Label("Choose Icon", systemImage: "square.dashed")
+                }
+                
+                Button {
+                    print("Duplicate tapped")
+                } label: {
+                    Label("Duplicate", systemImage: "plus.square.on.square")
+                }
+                
+                Button {
+                    print("Move tapped")
+                } label: {
+                    Label("Move", systemImage: "folder")
+                }
+                
+                Divider()
+                
+                Button {
+                    print("Add to Home Screen tapped")
+                } label: {
+                    Label("Add to Home Screen", systemImage: "plus.app")
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Image(systemName: "chevron.down.circle.fill")
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 20))
+                }
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .id(title)
         }
-        .buttonStyle(.plain)
-        .id(title)
     }
 }
 

@@ -13,8 +13,8 @@ struct UserSettingsView: View {
                 // MARK: - Profile Section
                 Section {
                     VStack(spacing: 16) {
-                        Button {
-                            // navigate to create account
+                        NavigationLink {
+                            CreateAccountView()
                         } label: {
                             Text("Create account")
                                 .font(.headline)
