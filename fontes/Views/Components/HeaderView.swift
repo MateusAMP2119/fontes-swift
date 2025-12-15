@@ -26,7 +26,6 @@ struct HeaderView: View {
                 HStack(spacing: 6) {
                     Button {
                         isSettingsPresented = true
-                        print("Stats tapped")
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "flame.fill")

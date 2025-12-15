@@ -51,19 +51,9 @@ struct TabBarView: View {
                 }
             }
             
-            if isSettingsPresented {
-                Color.black.opacity(0.001)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            isSettingsPresented = false
-                        }
-                    }
-                
-                SettingsView()
-                    .padding(.top, 60) // Adjust based on header height
-                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .topTrailing)))
-            }
+        }
+        .sheet(isPresented: $isSettingsPresented) {
+            SelectFolderView()
         }
     }
 }
