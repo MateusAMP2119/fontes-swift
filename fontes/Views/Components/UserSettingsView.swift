@@ -5,7 +5,7 @@ struct UserSettingsView: View {
     @Environment(\.dismiss) var dismiss
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var isLoggedIn = false // Mock authentication state
-    @State private var email = ""
+
 
     var body: some View {
         NavigationStack {
@@ -34,24 +34,24 @@ struct UserSettingsView: View {
                         }
                     } else {
                         VStack(spacing: 16) {
-                            TextField("Email", text: $email)
-                                .textFieldStyle(.plain)
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                            
                             Button {
-                                isLoggedIn = true
+                                // navigate to create account
                             } label: {
-                                Text("Continue")
+                                Text("Create account")
                                     .font(.headline)
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(Color.black)
                                     .cornerRadius(8)
+                            }
+                            
+                            Button {
+                                // navigate to login
+                            } label: {
+                                Text("Already have an account?")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
                             }
 
                             HStack {
