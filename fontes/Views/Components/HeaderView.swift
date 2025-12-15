@@ -39,7 +39,7 @@ struct HeaderView: View {
                     .buttonStyle(.plain)
                     
                     Rectangle()
-                        .fill(Color.gray.opacity(0.3)) // Making it slightly visible like a separator
+                        .fill(Color.clear)
                         .frame(width: 1, height: 14)
                     
                     Button {
@@ -59,21 +59,23 @@ struct HeaderView: View {
             }
             
             // Center (Foreground): Dynamic page
-            Button {
-                print ("Center pill tapped")
-            } label: {
-                HStack {
-                    Text(title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.black)
+            HStack {
+                Button {
+                    print ("Center pill tapped")
+                } label: {
+                    HStack {
+                        Text(title)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.black)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .glassEffect(
-                    .regular.tint(.clear).interactive()
-                )
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .glassEffect(
+                .regular.tint(.clear).interactive()
+            )
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
