@@ -37,13 +37,13 @@ struct CreateAccountView: View {
                             .background(Color.black)
                             .cornerRadius(8)
                     }
-                    
                     Button {
                         dismiss()
                     } label: {
                         Text("Already have an account?")
                             .font(.subheadline)
                             .foregroundColor(.primary)
+                            .underline()
                     }
                     
                     HStack {

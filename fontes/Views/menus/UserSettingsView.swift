@@ -13,17 +13,19 @@ struct UserSettingsView: View {
                 // MARK: - Profile Section
                 Section {
                     VStack(spacing: 16) {
-                        NavigationLink {
-                            CreateAccountView()
-                        } label: {
-                            Text("Create account")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.black)
-                                .cornerRadius(8)
-                        }
+                        Text("Create account")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.black)
+                            .cornerRadius(8)
+                            .overlay(
+                                NavigationLink(destination: CreateAccountView()) {
+                                    Color.clear
+                                }
+                                .opacity(0)
+                            )
                         
                         Button {
                             // navigate to login
@@ -31,6 +33,7 @@ struct UserSettingsView: View {
                             Text("Already have an account?")
                                 .font(.subheadline)
                                 .foregroundColor(.primary)
+                                .underline()
                         }
 
                         HStack {
@@ -122,13 +125,8 @@ struct UserSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
+                    Button (role: .close){
                         dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .font(.system(size: 24))
-                            .foregroundColor(.secondary)
                     }
                 }
             }
