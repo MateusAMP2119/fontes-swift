@@ -33,7 +33,6 @@ struct HeaderView: View {
                                 .foregroundStyle(.orange)
                             Text("2")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.black)
                         }
 
                         Image(systemName: "gearshape.fill")

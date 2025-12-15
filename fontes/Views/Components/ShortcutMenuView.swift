@@ -47,7 +47,6 @@ struct ShortcutMenuView: View {
             HStack(spacing: 6) {
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.black)
                 
                 Image(systemName: "chevron.down.circle.fill")
                     .symbolRenderingMode(.hierarchical)
@@ -57,6 +56,7 @@ struct ShortcutMenuView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .id(title)
     }
 }
 

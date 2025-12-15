@@ -29,6 +29,7 @@ struct TabBarView: View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 0) {
                 HeaderView(title: selectedTab.title, isSettingsPresented: $isSettingsPresented)
+                    .id(selectedTab)
                     .zIndex(1)
                 
                 TabView(selection: $selectedTab) {
@@ -53,7 +54,7 @@ struct TabBarView: View {
             
         }
         .sheet(isPresented: $isSettingsPresented) {
-            SelectFolderView()
+            UserSettingsView()
         }
     }
 }
