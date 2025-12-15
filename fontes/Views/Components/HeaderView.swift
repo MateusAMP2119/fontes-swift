@@ -60,19 +60,11 @@ struct HeaderView: View {
             
             // Center (Foreground): Dynamic page
             HStack {
-                Button {
-                    print ("Center pill tapped")
-                } label: {
-                    HStack {
-                        Text(title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.black)
-                    }
-                    .buttonStyle(.plain)
-                }
+                ShortcutMenuView(title: title)
             }
-            .padding(.horizontal, 16)
             .padding(.vertical, 8)
+            .padding(.horizontal, 10)
+            .padding(.leading, 4)
             .glassEffect(
                 .regular.tint(.clear).interactive()
             )
