@@ -1,5 +1,5 @@
 //
-//  ForLaterView.swift
+//  SearchView.swift
 //  fontes
 //
 //  Created by Mateus Costa on 15/12/2025.
@@ -7,11 +7,15 @@
 
 import SwiftUI
 
-struct ForLaterView: View {
+struct SearchView: View {
     var body: some View {
         NavigationStack {
-            List {
-                Text("Saved items will appear here")
+            VStack {
+                Spacer()
+                
+                Text("Discover page")
+                
+                Spacer()
             }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -19,5 +23,5 @@ struct ForLaterView: View {
 }
 
 #Preview {
-    ForLaterView()
+    SearchView()
 }

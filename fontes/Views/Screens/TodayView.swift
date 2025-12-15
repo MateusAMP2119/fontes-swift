@@ -13,7 +13,7 @@ struct TodayView: View {
             VStack {
                 Spacer()
                 
-                Text("Hello, world!")
+                Text("Today page")
                 
                 Spacer()
             }

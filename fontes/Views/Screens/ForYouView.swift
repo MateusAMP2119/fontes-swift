@@ -10,11 +10,12 @@ import SwiftUI
 struct ForYouView: View {
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack {
-                    Text("Recommended for you")
-                        .padding()
-                }
+            VStack {
+                Spacer()
+                
+                Text("For you page")
+                
+                Spacer()
             }
             .toolbar(.hidden, for: .navigationBar)
         }

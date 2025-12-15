@@ -11,43 +11,64 @@ struct HeaderView: View {
     var title: String = "Today"
     
     var body: some View {
-        HStack {
-            // Left: Asset Image
-            Image("fontes_byMarrco")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
+        ZStack {
+            HStack {
+                // Left: Asset Image
+                Image("fontes_byMarrco")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 40)
+                
+                Spacer()
+                
+                // Right: Stats and Settings
+                Button {
+                    print("Right pill tapped")
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "flame.fill")
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundStyle(.orange)
+                        Text("2")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.black)
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(width: 1, height: 14)
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.primary)
+                    }
+                    .contentShape(Rectangle())
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .glassEffect(
+                        .regular.tint(.clear).interactive()
+                    )
+                }
+                .buttonStyle(.plain)
+            }
             
-            Spacer()
-            
-            // Center: Pill
-            Text(title)
-                .font(.system(size: 16, weight: .medium))
+            // Center (Foreground): Dynamic page
+            Button {
+                print ("Center pill tapped")
+            } label: {
+                HStack {
+                    Text(title)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.black)
+                }
+                .contentShape(Rectangle())
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Color(UIColor.systemGray6)) // Light gray background
-                .clipShape(Capsule())
-            
-            Spacer()
-            
-            // Right: Icons
-            HStack(spacing: 16) {
-                HStack(spacing: 4) {
-                    Image(systemName: "flame.fill")
-                        .foregroundColor(.orange)
-                    Text("2")
-                        .font(.system(size: 16, weight: .semibold))
-                }
-                
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(.black)
+                .glassEffect(
+                    .regular.tint(.clear).interactive()
+                )
             }
         }
         .padding(.horizontal)
         .padding(.top, 8)
-        .background(Color.white) // Ensure background is set if needed
+        .background(Color.clear)
     }
 }
 

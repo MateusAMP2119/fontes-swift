@@ -19,7 +19,7 @@ struct TabBarView: View {
             case .today: return "Today"
             case .forYou: return "For You"
             case .forLater: return "For Later"
-            case .search: return "Search"
+            case .search: return "Discover"
             }
         }
     }
@@ -27,6 +27,7 @@ struct TabBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HeaderView(title: selectedTab.title)
+                .zIndex(1)
             
             TabView(selection: $selectedTab) {
                 Tab("Today", systemImage: "person", value: .today) {
