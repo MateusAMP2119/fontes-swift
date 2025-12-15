@@ -4,7 +4,7 @@ import SwiftUI
 struct UserSettingsView: View {
     @Environment(\.dismiss) var dismiss
     @AppStorage("isDarkMode") private var isDarkMode = false
-    @State private var isLoggedIn = false // Mock authentication state
+
 
 
     var body: some View {
@@ -12,99 +12,77 @@ struct UserSettingsView: View {
             Form {
                 // MARK: - Profile Section
                 Section {
-                    if isLoggedIn {
-                        HStack {
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .foregroundColor(.gray)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Mateus Costa") // Mock User Name
-                                    .font(.headline)
-                                Text("mateus@example.com") // Mock Email
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+                    VStack(spacing: 16) {
+                        Button {
+                            // navigate to create account
+                        } label: {
+                            Text("Create account")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.black)
+                                .cornerRadius(8)
                         }
-                        .padding(.vertical, 8)
                         
-                        Button("Log Out", role: .destructive) {
-                            isLoggedIn = false
+                        Button {
+                            // navigate to login
+                        } label: {
+                            Text("Already have an account?")
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
                         }
-                    } else {
-                        VStack(spacing: 16) {
-                            Button {
-                                // navigate to create account
-                            } label: {
-                                Text("Create account")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.black)
-                                    .cornerRadius(8)
-                            }
-                            
-                            Button {
-                                // navigate to login
-                            } label: {
-                                Text("Already have an account?")
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                            }
 
-                            HStack {
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(height: 1)
-                                Text("or use")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(height: 1)
-                            }
-                            
-                            Button {
-                                isLoggedIn = true
-                            } label: {
-                                HStack {
-                                    Image("google_logo")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 20, height: 20)
-                                    Text("Sign in with Google")
-                                }
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                            }
-                            
-                            Button {
-                                isLoggedIn = true
-                            } label: {
-                                HStack {
-                                    Image(systemName: "apple.logo")
-                                    Text("Sign in with Apple")
-                                }
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                            }
+                        HStack {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 1)
+                            Text("or use")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 1)
                         }
-                        .padding(.vertical, 8)
+                        
+                        Button {
+                            // action for google sign in
+                        } label: {
+                            HStack {
+                                Image("google_logo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20)
+                                Text("Sign in with Google")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        
+                        Button {
+                            // action for apple sign in
+                        } label: {
+                            HStack {
+                                Image(systemName: "apple.logo")
+                                Text("Sign in with Apple")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                        }
                     }
+                    .padding(.vertical, 8)
                 } header: {
                     Text("Profile")
                 }
