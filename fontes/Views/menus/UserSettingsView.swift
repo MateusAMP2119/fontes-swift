@@ -4,7 +4,6 @@ import SwiftUI
 enum SettingsRoute: Hashable {
     case createAccount
     case login
-    case notifications
     case privacy
 }
 
@@ -94,6 +93,18 @@ struct UserSettingsView: View {
                     Text("Profile")
                 }
 
+                // MARK: - Preferences Section
+                Section {
+                    NavigationLink(destination: Text("Reading Goals Settings")) {
+                        Label("Reading Goals", systemImage: "target")
+                    }
+                    NavigationLink(destination: Text("Notification Settings")) {
+                        Label("Notifications", systemImage: "bell")
+                    }
+                } header: {
+                    Text("Preferences")
+                }
+
                 // MARK: - Appearance Section
                 Section {
                     Toggle(isOn: $isDarkMode) {
@@ -108,10 +119,6 @@ struct UserSettingsView: View {
                 
                 // MARK: - General Settings
                 Section("General") {
-                    NavigationLink(value: SettingsRoute.notifications) {
-                        Label("Notifications", systemImage: "bell.badge")
-                    }
-                    
                     NavigationLink(value: SettingsRoute.privacy) {
                         Label("Privacy", systemImage: "hand.raised")
                     }
@@ -132,8 +139,6 @@ struct UserSettingsView: View {
                     CreateAccountView()
                 case .login:
                     LoginView()
-                case .notifications:
-                    Text("Notifications Settings")
                 case .privacy:
                     Text("Privacy Policy")
                 }
