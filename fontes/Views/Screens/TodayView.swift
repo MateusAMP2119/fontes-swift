@@ -11,9 +11,10 @@ struct TodayView: View {
     @Binding var isSettingsPresented: Bool
     
     var colors: [Color] = [.yellow, .mint, .teal]
+    @State private var text = ""
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(0..<50) { x in
@@ -29,9 +30,8 @@ struct TodayView: View {
                     }
                 }
             }
-            .scrollEdgeEffectStyle(.soft, for: .all)
             .toolbar {
-                ToolbarItemGroup(placement: .principal) {
+                ToolbarItem(placement: .principal) {
                     GlassTitleView(title: "Today", isSettingsPresented: $isSettingsPresented)
                 }
             }

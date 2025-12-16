@@ -11,8 +11,15 @@ struct GlassTitleView: View {
     let title: String
     @Binding var isSettingsPresented: Bool
     
+    private var screenWidth: CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return 0
+        }
+        return windowScene.screen.bounds.width
+    }
+
     var body: some View {
-        HStack() {
+        HStack {
             Button {
             } label: {
                 Image("fontes_byMarrco")
@@ -21,7 +28,7 @@ struct GlassTitleView: View {
                     .frame(width: 40, height: 40)
             }
             .buttonStyle(PlainButtonStyle())
-            .frame(width: 100, alignment: .leading)
+            .frame(width: screenWidth / 3 - 30, alignment: .leading)
             
             Spacer()
             
@@ -32,7 +39,7 @@ struct GlassTitleView: View {
                 .padding(.horizontal, 10)
                 .glassEffect(
                     .regular.tint(.clear).interactive())
-                .frame(width: 100)
+                .frame(width: screenWidth / 3)
             
             Spacer()
             
@@ -43,21 +50,21 @@ struct GlassTitleView: View {
                     Image(systemName: "flame.fill")
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(.orange)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 12, weight: .semibold))
                     Text("2")
                         .font(.system(size: 16, weight: .semibold))
                     Image(systemName: "gearshape.fill")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 12, weight: .semibold))
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
             .padding(.horizontal, 10)
             .glassEffect(
                 .regular.tint(.clear).interactive())
-            .frame(width: 100, alignment: .trailing)
+            .frame(width: screenWidth / 3 - 30, alignment: .trailing)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: screenWidth)
     }
 }
 
