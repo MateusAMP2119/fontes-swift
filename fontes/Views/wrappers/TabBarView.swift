@@ -32,23 +32,36 @@ struct TabBarView: View {
                     .zIndex(1)
                 
                 TabView(selection: $selectedTab) {
-                    Tab("Today", systemImage: "text.rectangle.page", value: .today) {
+                    Tab(value: .today) {
                         TodayView()
+                    } label: {
+                        Label("Today", systemImage: "text.rectangle.page")
+                            .environment(\.symbolVariants, .none)
                     }
                     
-                    Tab("For you", systemImage: "person", value: .forYou) {
+                    Tab(value: .forYou) {
                         ForYouView()
+                    } label: {
+                        Label("For you", systemImage: "heart.square")
+                            .environment(\.symbolVariants, .none)
                     }
                     
-                    Tab("For later", systemImage: "bookmark", value: .forLater) {
+                    Tab(value: .forLater) {
                         ForLaterView()
+                    } label: {
+                        Label("For later", systemImage: "book.pages")
+                            .environment(\.symbolVariants, .none)
                     }
                     
-                    Tab("Discover", systemImage: "magnifyingglass", value: .search, role: .search) {
+                    Tab(value: .search, role: .search) {
                         SearchView()
-                        .searchable(text: $searchText)
+                            .searchable(text: $searchText)
+                    } label: {
+                        Label("Discover", systemImage: "sparkle.magnifyingglass")
+                            .environment(\.symbolVariants, .none)
                     }
                 }
+                .tint(Color(red: 252/255, green: 60/255, blue: 68/255))
             }
             
         }
