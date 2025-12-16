@@ -140,5 +140,6 @@ struct UserSettingsView: View {
                 }
             }
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }

@@ -57,7 +57,6 @@ struct ShortcutMenuView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .id(title)
         }
     }
 }
