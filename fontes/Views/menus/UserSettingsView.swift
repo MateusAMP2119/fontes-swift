@@ -97,9 +97,10 @@ struct UserSettingsView: View {
                 // MARK: - Appearance Section
                 Section {
                     Toggle(isOn: $isDarkMode) {
-                        Label("Dark Mode", systemImage: "moon.fill")
+                        Label("Dark Mode", systemImage: isDarkMode ? "moon.fill" : "sun.max.fill")
                             .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.primary)
+                            .contentTransition(.symbolEffect(.replace))
                     }
                 } header: {
                     Text("Appearance")
@@ -107,8 +108,6 @@ struct UserSettingsView: View {
                 
                 // MARK: - General Settings
                 Section("General") {
-                    // It is okay to use standard NavigationLinks for simple list items
-                    // where you WANT the chevron (arrow).
                     NavigationLink(value: SettingsRoute.notifications) {
                         Label("Notifications", systemImage: "bell.badge")
                     }
