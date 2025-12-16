@@ -31,7 +31,7 @@ struct TabBarView: View {
                 
                 TabView(selection: $selectedTab) {
                     Tab(value: .today) {
-                        TodayView()
+                        TodayView(isSettingsPresented: $isSettingsPresented)
                     } label: {
                         Label("Today", systemImage: "text.rectangle.page")
                             .environment(\.symbolVariants, .none)
