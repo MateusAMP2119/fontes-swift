@@ -28,8 +28,6 @@ struct TabBarView: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 0) {
-                HeaderView(title: selectedTab.title, isSettingsPresented: $isSettingsPresented)
-                    .zIndex(1)
                 
                 TabView(selection: $selectedTab) {
                     Tab(value: .today) {
