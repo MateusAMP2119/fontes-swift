@@ -12,6 +12,27 @@ struct TabBarView: View {
     @State private var selectedTab: TabIdentifier = .today
     @State private var isSettingsPresented = false
     
+    @State private var selectedAlgorithmId: UUID?
+    @State private var isBuildingAlgorithm = false
+    @State private var algorithms: [Algorithm] = [
+        Algorithm(name: "Tech Trends", icon: "desktopcomputer", isSelected: true),
+        Algorithm(name: "Global Politics", icon: "globe", isSelected: false),
+        Algorithm(name: "Healthy Living", icon: "heart.fill", isSelected: false),
+        Algorithm(name: "Startup News", icon: "lightbulb.fill", isSelected: false)
+    ]
+    
+    // Today State
+    @State private var selectedTodayFilter: TodayFilter = .recent
+    
+    // For Later State
+    @State private var folders: [Folder] = [
+        Folder(name: "Read Later", icon: "tray"),
+        Folder(name: "Research", icon: "doc.text.magnifyingglass"),
+        Folder(name: "Inspiration", icon: "lightbulb")
+    ]
+    @State private var selectedFolderId: UUID?
+    @State private var isCreatingFolder = false
+    
     enum TabIdentifier: String, CaseIterable {
         case today, forYou, forLater, search
         
@@ -26,7 +47,7 @@ struct TabBarView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 
                 TabView(selection: $selectedTab) {
@@ -38,7 +59,7 @@ struct TabBarView: View {
                     }
                     
                     Tab(value: .forYou) {
-                        ForYouView()
+                        ForYouView(algorithms: $algorithms, selectedAlgorithmId: $selectedAlgorithmId)
                     } label: {
                         Label("For you", systemImage: "heart.square")
                             .environment(\.symbolVariants, .none)
@@ -61,10 +82,21 @@ struct TabBarView: View {
                 }
                 .tint(Color(red: 252/255, green: 60/255, blue: 68/255))
             }
-            
+        }
+        .sheet(isPresented: $isBuildingAlgorithm) {
+            BuildAlgorithmView()
         }
         .tabViewBottomAccessory() {
-            MiniPlayerView()
+            MiniPlayerView(
+                selectedTab: selectedTab,
+                algorithms: $algorithms,
+                selectedAlgorithmId: $selectedAlgorithmId,
+                onNewAlgorithm: { isBuildingAlgorithm = true },
+                selectedTodayFilter: $selectedTodayFilter,
+                folders: $folders,
+                selectedFolderId: $selectedFolderId,
+                onNewFolder: { isCreatingFolder = true }
+            )
         }
         .sheet(isPresented: $isSettingsPresented) {
             UserSettingsView()

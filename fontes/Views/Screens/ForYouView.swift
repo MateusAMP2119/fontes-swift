@@ -8,16 +8,8 @@
 import SwiftUI
 
 struct ForYouView: View {
-    @State private var selectedAlgorithmId: UUID?
-    @State private var isBuildingAlgorithm = false
-    
-    // Mock Algorithms
-    @State private var algorithms: [Algorithm] = [
-        Algorithm(name: "Tech Trends", icon: "desktopcomputer", isSelected: true),
-        Algorithm(name: "Global Politics", icon: "globe", isSelected: false),
-        Algorithm(name: "Healthy Living", icon: "heart.fill", isSelected: false),
-        Algorithm(name: "Startup News", icon: "lightbulb.fill", isSelected: false)
-    ]
+    @Binding var algorithms: [Algorithm]
+    @Binding var selectedAlgorithmId: UUID?
     
     // Mock Data
     let forYouStories: [NewsArticle] = [
@@ -86,89 +78,12 @@ struct ForYouView: View {
                 }
                 .scrollEdgeEffectStyle(.soft, for: .all)
                 .background(Color(uiColor: .systemGroupedBackground))
-                
-                // Floating Pill
-                FloatingAlgorithmPill(
-                    algorithms: $algorithms,
-                    selectedAlgorithmId: $selectedAlgorithmId,
-                    onNew: { isBuildingAlgorithm = true }
-                )
-            }
-            .sheet(isPresented: $isBuildingAlgorithm) {
-                BuildAlgorithmView()
             }
             .toolbar(.hidden, for: .navigationBar)
         }
     }
 }
 
-struct Algorithm: Identifiable {
-    let id = UUID()
-    var name: String
-    var icon: String
-    var isSelected: Bool
-}
-
-struct FloatingAlgorithmPill: View {
-    @Binding var algorithms: [Algorithm]
-    @Binding var selectedAlgorithmId: UUID?
-    var onNew: () -> Void
-    
-    var currentAlgorithm: Algorithm {
-        algorithms.first(where: { $0.id == selectedAlgorithmId }) ?? algorithms.first(where: { $0.isSelected }) ?? algorithms[0]
-    }
-    
-    var body: some View {
-        Menu {
-            Section("My Algorithms") {
-                ForEach(algorithms) { algo in
-                    Button {
-                        withAnimation {
-                            selectedAlgorithmId = algo.id
-                            for i in 0..<algorithms.count {
-                                algorithms[i].isSelected = (algorithms[i].id == algo.id)
-                            }
-                        }
-                    } label: {
-                        if selectedAlgorithmId == algo.id || (selectedAlgorithmId == nil && algo.isSelected) {
-                            Label(algo.name, systemImage: "checkmark")
-                        } else {
-                            Text(algo.name)
-                        }
-                    }
-                }
-            }
-            
-            Section {
-                Button(action: onNew) {
-                    Label("New Algorithm", systemImage: "plus")
-                }
-            }
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: currentAlgorithm.icon)
-                    .font(.headline)
-                Text(currentAlgorithm.name)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                Image(systemName: "chevron.up")
-                    .font(.caption2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(.ultraThinMaterial)
-            .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
-            .overlay(
-                Capsule()
-                    .stroke(.white.opacity(0.2), lineWidth: 0.5)
-            )
-        }
-        .padding(.bottom, 20)
-    }
-}
 
 
 struct ForYouHeaderView: View {
@@ -198,47 +113,9 @@ struct ForYouHeaderView: View {
     }
 }
 
-struct BuildAlgorithmView: View {
-    @Environment(\.dismiss) var dismiss
-    @State private var algoName = ""
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Algorithm Details")) {
-                    TextField("Name", text: $algoName)
-                }
-                
-                Section(header: Text("Topics")) {
-                    Toggle("Technology", isOn: .constant(true))
-                    Toggle("Science", isOn: .constant(false))
-                    Toggle("Politics", isOn: .constant(false))
-                    Toggle("Design", isOn: .constant(true))
-                }
-                
-                Section(header: Text("Sources")) {
-                    Toggle("Major Publications", isOn: .constant(true))
-                    Toggle("Independent Blogs", isOn: .constant(true))
-                }
-            }
-            .navigationTitle("New Algorithm")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
 
 #Preview {
-    ForYouView()
+    ForYouView(algorithms: .constant([
+        Algorithm(name: "Tech Trends", icon: "desktopcomputer", isSelected: true)
+    ]), selectedAlgorithmId: .constant(nil))
 }
