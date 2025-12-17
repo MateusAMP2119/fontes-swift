@@ -9,7 +9,7 @@ struct TodayHeaderView: View {
                     .font(.system(size: 28, weight: .heavy))
                     .offset(y: -1)
                 
-                Text("News")
+                Text("Today")
                     .font(.system(size: 34, weight: .heavy))
                     .kerning(-1.4)
             }

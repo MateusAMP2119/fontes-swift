@@ -63,6 +63,9 @@ struct TabBarView: View {
             }
             
         }
+        .tabViewBottomAccessory() {
+            MiniPlayerView()
+        }
         .sheet(isPresented: $isSettingsPresented) {
             UserSettingsView()
         }

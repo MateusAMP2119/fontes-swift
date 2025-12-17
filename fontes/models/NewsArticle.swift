@@ -7,6 +7,8 @@ struct NewsArticle: Identifiable {
     let timeAgo: String
     let author: String?
     let imageName: String
+    let imageURL: String?
+    let sourceLogo: String?
     let isTopStory: Bool
     let tag: String?
 }

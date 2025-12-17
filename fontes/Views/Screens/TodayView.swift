@@ -10,6 +10,8 @@ struct TodayView: View {
         timeAgo: "19m ago",
         author: nil,
         imageName: "placeholder",
+        imageURL: "https://images.impresa.pt/expresso/2025-12-08-ana-paula-martins-ministra-da-saude.jpg-a142d4a7/original",
+        sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/1/16/Expresso_newspaper_logo.svg",
         isTopStory: true,
         tag: "More politics coverage"
     )
@@ -21,7 +23,9 @@ struct TodayView: View {
             timeAgo: "1h ago",
             author: nil,
             imageName: "placeholder",
-            isTopStory: false,
+            imageURL: "https://images.impresa.pt/expresso/2025-12-08-paramount-f925e76a/original",
+            sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.qBh-8w8FD5zg5HaSHlGHdwHaC9%3Fpid%3DApi%26ucfimg%3D1&f=1&ipt=d5f384d5eb8f19806632badc6b40e5e3fd7fef790c60ad406ade190227f096ba&ipo=images",
+            isTopStory: true,
             tag: nil
         ),
         NewsArticle(
@@ -30,7 +34,9 @@ struct TodayView: View {
             timeAgo: "2h ago",
             author: nil,
             imageName: "placeholder",
-            isTopStory: false,
+            imageURL: "https://images.impresa.pt/expresso/2025-09-16-gettyimages-2213616252.jpg-5f7af722/original",
+            sourceLogo: "https://images.assettype.com/dn/2024-12-30/d3rj8m67/DIARIONOTICIASPRETOLOGOJPEG.jpg",
+            isTopStory: true,
             tag: nil
         ),
         NewsArticle(
@@ -39,7 +45,9 @@ struct TodayView: View {
             timeAgo: "3h ago",
             author: nil,
             imageName: "placeholder",
-            isTopStory: false,
+            imageURL: "https://images.impresa.pt/expresso/2025-12-08-trump-premio-paz-fifa-gianni-infantino-0ffdd882/original",
+            sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/1/16/Expresso_newspaper_logo.svg",
+            isTopStory: true,
             tag: nil
         ),
         NewsArticle(
@@ -48,7 +56,9 @@ struct TodayView: View {
             timeAgo: "4h ago",
             author: nil,
             imageName: "placeholder",
-            isTopStory: false,
+            imageURL: "https://images.impresa.pt/expresso/2025-12-05-acam0002.01418266_bb.png-e1fdbd0d/original",
+            sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.qBh-8w8FD5zg5HaSHlGHdwHaC9%3Fpid%3DApi%26ucfimg%3D1&f=1&ipt=d5f384d5eb8f19806632badc6b40e5e3fd7fef790c60ad406ade190227f096ba&ipo=images",
+            isTopStory: true,
             tag: nil
         )
     ]
@@ -67,16 +77,20 @@ struct TodayView: View {
                         NewsCardView(article: topStory)
                             .padding(.horizontal)
                         
-                        // Grid for other stories
-                        LazyVGrid(columns: [
-                            GridItem(.flexible(), spacing: 16),
-                            GridItem(.flexible(), spacing: 16)
-                        ], spacing: 16) {
-                            ForEach(gridStories) { article in
-                                NewsCardView(article: article)
-                            }
+                        HStack {
+                            Text("Fresh articles")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
                         }
                         .padding(.horizontal)
+                        .padding(.top, 8)
+
+                        // Other stories
+                        ForEach(gridStories) { article in
+                            NewsCardView(article: article)
+                                .padding(.horizontal)
+                        }
                     }
                 }
             }

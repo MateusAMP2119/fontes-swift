@@ -6,42 +6,68 @@ struct NewsCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Image Area
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .aspectRatio(article.isTopStory ? 1.6 : 1.3, contentMode: .fit)
-                .overlay(
-                    Image(systemName: "photo")
-                        .font(.largeTitle)
-                        .foregroundStyle(.gray)
-                )
-                .clipped()
+            Group {
+                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .overlay(ProgressView())
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .font(.largeTitle)
+                                        .foregroundStyle(.gray)
+                                )
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: "photo")
+                                .font(.largeTitle)
+                                .foregroundStyle(.gray)
+                        )
+                }
+            }
+            .aspectRatio(article.isTopStory ? 1.6 : 1.3, contentMode: .fit)
+            .clipped()
             
             // Content Area
-            VStack(alignment: .leading, spacing: article.isTopStory ? 12 : 8) {
+            VStack(alignment: .leading, spacing: 8) {
                 // Source
-                HStack(spacing: 8) {
-                    if article.isTopStory {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.red)
-                                .frame(width: 20, height: 20)
-                            Text(String(article.source.prefix(1)))
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
-                        }
+                if let sourceLogo = article.sourceLogo, let url = URL(string: sourceLogo) {
+                    if sourceLogo.lowercased().hasSuffix(".svg") {
+                        SVGImageView(url: url)
+                            .frame(height: 24)
+                            .frame(alignment: .leading)
                     } else {
-                        Image(systemName: "newspaper.fill")
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 20)
+                            case .empty, .failure:
+                                sourceView
+                            @unknown default:
+                                sourceView
+                            }
+                        }
                     }
-                    
-                    Text(article.source)
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                        .textCase(.uppercase)
-                        .lineLimit(1)
+                } else {
+                    sourceView
                 }
                 
                 // Headline
@@ -86,6 +112,34 @@ struct NewsCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
+    
+    @ViewBuilder
+    var sourceView: some View {
+        HStack(spacing: 8) {
+            if article.isTopStory {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.red)
+                        .frame(width: 20, height: 20)
+                    Text(String(article.source.prefix(1)))
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                }
+            } else {
+                Image(systemName: "newspaper.fill")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+            
+            Text(article.source)
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(.primary)
+                .textCase(.uppercase)
+                .lineLimit(1)
+        }
+    }
 }
 
 #Preview {
@@ -93,9 +147,11 @@ struct NewsCardView: View {
         NewsCardView(article: NewsArticle(
             source: "POLITICO",
             headline: "Hegseth says he won't release full boat-strike video",
-            timeAgo: "19m ago",
+            timeAgo: "190m ago",
             author: nil,
             imageName: "placeholder",
+            imageURL: "",
+            sourceLogo: nil,
             isTopStory: true,
             tag: "More politics coverage"
         ))
@@ -107,6 +163,8 @@ struct NewsCardView: View {
             timeAgo: "1h ago",
             author: nil,
             imageName: "placeholder",
+            imageURL: "",
+            sourceLogo: nil,
             isTopStory: false,
             tag: nil
         ))
