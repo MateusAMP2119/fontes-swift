@@ -57,23 +57,12 @@ struct TodayView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Header
+                    // --- HEADER START ---
                     TodayHeaderView()
-                        .padding(.top, 10)
-                        .padding(.bottom, 10)
-                    
-                    // Categories
-                    CategoryScrollView()
-                        .padding(.bottom, 24)
+                    // --- HEADER END ---
                     
                     // Top Stories Section
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Top Stories")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color(red: 1.0, green: 0.2, blue: 0.4)) // Pinkish red
-                            .padding(.horizontal)
-                        
                         // Main Top Story Card
                         NewsCardView(article: topStory)
                             .padding(.horizontal)
@@ -90,7 +79,6 @@ struct TodayView: View {
                         .padding(.horizontal)
                     }
                 }
-                .padding(.bottom, 100) // Space for floating tab bar
             }
             .scrollEdgeEffectStyle(.soft, for: .all)
             .background(Color(uiColor: .systemGroupedBackground))
@@ -103,6 +91,7 @@ struct TodayView: View {
                     }
                 }
             }
+            .toolbar(.visible, for: .navigationBar)
         }
     }
 }

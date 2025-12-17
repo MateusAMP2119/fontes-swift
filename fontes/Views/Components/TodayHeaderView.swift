@@ -2,21 +2,28 @@ import SwiftUI
 
 struct TodayHeaderView: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 2) {
+        VStack(alignment: .leading) {
+            // Row 1: Logo and "News"
+            HStack(alignment: .center, spacing: 2,) {
                 Image(systemName: "apple.logo")
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.system(size: 28, weight: .heavy))
+                    .offset(y: -1)
+                
                 Text("News")
-                    .font(.system(size: 36, weight: .black))
-                    .tracking(-1) // Tighten tracking for "News"
+                    .font(.system(size: 34, weight: .heavy))
+                    .kerning(-1.4)
             }
+            .foregroundStyle(.primary)
             
-            Text("December 16")
-                .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(Color(uiColor: .systemGray))
-                .tracking(-0.5)
+            // Row 2: The Date
+            Text("December 17")
+                .font(.system(size: 34, weight: .heavy, design: .default))
+                .foregroundStyle(Color.gray)
+                .kerning(-1.4)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
+        .offset(y: -14)
     }
 }
 
