@@ -96,7 +96,6 @@ struct TodayView: View {
             }
             .scrollEdgeEffectStyle(.soft, for: .all)
             .background(Color(uiColor: .systemGroupedBackground))
-            .ignoresSafeArea(edges: .bottom)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {}) {

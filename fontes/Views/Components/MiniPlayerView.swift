@@ -7,27 +7,74 @@
 import SwiftUI
 
 
+struct PlayerItem: Identifiable, Hashable {
+    let id = UUID()
+    let title: String
+    let artist: String
+    let artwork: String
+}
+
 struct MiniPlayerView: View {
+    @State private var currentID: UUID?
+    
+    let items: [PlayerItem] = [
+        PlayerItem(title: "Starboy", artist: "The Weeknd", artwork: "current_artwork"),
+        PlayerItem(title: "Midnight City", artist: "M83", artwork: "current_artwork"),
+        PlayerItem(title: "Get Lucky", artist: "Daft Punk", artwork: "current_artwork")
+    ]
+    
+    var body: some View {
+        TabView(selection: $currentID) {
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                MiniPlayerRow(item: item, index: index + 1)
+                    .tag(item.id as UUID?)
+                    .padding(.horizontal)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(height: 64)
+        .onAppear {
+            if currentID == nil {
+                currentID = items.first?.id
+            }
+        }
+    }
+}
+
+struct MiniPlayerRow: View {
+    let item: PlayerItem
+    let index: Int
     
     var body: some View {
         HStack(spacing: 12) {
             // Artwork with the new adaptive glow effect
-            Image("current_artwork")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .shadow(color: .black.opacity(0.1), radius: 4)
-                .adaptiveGlow() // iOS 26: Glow matches artwork palette
+            HStack() {
+                
+                HStack(spacing: 4) {
+                    ZStack {
+                        Circle()
+                            .frame(width: 16, height: 16)
+                        Text("\(index)")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 10, weight: .bold))
+                }
+                
+                Image(item.artwork)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
             
             VStack(alignment: .leading, spacing: 2) {
-                Text("Starboy")
+                Text(item.title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.primary)
                 
-                Text("The Weeknd")
+                Text(item.artist)
                     .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
             }
             
             Spacer()
@@ -44,18 +91,7 @@ struct MiniPlayerView: View {
                         .font(.title3)
                 }
             }
-            .foregroundStyle(.primary)
-            .padding(.trailing, 4)
         }
-        .padding(.all, 8)
-        // New interactive spring physics for the "Floating" effect
         .hoverEffect(.highlight)
-    }
-}
-
-// Extension to handle the iOS 26 Glow aesthetic
-extension View {
-    func adaptiveGlow() -> some View {
-        self.shadow(color: .accentColor.opacity(0.3), radius: 10, x: 0, y: 0)
     }
 }

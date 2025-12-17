@@ -40,7 +40,7 @@ struct NewsCardView: View {
                         )
                 }
             }
-            .aspectRatio(article.isTopStory ? 1.6 : 1.3, contentMode: .fit)
+            .aspectRatio(1.6, contentMode: .fit)
             .clipped()
             
             // Content Area
@@ -111,6 +111,7 @@ struct NewsCardView: View {
         .background(Color(uiColor: .systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 2)
     }
     
     @ViewBuilder
@@ -140,36 +141,4 @@ struct NewsCardView: View {
                 .lineLimit(1)
         }
     }
-}
-
-#Preview {
-    HStack(alignment: .top) {
-        NewsCardView(article: NewsArticle(
-            source: "POLITICO",
-            headline: "Hegseth says he won't release full boat-strike video",
-            timeAgo: "190m ago",
-            author: nil,
-            imageName: "placeholder",
-            imageURL: "",
-            sourceLogo: nil,
-            isTopStory: true,
-            tag: "More politics coverage"
-        ))
-        .frame(width: 300)
-        
-        NewsCardView(article: NewsArticle(
-            source: "LA Times",
-            headline: "The last U.S. pennies sell for $16.7 million",
-            timeAgo: "1h ago",
-            author: nil,
-            imageName: "placeholder",
-            imageURL: "",
-            sourceLogo: nil,
-            isTopStory: false,
-            tag: nil
-        ))
-        .frame(width: 150)
-    }
-    .padding()
-    .background(Color(uiColor: .secondarySystemBackground))
 }
