@@ -1,48 +1,52 @@
-//
-//  TodayView.swift
-//  fontes
-//
-//  Created by Mateus Costa on 15/12/2025.
-//
-
 import SwiftUI
 
 struct TodayView: View {
     @Binding var isSettingsPresented: Bool
     
-    let articles: [NewsArticle] = [
+    // Sample Data matching the image
+    let topStory = NewsArticle(
+        source: "POLITICO",
+        headline: "Hegseth says he won't release full boat-strike video",
+        timeAgo: "19m ago",
+        author: nil,
+        imageName: "placeholder",
+        isTopStory: true,
+        tag: "More politics coverage"
+    )
+    
+    let gridStories: [NewsArticle] = [
         NewsArticle(
-            source: "NBC NEWS",
-            headline: "Already-shaky job market weakened in October and November, delayed federal data shows",
-            timeAgo: "18m ago",
-            author: "Steve Kopack",
-            imageName: "placeholder",
-            isTopStory: true,
-            tag: nil
-        ),
-        NewsArticle(
-            source: "POLITICO",
-            headline: "White House weighs risks of a health-care fight as ACA subsidies set to expire",
-            timeAgo: "19m ago",
-            author: nil,
-            imageName: "placeholder",
-            isTopStory: false,
-            tag: "More politics coverage"
-        ),
-        NewsArticle(
-            source: "apnews.com",
-            headline: "Trump administration says White House ballroom construction is a matter of national security",
-            timeAgo: "19m ago",
-            author: nil,
-            imageName: "placeholder",
-            isTopStory: false,
-            tag: nil
-        ),
-        NewsArticle(
-            source: "ABC NEWS",
+            source: "Los Angeles Times",
             headline: "The last U.S. pennies sell for $16.7 million",
-            timeAgo: "19m ago",
-            author: "Mason Leath",
+            timeAgo: "1h ago",
+            author: nil,
+            imageName: "placeholder",
+            isTopStory: false,
+            tag: nil
+        ),
+        NewsArticle(
+            source: "Reuters",
+            headline: "White House weighs risks of a health-care fight",
+            timeAgo: "2h ago",
+            author: nil,
+            imageName: "placeholder",
+            isTopStory: false,
+            tag: nil
+        ),
+        NewsArticle(
+            source: "AP News",
+            headline: "Trump administration says White House ballroom construction is a matter of national security",
+            timeAgo: "3h ago",
+            author: nil,
+            imageName: "placeholder",
+            isTopStory: false,
+            tag: nil
+        ),
+        NewsArticle(
+            source: "ABC News",
+            headline: "New study shows coffee might actually be good for you",
+            timeAgo: "4h ago",
+            author: nil,
             imageName: "placeholder",
             isTopStory: false,
             tag: nil
@@ -52,34 +56,57 @@ struct TodayView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 16) {
-                    HStack {
+                VStack(spacing: 0) {
+                    // Header
+                    TodayHeaderView()
+                        .padding(.top, 10)
+                        .padding(.bottom, 10)
+                    
+                    // Categories
+                    CategoryScrollView()
+                        .padding(.bottom, 24)
+                    
+                    // Top Stories Section
+                    VStack(alignment: .leading, spacing: 16) {
                         Text("Top Stories")
                             .font(.title)
                             .fontWeight(.bold)
-                            .foregroundStyle(.red)
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    .padding(.top)
-                    
-                    ForEach(articles) { article in
-                        NewsCardView(article: article)
+                            .foregroundStyle(Color(red: 1.0, green: 0.2, blue: 0.4)) // Pinkish red
                             .padding(.horizontal)
+                        
+                        // Main Top Story Card
+                        NewsCardView(article: topStory)
+                            .padding(.horizontal)
+                        
+                        // Grid for other stories
+                        LazyVGrid(columns: [
+                            GridItem(.flexible(), spacing: 16),
+                            GridItem(.flexible(), spacing: 16)
+                        ], spacing: 16) {
+                            ForEach(gridStories) { article in
+                                NewsCardView(article: article)
+                            }
+                        }
+                        .padding(.horizontal)
                     }
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 100) // Space for floating tab bar
             }
-            .background(Color(uiColor: .secondarySystemBackground))
+            .scrollEdgeEffectStyle(.soft, for: .all)
+            .background(Color(uiColor: .systemGroupedBackground))
+            .ignoresSafeArea(edges: .bottom)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    GlassTitleView(title: "Today", isSettingsPresented: $isSettingsPresented)
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {}) {
+                        Text("Get News+")
+                            .font(.system(size: 17, weight: .bold))
+                    }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
+
 #Preview {
     TodayView(isSettingsPresented: .constant(false))
 }
