@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TodayView: View {
     @Binding var isSettingsPresented: Bool
+    @State private var isReadingGoalsPresented = false
     
     // Sample Data matching the image
     let topStory = NewsArticle(
@@ -98,13 +99,33 @@ struct TodayView: View {
             .background(Color(uiColor: .systemGroupedBackground))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: {}) {
-                        Text("Get News+")
-                            .font(.system(size: 17, weight: .bold))
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            isReadingGoalsPresented = true
+                        }) {
+                            HStack(spacing: 2) {
+                                Image(systemName: "flame.fill")
+                                    .foregroundStyle(.orange)
+                                Text("12")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundStyle(.primary)
+                            }
+                        }
+                        
+                        Button(action: {
+                            isSettingsPresented = true
+                        }) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
             }
             .toolbar(.visible, for: .navigationBar)
+            .sheet(isPresented: $isReadingGoalsPresented) {
+                ReadingGoalsView()
+            }
         }
     }
 }
