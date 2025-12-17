@@ -58,65 +58,42 @@ struct ForYouView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Header
-                    ForYouHeaderView()
-                    
-                    // Algorithm Selector
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            // Create New Button
-                            Button(action: {
-                                isBuildingAlgorithm = true
-                            }) {
-                                VStack {
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.title2)
-                                    Text("New")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                }
-                                .frame(width: 80, height: 70)
-                                .background(Color.blue.opacity(0.1))
-                                .foregroundColor(.blue)
-                                .cornerRadius(12)
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // Header
+                        ForYouHeaderView()
+                        
+                        // Content
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Text("Curated for you")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            
+                            ForEach(forYouStories) { article in
+                                NewsCardView(article: article)
+                                    .padding(.horizontal)
                             }
                             
-                            ForEach(algorithms) { algo in
-                                AlgorithmCard(algorithm: algo, isSelected: selectedAlgorithmId == algo.id || (selectedAlgorithmId == nil && algo.isSelected))
-                                    .onTapGesture {
-                                        selectedAlgorithmId = algo.id
-                                        // Mock selection logic
-                                        for i in 0..<algorithms.count {
-                                            algorithms[i].isSelected = (algorithms[i].id == algo.id)
-                                        }
-                                    }
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.bottom, 20)
-                    }
-                    
-                    // Content
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Text("Curated for you")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        
-                        ForEach(forYouStories) { article in
-                            NewsCardView(article: article)
-                                .padding(.horizontal)
+                            // Spacer for the bottom dock
+                            Color.clear.frame(height: 100)
                         }
                     }
                 }
+                .scrollEdgeEffectStyle(.soft, for: .all)
+                .background(Color(uiColor: .systemGroupedBackground))
+                
+                // Floating Pill
+                FloatingAlgorithmPill(
+                    algorithms: $algorithms,
+                    selectedAlgorithmId: $selectedAlgorithmId,
+                    onNew: { isBuildingAlgorithm = true }
+                )
             }
-            .scrollEdgeEffectStyle(.soft, for: .all)
-            .background(Color(uiColor: .systemGroupedBackground))
             .sheet(isPresented: $isBuildingAlgorithm) {
                 BuildAlgorithmView()
             }
@@ -132,31 +109,67 @@ struct Algorithm: Identifiable {
     var isSelected: Bool
 }
 
-struct AlgorithmCard: View {
-    let algorithm: Algorithm
-    let isSelected: Bool
+struct FloatingAlgorithmPill: View {
+    @Binding var algorithms: [Algorithm]
+    @Binding var selectedAlgorithmId: UUID?
+    var onNew: () -> Void
+    
+    var currentAlgorithm: Algorithm {
+        algorithms.first(where: { $0.id == selectedAlgorithmId }) ?? algorithms.first(where: { $0.isSelected }) ?? algorithms[0]
+    }
     
     var body: some View {
-        VStack {
-            Image(systemName: algorithm.icon)
-                .font(.title2)
-            Text(algorithm.name)
-                .font(.caption)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
+        Menu {
+            Section("My Algorithms") {
+                ForEach(algorithms) { algo in
+                    Button {
+                        withAnimation {
+                            selectedAlgorithmId = algo.id
+                            for i in 0..<algorithms.count {
+                                algorithms[i].isSelected = (algorithms[i].id == algo.id)
+                            }
+                        }
+                    } label: {
+                        if selectedAlgorithmId == algo.id || (selectedAlgorithmId == nil && algo.isSelected) {
+                            Label(algo.name, systemImage: "checkmark")
+                        } else {
+                            Text(algo.name)
+                        }
+                    }
+                }
+            }
+            
+            Section {
+                Button(action: onNew) {
+                    Label("New Algorithm", systemImage: "plus")
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: currentAlgorithm.icon)
+                    .font(.headline)
+                Text(currentAlgorithm.name)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Image(systemName: "chevron.up")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.ultraThinMaterial)
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+            .overlay(
+                Capsule()
+                    .stroke(.white.opacity(0.2), lineWidth: 0.5)
+            )
         }
-        .frame(width: 80, height: 70)
-        .background(isSelected ? Color.blue : Color.white)
-        .foregroundColor(isSelected ? .white : .primary)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-        )
+        .padding(.bottom, 20)
     }
 }
+
 
 struct ForYouHeaderView: View {
     var body: some View {
