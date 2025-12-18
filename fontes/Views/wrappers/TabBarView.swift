@@ -73,8 +73,7 @@ struct TabBarView: View {
                     }
                     
                     Tab(value: .search, role: .search) {
-                        SearchView()
-                            .searchable(text: $searchText)
+                        DiscoverView()
                     } label: {
                         Label("Discover", systemImage: "sparkle.magnifyingglass")
                             .environment(\.symbolVariants, .none)
