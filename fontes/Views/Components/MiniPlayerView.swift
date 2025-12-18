@@ -6,14 +6,6 @@
 //
 import SwiftUI
 
-
-struct PlayerItem: Identifiable, Hashable {
-    let id = UUID()
-    let title: String
-    let artist: String
-    let artwork: String
-}
-
 struct MiniPlayerView: View {
     var selectedTab: TabBarView.TabIdentifier
     
@@ -29,14 +21,6 @@ struct MiniPlayerView: View {
     @Binding var folders: [Folder]
     @Binding var selectedFolderId: UUID?
     var onNewFolder: () -> Void
-    
-    @State private var currentID: UUID?
-    
-    let items: [PlayerItem] = [
-        PlayerItem(title: "Starboy", artist: "The Weeknd", artwork: "current_artwork"),
-        PlayerItem(title: "Midnight City", artist: "M83", artwork: "current_artwork"),
-        PlayerItem(title: "Get Lucky", artist: "Daft Punk", artwork: "current_artwork")
-    ]
     
     var body: some View {
         GeometryReader { geometry in
@@ -136,77 +120,51 @@ struct MiniPlayerView: View {
                 .frame(width: geometry.size.width * 0.35)
                 .clipped()
                 
-                TabView(selection: $currentID) {
-                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                        MiniPlayerRow(item: item, index: index + 1)
-                            .tag(item.id as UUID?)
-                            .padding(.horizontal)
+                // Actions
+                HStack(spacing: 16) {
+                    Spacer()
+                    
+                    Button(action: {
+                        // Action for summarizing
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "sparkles")
+                            Text("Sum up")
+                                .fontWeight(.medium)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule()
+                                .stroke(.white.opacity(0.2), lineWidth: 0.5)
+                        )
                     }
+                    .foregroundStyle(.primary)
+                    
+                    Button(action: {
+                        // Action for filtering
+                    }) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.title2)
+                            .padding(8)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(.white.opacity(0.2), lineWidth: 0.5)
+                            )
+                    }
+                    .foregroundStyle(.primary)
+                    
+                    Spacer()
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
                 .frame(width: geometry.size.width * 0.65)
             }
         }
         .frame(height: 64)
-        .onAppear {
-            if currentID == nil {
-                currentID = items.first?.id
-            }
-        }
     }
 }
 
-struct MiniPlayerRow: View {
-    let item: PlayerItem
-    let index: Int
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Artwork with the new adaptive glow effect
-            HStack() {
-                
-                HStack(spacing: 4) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 16, height: 16)
-                        Text("\(index)")
-                            .font(.system(size: 10, weight: .bold))
-                    }
-                    
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 10, weight: .bold))
-                }
-                
-                Image(item.artwork)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 48, height: 48)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
-                    .font(.system(size: 15, weight: .semibold))
-                
-                Text(item.artist)
-                    .font(.system(size: 13))
-            }
-            
-            Spacer()
-            
-            // Interaction Group
-            HStack(spacing: 20) {
-                Button(action: { /* Play/Pause logic */ }) {
-                    Image(systemName: "play.fill")
-                        .font(.title3)
-                }
-                
-                Button(action: { /* Skip logic */ }) {
-                    Image(systemName: "forward.fill")
-                        .font(.title3)
-                }
-            }
-        }
-        .hoverEffect(.highlight)
-    }
-}
+
