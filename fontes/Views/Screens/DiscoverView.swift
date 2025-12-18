@@ -312,6 +312,16 @@ struct ArticleRankingRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     
+                    if let author = article.author {
+                        Text("•")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        
+                        Text(author)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
                     Text("•")
                         .font(.caption)
                         .foregroundStyle(.secondary)
