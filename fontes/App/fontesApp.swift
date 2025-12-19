@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct fontesApp: App {
     @AppStorage("isDarkMode") private var isDarkMode = false
+    @StateObject private var userManager = UserManager()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(isDarkMode ? .dark : .light)
+                .environmentObject(userManager)
         }
     }
 }

@@ -8,44 +8,49 @@
 import SwiftUI
 
 struct ToolbarComponent: View {
-    @State private var showReadingGoals = false
-    @State private var showUserSettings = false
+    @EnvironmentObject var userManager: UserManager
 
     var body : some View {
         GlassEffectContainer() {
-            HStack(spacing: 01.0) {
-                HStack(spacing: 02.0) {
-                    Image(systemName: "flame.fill")
-                        .foregroundStyle(.orange)
-                    Text("12")
-                        .font(.system(size: 15, weight: .bold))
-                }
-                .frame(width: 60.0, height: 40.0)
-                .onTapGesture {
-                    showReadingGoals = true
+            NavigationLink(destination: ProfileProgressScreen()) {
+                HStack(spacing: 8.0) {
+                    HStack(spacing: 4.0) {
+                        Image(systemName: "moonphase.full.moon.inverse")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 18.0)
+                            .foregroundStyle(.orange)
+                        Text("12")
+                            .font(.system(size: 15.0, weight: .bold))
+                    }
+                    
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.2))
+                        .frame(width: 1.0, height: 18.0)
+                    
+                    if let user = userManager.currentUser {
+                        // Logged in user
+                        if let imageName = user.profileImageName {
+                            Image(imageName)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            // Fallback if no image name
+                            Image(systemName: "person.circle.fill")
+                        }
+                    } else {
+                        // Guest user
+                        Image(systemName: "person.crop.circle")
+                    }
                 }
                 
-                Rectangle()
-                    .fill(.primary.opacity(0.6))
-                    .frame(width: 1, height: 18)
-
-                Image(systemName: "person.crop.circle")
-                    .frame(width: 40.0, height: 40.0)
-                    .onTapGesture {
-                        showUserSettings = true
-                    }
             }
         }
         .glassEffect(.regular.tint(.clear).interactive())
-        .sheet(isPresented: $showReadingGoals) {
-            ReadingGoalsView()
-        }
-        .sheet(isPresented: $showUserSettings) {
-            UserSettingsView()
-        }
     }
 }
 
 #Preview {
     ToolbarComponent()
+        .environmentObject(UserManager())
 }
