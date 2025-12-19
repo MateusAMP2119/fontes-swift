@@ -71,6 +71,20 @@ struct PerspectiveNewsCard: View {
                                     PerspectiveRow(perspective: perspective)
                                 }
                             }
+                            .background(
+                                GeometryReader { geometry in
+                                    Rectangle()
+                                        .fill(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [Color.secondary, Color.clear]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
+                                        .frame(width: 2)
+                                        .offset(x: 11)
+                                }
+                            )
                             .padding(.top, 12)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                         }
@@ -127,17 +141,9 @@ struct PerspectiveRow: View {
     let perspective: Perspective
     
     var body: some View {
-        let perspectiveColor = Color.colorForPerspective(type: perspective.perspectiveType.rawValue)
-        
-        return HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             // Icon Column with Thread
             ZStack(alignment: .top) {
-                // Thread Line
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 2)
-                    .frame(maxHeight: .infinity)
-                
                 // Source Logo
                 Circle()
                     .fill(Color(uiColor: .secondarySystemBackground)) // Mask the thread behind the icon
@@ -147,7 +153,7 @@ struct PerspectiveRow: View {
                             .fill(Color.gray.opacity(0.2))
                             .overlay(
                                 Circle()
-                                    .stroke(perspectiveColor, lineWidth: 1)
+                                    .stroke(perspective.perspectiveType.themeColor.opacity(0.5), lineWidth: 1)
                             )
                             .overlay(
                                 Text(perspective.sourceName.prefix(1))
@@ -163,7 +169,7 @@ struct PerspectiveRow: View {
                 Text(perspective.perspectiveType.rawValue.uppercased())
                     .font(.caption2)
                     .fontWeight(.bold)
-                    .foregroundStyle(perspectiveColor)
+                    .foregroundStyle(perspective.perspectiveType.themeColor)
                 
                 Text(perspective.headline)
                     .font(.subheadline)

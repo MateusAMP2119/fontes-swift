@@ -1,9 +1,24 @@
 import Foundation
+import SwiftUI
 
 enum PerspectiveType: String, Codable {
+    case analysis
     case official
     case global
-    case analysis
+    case local
+    
+    var themeColor: Color {
+        switch self {
+        case .analysis:
+            return .perspectiveAnalysis
+        case .official:
+            return .perspectiveOfficial
+        case .global:
+            return .perspectiveGlobal
+        case .local:
+            return .perspectiveLocal
+        }
+    }
 }
 
 struct Perspective: Identifiable {
