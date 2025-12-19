@@ -22,7 +22,12 @@ struct ForYouView: View {
             imageURL: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2574&auto=format&fit=crop",
             sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/a/a2/The_Verge_logo.svg",
             isTopStory: true,
-            tag: "Technology"
+            tag: "Technology",
+            perspectives: [
+                Perspective(sourceName: "TechCrunch", sourceLogoName: "tc", perspectiveType: .analysis, headline: "Why this matters for developers"),
+                Perspective(sourceName: "Bloomberg", sourceLogoName: "bb", perspectiveType: .global, headline: "Market reaction to Apple's AI push"),
+                Perspective(sourceName: "Apple Newsroom", sourceLogoName: "apple", perspectiveType: .official, headline: "Introducing Apple Intelligence")
+            ]
         ),
         NewsArticle(
             source: "TechCrunch",
@@ -33,7 +38,11 @@ struct ForYouView: View {
             imageURL: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2670&auto=format&fit=crop",
             sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/b/b9/TechCrunch_logo.svg",
             isTopStory: false,
-            tag: "Startups"
+            tag: "Startups",
+            perspectives: [
+                Perspective(sourceName: "The Verge", sourceLogoName: "verge", perspectiveType: .analysis, headline: "Is the AI Pin ready for prime time?"),
+                Perspective(sourceName: "Humane", sourceLogoName: "humane", perspectiveType: .official, headline: "A new way to interact with technology")
+            ]
         ),
         NewsArticle(
             source: "Wired",
@@ -57,7 +66,7 @@ struct ForYouView: View {
                         ForYouHeaderView()
                         
                         // Content
-                        VStack(alignment: .leading, spacing: 16) {
+                        LazyVStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Text("Curated for you")
                                     .font(.title2)
@@ -67,7 +76,7 @@ struct ForYouView: View {
                             .padding(.horizontal)
                             
                             ForEach(forYouStories) { article in
-                                NewsCardView(article: article)
+                                PerspectiveNewsCard(article: article)
                                     .padding(.horizontal)
                             }
                             

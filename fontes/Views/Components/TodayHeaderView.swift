@@ -2,18 +2,12 @@ import SwiftUI
 
 struct TodayHeaderView: View {
     var body: some View {
-        VStack(alignment: .leading) {
-            // Row 1: Logo and "News"
-            HStack(alignment: .center, spacing: 2,) {
-                Image(systemName: "apple.logo")
-                    .font(.system(size: 28, weight: .heavy))
-                    .offset(y: -1)
-                
-                Text("Today")
-                    .font(.system(size: 34, weight: .heavy))
-                    .kerning(-1.4)
-            }
-            .foregroundStyle(.primary)
+        VStack(alignment: .leading, spacing: -5) {
+            // Row 1: "News"
+            Text("Today")
+                .font(.system(size: 34, weight: .heavy))
+                .kerning(-1.4)
+                .foregroundStyle(.primary)
             
             // Row 2: The Date
             Text("December 17")
