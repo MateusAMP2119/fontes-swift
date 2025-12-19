@@ -91,8 +91,7 @@ struct TodayView: View {
                         ForEach(gridStories) { article in
                             NewsCardView(article: article)
                                 .padding(.horizontal)
-                        }
-                    }
+                        }                    }
                 }
             }
             .scrollEdgeEffectStyle(.soft, for: .all)
