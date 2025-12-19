@@ -97,32 +97,6 @@ struct TodayView: View {
             }
             .scrollEdgeEffectStyle(.soft, for: .all)
             .background(Color(uiColor: .systemGroupedBackground))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    HStack(spacing: 16) {
-                        Button(action: {
-                            isReadingGoalsPresented = true
-                        }) {
-                            HStack(spacing: 2) {
-                                Image(systemName: "flame.fill")
-                                    .foregroundStyle(.orange)
-                                Text("12")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundStyle(.primary)
-                            }
-                        }
-                        
-                        Button(action: {
-                            isSettingsPresented = true
-                        }) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 17, weight: .semibold))
-                                .foregroundStyle(.primary)
-                        }
-                    }
-                }
-            }
-            .toolbar(.visible, for: .navigationBar)
             .sheet(isPresented: $isReadingGoalsPresented) {
                 ReadingGoalsView()
             }

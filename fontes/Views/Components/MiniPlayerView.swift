@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct MiniPlayerView: View {
-    var selectedTab: TabBarView.TabIdentifier
+    var selectedTab: TabNavigationWrapper.TabIdentifier
     
     // For You
     @Binding var algorithms: [Algorithm]

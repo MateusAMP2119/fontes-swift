@@ -23,7 +23,7 @@ struct TodayHeaderView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
-        .offset(y: -14)
+        .offset(y: -16)
     }
 }
 
