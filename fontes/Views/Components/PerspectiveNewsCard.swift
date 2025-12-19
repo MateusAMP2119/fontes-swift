@@ -46,8 +46,8 @@ struct PerspectiveNewsCard: View {
                             }
                         }) {
                             HStack {
-                                Image(systemName: "sparkles")
-                                    .foregroundStyle(.indigo)
+                                Image(systemName: "rectangle.stack")
+                                    .foregroundStyle(.secondary)
                                 Text(isExpanded ? "Show Less" : "\(perspectives.count) Perspectives Available")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
@@ -60,7 +60,7 @@ struct PerspectiveNewsCard: View {
                             .padding(.horizontal, 16)
                             .background(
                                 Capsule()
-                                    .fill(Color.indigo.opacity(0.1))
+                                    .fill(Color(uiColor: .secondarySystemBackground).opacity(0.8))
                             )
                         }
                         .buttonStyle(.plain)
@@ -127,7 +127,9 @@ struct PerspectiveRow: View {
     let perspective: Perspective
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        let perspectiveColor = Color.colorForPerspective(type: perspective.perspectiveType.rawValue)
+        
+        return HStack(alignment: .top, spacing: 12) {
             // Icon Column with Thread
             ZStack(alignment: .top) {
                 // Thread Line
@@ -144,6 +146,10 @@ struct PerspectiveRow: View {
                         Circle()
                             .fill(Color.gray.opacity(0.2))
                             .overlay(
+                                Circle()
+                                    .stroke(perspectiveColor, lineWidth: 1)
+                            )
+                            .overlay(
                                 Text(perspective.sourceName.prefix(1))
                                     .font(.caption2)
                                     .fontWeight(.bold)
@@ -157,7 +163,7 @@ struct PerspectiveRow: View {
                 Text(perspective.perspectiveType.rawValue.uppercased())
                     .font(.caption2)
                     .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(perspectiveColor)
                 
                 Text(perspective.headline)
                     .font(.subheadline)
