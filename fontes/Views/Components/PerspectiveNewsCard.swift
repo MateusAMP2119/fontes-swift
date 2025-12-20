@@ -57,7 +57,6 @@ struct PerspectiveNewsCard: View {
                                     .foregroundStyle(.secondary)
                             }
                             .padding(.vertical, 10)
-                            .padding(.horizontal, 16)
                             .background(
                                 Capsule()
                                     .fill(Color(uiColor: .secondarySystemBackground).opacity(0.8))

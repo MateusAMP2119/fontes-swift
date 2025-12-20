@@ -3,9 +3,14 @@ import SwiftUI
 
 struct CreateAccountView: View {
     @Environment(\.dismiss) var dismiss
+    @Binding var navigationSelection: String?
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
+    
+    init(navigationSelection: Binding<String?> = .constant(nil)) {
+        self._navigationSelection = navigationSelection
+    }
     
     var body: some View {
         Form {
@@ -27,7 +32,7 @@ struct CreateAccountView: View {
             Section {
                 VStack(spacing: 16) {
                     Button {
-                        // Action for create account
+                        // TODO: Implement create account logic
                     } label: {
                         Text("Create Account")
                             .font(.headline)
@@ -38,7 +43,9 @@ struct CreateAccountView: View {
                             .cornerRadius(8)
                     }
                     Button {
-                        dismiss()
+                        withAnimation {
+                            navigationSelection = "login"
+                        }
                     } label: {
                         Text("Already have an account?")
                             .font(.subheadline)

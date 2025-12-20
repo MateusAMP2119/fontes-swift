@@ -3,6 +3,7 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var userManager: UserManager
     @State private var email = ""
     @State private var password = ""
     
@@ -23,7 +24,8 @@ struct LoginView: View {
             Section {
                 VStack(spacing: 16) {
                     Button {
-                        // Action for login
+                        userManager.login()
+                        dismiss()
                     } label: {
                         Text("Login")
                             .font(.headline)

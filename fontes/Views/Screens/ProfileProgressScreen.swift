@@ -5,6 +5,7 @@ struct ProfileProgressScreen: View {
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var dailyGoal = 5
+    @State private var navigationSelection: String?
     
     let badges = [
         Badge(name: "First Read", icon: "book.fill", color: .blue, isEarned: true, description: "Read your first article"),
@@ -145,9 +146,7 @@ struct ProfileProgressScreen: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 8)
             
-            Button {
-                // Action to create account
-            } label: {
+            NavigationLink(destination: CreateAccountView(navigationSelection: $navigationSelection), tag: "create", selection: $navigationSelection) {
                 Text("Create account")
                     .font(.headline)
                     .foregroundColor(.white)
@@ -157,9 +156,7 @@ struct ProfileProgressScreen: View {
                     .cornerRadius(8)
             }
             
-            Button {
-                // Action to login
-            } label: {
+            NavigationLink(destination: LoginView(), tag: "login", selection: $navigationSelection) {
                 Text("Already have an account?")
                     .font(.subheadline)
                     .foregroundColor(.primary)
