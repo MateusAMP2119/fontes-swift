@@ -29,6 +29,8 @@ struct AuthView: View {
     @State private var errorMessage: String?
     @State private var isLoading: Bool = false
     @State private var showError: Bool = false
+    @State private var invalidEmailAttempts = 0
+    @State private var showEmailError = false
     
     // Focus State
     @FocusState private var isEmailFocused: Bool
@@ -139,7 +141,7 @@ struct AuthView: View {
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            .stroke(showEmailError ? Color.red : Color.gray.opacity(0.2), lineWidth: 1)
                     )
                     .focused($isEmailFocused)
                     .submitLabel(.continue)
@@ -147,6 +149,19 @@ struct AuthView: View {
                     .onSubmit {
                         validateAndContinue()
                     }
+                    .modifier(Shake(animatableData: CGFloat(invalidEmailAttempts)))
+                    .onChange(of: email) { _ in
+                        showEmailError = false
+                    }
+                
+                if showEmailError {
+                    Text("e-mail inválido")
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 4)
+                        .transition(.opacity)
+                }
                 
                 Button {
                     validateAndContinue()
@@ -164,11 +179,11 @@ struct AuthView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(email.isEmpty ? Color.gray : Color.black)
+                            .background(Color.black)
                             .cornerRadius(12)
                     }
                 }
-                .disabled(email.isEmpty || isLoading)
+                .disabled(isLoading)
             
             HStack {
                 Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
@@ -192,8 +207,12 @@ struct AuthView: View {
                     .textContentType(.username)
                     .textInputAutocapitalization(.never)
                     .padding()
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color(uiColor: .systemBackground))
                     .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
                     .tint(.black)
             }
             
@@ -203,8 +222,12 @@ struct AuthView: View {
                 }
                 .textContentType(mode == .signup ? .newPassword : .password)
                 .padding()
-                .background(Color.gray.opacity(0.1))
+                .background(Color(uiColor: .systemBackground))
                 .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
                 .focused($isPasswordFocused)
                 .submitLabel(mode == .login ? .go : .next)
                 .tint(.black)
@@ -221,8 +244,12 @@ struct AuthView: View {
                     }
                     .textContentType(.newPassword)
                     .padding()
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color(uiColor: .systemBackground))
                     .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
                     .submitLabel(.go)
                     .tint(.black)
                     .onSubmit {
@@ -247,6 +274,15 @@ struct AuthView: View {
                 }
             }
             
+            if mode == .signup {
+                HStack {
+                    Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
+                    Text("or").font(.caption).foregroundColor(.gray)
+                    Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
+                }
+                socialLoginButtons
+            }
+            
             Button {
                 withAnimation {
                     mode = (mode == .login) ? .signup : .login
@@ -257,6 +293,9 @@ struct AuthView: View {
                     .foregroundColor(.blue)
             }
         }
+        .padding()
+        .background(colorScheme == .dark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground))
+        .cornerRadius(12)
     }
     
     var socialLoginButtons: some View {
@@ -305,7 +344,13 @@ struct AuthView: View {
     }
     
     private func validateAndContinue() {
-        guard !email.isEmpty else { return }
+        guard !email.isEmpty, isValidEmail(email) else {
+            withAnimation {
+                invalidEmailAttempts += 1
+                showEmailError = true
+            }
+            return
+        }
         
         isLoading = true
         
@@ -361,6 +406,12 @@ struct AuthView: View {
             isLoading = false
         }
     }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: email)
+    }
 }
 
 private extension View {
@@ -376,6 +427,18 @@ private extension View {
     NavigationView {
         AuthView()
             .environmentObject(UserManager())
+    }
+}
+
+struct Shake: GeometryEffect {
+    var amount: CGFloat = 10
+    var shakesPerUnit: CGFloat = 3
+    var animatableData: CGFloat
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        ProjectionTransform(CGAffineTransform(translationX:
+            amount * sin(animatableData * .pi * shakesPerUnit),
+            y: 0))
     }
 }
 
