@@ -38,6 +38,10 @@ struct UserData: Codable {
     let createdAt: String?
 }
 
+struct UserExistsData: Codable {
+    let exists: Bool
+}
+
 struct VerifyData: Codable {
     let user: UserData?
     let expiresIn: Int?

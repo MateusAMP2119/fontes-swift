@@ -60,6 +60,31 @@ class NetworkClient {
         return try await performRequest(request)
     }
     
+    /// Performs a GET request
+    func get<Response: Decodable>(path: String, queryItems: [URLQueryItem]? = nil) async throws -> Response {
+        guard var components = URLComponents(string: baseURL + path) else {
+            throw NetworkError.invalidURL
+        }
+        
+        if let queryItems = queryItems {
+            components.queryItems = queryItems
+        }
+        
+        guard let url = components.url else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        return try await performRequest(request)
+    }
+    
     /// Helper to handle the standard API response structure
     private func performRequest<T: Decodable>(_ request: URLRequest, retryCount: Int = 0) async throws -> T {
         let data: Data

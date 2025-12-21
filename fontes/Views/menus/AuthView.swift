@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct AuthView: View {
     enum AuthMode {
@@ -39,11 +40,39 @@ struct AuthView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            if UIImage(named: "fontes_byMarrco") != nil {
+                Image("fontes_byMarrco")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 120)
+                    .padding(.bottom, 8)
+                    .accessibilityHidden(true)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.gray.opacity(0.1))
+                    VStack(spacing: 6) {
+                        Image(systemName: "photo")
+                            .foregroundColor(.secondary)
+                        Text("Missing asset: fontes_byMarreco")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .frame(height: 120)
+                .padding(.top, 24)
+                .padding(.bottom, 8)
+                .onAppear {
+                    print("AuthView: 'fontes_byMarreco' not found in main bundle. Check asset name and target membership.")
+                }
+            }
+            
             // Header
             VStack(alignment: .leading, spacing: 8) {
                 Text(headerTitle)
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .padding(.horizontal)
                 
                 if step == .password {
                     HStack {
@@ -91,16 +120,17 @@ struct AuthView: View {
     
     private var headerTitle: String {
         if step == .email {
-            return "Enter your email"
+            return "Qual é o teu e-mail?"
         } else {
-            return mode == .login ? "Welcome back" : "Create account"
+            return mode == .login ? "Feliz de te ver!" : "Cria uma conta"
         }
     }
     
     var emailStepView: some View {
-        VStack(spacing: 24) {
             VStack(spacing: 16) {
-                TextField("name@example.com", text: $email)
+                TextField("", text: $email)
+                    .placeholder(when: email.isEmpty) {
+                        Text("name@example.com")                    }
                     .textContentType(.emailAddress)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
@@ -113,6 +143,7 @@ struct AuthView: View {
                     )
                     .focused($isEmailFocused)
                     .submitLabel(.continue)
+                    .tint(.gray)
                     .onSubmit {
                         validateAndContinue()
                     }
@@ -120,53 +151,63 @@ struct AuthView: View {
                 Button {
                     validateAndContinue()
                 } label: {
-                    Text("Continue")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(email.isEmpty ? Color.gray : Color.black)
-                        .cornerRadius(12)
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.black)
+                            .cornerRadius(12)
+                    } else {
+                        Text("Continue")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(email.isEmpty ? Color.gray : Color.black)
+                            .cornerRadius(12)
+                    }
                 }
-                .disabled(email.isEmpty)
-            }
-            .padding()
-            .background(Color(uiColor: .systemBackground))
-            .cornerRadius(20)
+                .disabled(email.isEmpty || isLoading)
             
             HStack {
                 Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
                 Text("or").font(.caption).foregroundColor(.gray)
                 Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
             }
-            
-            VStack(spacing: 12) {
                 socialLoginButtons
             }
             .padding()
             .background(colorScheme == .dark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground))
-            .cornerRadius(20)
-        }
+            .cornerRadius(12)
     }
     
     var passwordStepView: some View {
         VStack(spacing: 24) {
             if mode == .signup {
-                TextField("Username", text: $username)
+                TextField("", text: $username)
+                    .placeholder(when: username.isEmpty) {
+                        Text("Username").foregroundColor(.gray)
+                    }
                     .textContentType(.username)
                     .textInputAutocapitalization(.never)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(12)
+                    .tint(.black)
             }
             
-            SecureField("Password", text: $password)
+            SecureField("", text: $password)
+                .placeholder(when: password.isEmpty) {
+                    Text("Password").foregroundColor(.gray)
+                }
                 .textContentType(mode == .signup ? .newPassword : .password)
                 .padding()
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(12)
                 .focused($isPasswordFocused)
                 .submitLabel(mode == .login ? .go : .next)
+                .tint(.black)
                 .onSubmit {
                     if mode == .login {
                         handleAuthAction()
@@ -174,12 +215,16 @@ struct AuthView: View {
                 }
             
             if mode == .signup {
-                SecureField("Confirm Password", text: $confirmPassword)
+                SecureField("", text: $confirmPassword)
+                    .placeholder(when: confirmPassword.isEmpty) {
+                        Text("Confirm Password").foregroundColor(.gray)
+                    }
                     .textContentType(.newPassword)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(12)
                     .submitLabel(.go)
+                    .tint(.black)
                     .onSubmit {
                         handleAuthAction()
                     }
@@ -260,10 +305,31 @@ struct AuthView: View {
     }
     
     private func validateAndContinue() {
-        if !email.isEmpty {
-            withAnimation {
-                step = .password
-                isPasswordFocused = true
+        guard !email.isEmpty else { return }
+        
+        isLoading = true
+        
+        Task {
+            do {
+                let response: UserExistsData = try await NetworkClient.shared.get(
+                    path: "/api/auth/users/exists",
+                    queryItems: [URLQueryItem(name: "email", value: email)]
+                )
+                
+                await MainActor.run {
+                    withAnimation {
+                        mode = response.exists ? .login : .signup
+                        step = .password
+                        isPasswordFocused = true
+                        isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = "Could not verify email: \(error.localizedDescription)"
+                    showError = true
+                }
             }
         }
     }
@@ -297,9 +363,19 @@ struct AuthView: View {
     }
 }
 
+private extension View {
+    func placeholder<Content: View>(when shouldShow: Bool, alignment: Alignment = .leading, @ViewBuilder placeholder: () -> Content) -> some View {
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
+}
+
 #Preview {
     NavigationView {
         AuthView()
             .environmentObject(UserManager())
     }
 }
+
