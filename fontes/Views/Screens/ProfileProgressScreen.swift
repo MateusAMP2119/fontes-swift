@@ -5,7 +5,6 @@ struct ProfileProgressScreen: View {
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var dailyGoal = 5
-    @State private var navigationSelection: String?
     
     let badges = [
         Badge(name: "First Read", icon: "book.fill", color: .blue, isEarned: true, description: "Read your first article"),
@@ -17,91 +16,94 @@ struct ProfileProgressScreen: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Account Block
-                if userManager.isLoggedIn {
-                    loggedInHeader
-                } else {
-                    guestAccountCard
-                }
-                
-                // Activity Heatmap
-                ContributionGraph()
-                
-                // Achievements
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Achievements")
-                        .font(.headline)
-                        .padding(.horizontal)
+                    // Account Block
+                    if userManager.isLoggedIn {
+                        loggedInHeader
+                    } else {
+                        guestAccountCard
+                    }
                     
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(badges) { badge in
-                                VStack {
-                                    Circle()
-                                        .fill(badge.isEarned ? badge.color.opacity(0.2) : Color.gray.opacity(0.1))
-                                        .frame(width: 60, height: 60)
-                                        .overlay {
-                                            Image(systemName: badge.icon)
-                                                .font(.title2)
-                                                .foregroundColor(badge.isEarned ? badge.color : .gray)
-                                        }
-                                    
-                                    Text(badge.name)
-                                        .font(.caption)
-                                        .foregroundColor(.primary)
+                    // Activity Heatmap
+                    ContributionGraph()
+                    
+                    // Achievements
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Achievements")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(badges) { badge in
+                                    VStack {
+                                        Circle()
+                                            .fill(badge.isEarned ? badge.color.opacity(0.2) : Color.gray.opacity(0.1))
+                                            .frame(width: 60, height: 60)
+                                            .overlay {
+                                                Image(systemName: badge.icon)
+                                                    .font(.title2)
+                                                    .foregroundColor(badge.isEarned ? badge.color : .gray)
+                                            }
+                                        
+                                        Text(badge.name)
+                                            .font(.caption)
+                                            .foregroundColor(.primary)
+                                    }
                                 }
                             }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
-                }
-                
-                // Settings List
-                VStack(spacing: 0) {
-                    // Daily Reading Goal
-                    HStack {
-                        Text("Daily Reading Goal")
-                        Spacer()
-                        Stepper("", value: $dailyGoal, in: 1...100)
-                            .labelsHidden()
-                        Text("\(dailyGoal)")
-                            .monospacedDigit()
-                            .frame(minWidth: 24)
-                    }
-                    .padding()
                     
-                    Divider()
-                        .padding(.leading)
-                    
-                    // Dark Mode
-                    Toggle(isOn: $isDarkMode) {
-                        Text("Dark Mode")
-                    }
-                    .padding()
-                    
-                    Divider()
-                        .padding(.leading)
-                    
-                    // Privacy
-                    NavigationLink(destination: Text("Privacy Policy")) {
+                    // Settings List
+                    VStack(spacing: 0) {
+                        // Daily Reading Goal
                         HStack {
-                            Text("Privacy")
-                                .foregroundColor(.primary)
+                            Text("Daily Reading Goal")
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            Stepper("", value: $dailyGoal, in: 1...100)
+                                .onChange(of: dailyGoal) { _ in Haptics.impact(.light) }
+                                .labelsHidden()
+                            Text("\(dailyGoal)")
+                                .monospacedDigit()
+                                .frame(minWidth: 24)
                         }
+                        .padding()
+                        
+                        Divider()
+                            .padding(.leading)
+                        
+                        // Dark Mode
+                        Toggle(isOn: $isDarkMode) {
+                            Text("Dark Mode")
+                        }
+                        .onChange(of: isDarkMode) { _ in Haptics.impact(.light) }
+                        .padding()
+                        
+                        Divider()
+                            .padding(.leading)
+                        
+                        // Privacy
+                        NavigationLink(destination: Text("Privacy Policy")) {
+                            HStack {
+                                Text("Privacy")
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding()
                     }
-                    .padding()
+                    .background(colorScheme == .dark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground))
+                    .cornerRadius(12)
                 }
-                .background(colorScheme == .dark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground))
-                .cornerRadius(12)
+                .padding()
             }
-            .padding()
-        }
-        .background(colorScheme == .dark ? Color(uiColor: .systemBackground) : Color(uiColor: .secondarySystemBackground))
-        .navigationTitle("Profile")
+            .onAppear { Haptics.prepare() }
+            .background(colorScheme == .dark ? Color(uiColor: .systemBackground) : Color(uiColor: .secondarySystemBackground))
+            .navigationTitle("Profile")
         .preferredColorScheme(isDarkMode ? .dark : .light)
     }
     
@@ -121,6 +123,7 @@ struct ProfileProgressScreen: View {
             Spacer()
             
             Button(action: {
+                Haptics.notify(.warning)
                 Task {
                     await userManager.logout()
                 }
@@ -148,7 +151,7 @@ struct ProfileProgressScreen: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 8)
             
-            NavigationLink(destination: CreateAccountView(navigationSelection: $navigationSelection), tag: "create", selection: $navigationSelection) {
+            NavigationLink(destination: AuthView(initialMode: .signup)) {
                 Text("Create account")
                     .font(.headline)
                     .foregroundColor(.white)
@@ -157,13 +160,15 @@ struct ProfileProgressScreen: View {
                     .background(Color.black)
                     .cornerRadius(8)
             }
-            
-            NavigationLink(destination: LoginView(), tag: "login", selection: $navigationSelection) {
+            .simultaneousGesture(TapGesture().onEnded { Haptics.playTransient() })
+
+            NavigationLink(destination: AuthView(initialMode: .login)) {
                 Text("Already have an account?")
                     .font(.subheadline)
                     .foregroundColor(.primary)
                     .underline()
             }
+            .simultaneousGesture(TapGesture().onEnded { Haptics.playTransient() })
             
             HStack {
                 Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
@@ -172,6 +177,7 @@ struct ProfileProgressScreen: View {
             }
             
             Button {
+                Haptics.playTransient()
                 // action for google sign in
             } label: {
                 HStack {
@@ -192,6 +198,7 @@ struct ProfileProgressScreen: View {
             }
             
             Button {
+                Haptics.playTransient()
                 // action for apple sign in
             } label: {
                 HStack {
