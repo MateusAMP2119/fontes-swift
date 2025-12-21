@@ -81,7 +81,7 @@ struct ForLaterView: View {
 
                         // Stories
                         ForEach(savedStories) { article in
-                            NewsCardView(article: article)
+                            PerspectiveNewsCard(article: article)
                                 .padding(.horizontal)
                         }
                         

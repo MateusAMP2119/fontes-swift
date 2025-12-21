@@ -2,7 +2,12 @@ import SwiftUI
 
 struct PerspectiveNewsCard: View {
     let article: NewsArticle
-    @State private var isExpanded = false
+    @State private var isExpanded: Bool
+    
+    init(article: NewsArticle) {
+        self.article = article
+        _isExpanded = State(initialValue: article.isTopStory)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -10,25 +15,22 @@ struct PerspectiveNewsCard: View {
             imageSection
             
             VStack(alignment: .leading, spacing: 12) {
-                // Source & Time
+                // Source
                 HStack {
                     if let sourceLogo = article.sourceLogo, let url = URL(string: sourceLogo) {
-                        AsyncImage(url: url) { image in
-                            image.resizable().scaledToFit()
-                        } placeholder: {
-                            Circle().fill(Color.gray.opacity(0.3))
+                        Group {
+                            if sourceLogo.lowercased().hasSuffix(".svg") {
+                                SVGImageView(url: url)
+                            } else {
+                                AsyncImage(url: url) { image in
+                                    image.resizable().scaledToFit()
+                                } placeholder: {
+                                    Circle().fill(Color.gray.opacity(0.3))
+                                }
+                            }
                         }
-                        .frame(width: 20, height: 20)
-                        .clipShape(Circle())
+                        .frame(height: 32)
                     }
-                    
-                    Text(article.source)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                    
-                    Text("• \(article.timeAgo)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
                 
                 // Headline
@@ -57,10 +59,6 @@ struct PerspectiveNewsCard: View {
                                     .foregroundStyle(.secondary)
                             }
                             .padding(.vertical, 10)
-                            .background(
-                                Capsule()
-                                    .fill(Color(uiColor: .secondarySystemBackground).opacity(0.8))
-                            )
                         }
                         .buttonStyle(.plain)
                         
@@ -92,8 +90,9 @@ struct PerspectiveNewsCard: View {
             }
             .padding(16)
         }
-        .background(Color(uiColor: .secondarySystemBackground))
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
         .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
     
     private var imageSection: some View {

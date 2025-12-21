@@ -98,10 +98,10 @@ struct ForYouView: View {
 struct ForYouHeaderView: View {
     var body: some View {
         VStack(alignment: .leading) {
-            HStack(alignment: .center, spacing: 2) {
+            HStack(alignment: .center, spacing: 6) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 28, weight: .heavy))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.purple)
                     .offset(y: -1)
                 
                 Text("For You")
@@ -111,9 +111,9 @@ struct ForYouHeaderView: View {
             .foregroundStyle(.primary)
             
             Text("Your personal feed")
-                .font(.system(size: 20, weight: .medium, design: .default))
+                .font(.system(size: 34, weight: .heavy, design: .default))
                 .foregroundStyle(Color.gray)
-                .kerning(-0.5)
+                .kerning(-1.4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)

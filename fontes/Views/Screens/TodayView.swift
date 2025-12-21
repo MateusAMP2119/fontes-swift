@@ -31,7 +31,7 @@ struct TodayView: View {
             imageName: "placeholder",
             imageURL: "https://images.impresa.pt/expresso/2025-12-08-paramount-f925e76a/original",
             sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.qBh-8w8FD5zg5HaSHlGHdwHaC9%3Fpid%3DApi%26ucfimg%3D1&f=1&ipt=d5f384d5eb8f19806632badc6b40e5e3fd7fef790c60ad406ade190227f096ba&ipo=images",
-            isTopStory: true,
+            isTopStory: false,
             tag: nil,
             perspectives: [
                 Perspective(sourceName: "Coin World", sourceLogoName: "coin", perspectiveType: .analysis, headline: "Why these pennies are worth a fortune"),
@@ -46,7 +46,7 @@ struct TodayView: View {
             imageName: "placeholder",
             imageURL: "https://images.impresa.pt/expresso/2025-09-16-gettyimages-2213616252.jpg-5f7af722/original",
             sourceLogo: "https://images.assettype.com/dn/2024-12-30/d3rj8m67/DIARIONOTICIASPRETOLOGOJPEG.jpg",
-            isTopStory: true,
+            isTopStory: false,
             tag: nil,
             perspectives: [
                 Perspective(sourceName: "The Hill", sourceLogoName: "hill", perspectiveType: .analysis, headline: "Political fallout of potential healthcare reform"),
@@ -61,7 +61,7 @@ struct TodayView: View {
             imageName: "placeholder",
             imageURL: "https://images.impresa.pt/expresso/2025-12-08-trump-premio-paz-fifa-gianni-infantino-0ffdd882/original",
             sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/1/16/Expresso_newspaper_logo.svg",
-            isTopStory: true,
+            isTopStory: false,
             tag: nil
         ),
         NewsArticle(
@@ -72,7 +72,7 @@ struct TodayView: View {
             imageName: "placeholder",
             imageURL: "https://images.impresa.pt/expresso/2025-12-05-acam0002.01418266_bb.png-e1fdbd0d/original",
             sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.qBh-8w8FD5zg5HaSHlGHdwHaC9%3Fpid%3DApi%26ucfimg%3D1&f=1&ipt=d5f384d5eb8f19806632badc6b40e5e3fd7fef790c60ad406ade190227f096ba&ipo=images",
-            isTopStory: true,
+            isTopStory: false,
             tag: nil,
             perspectives: [
                 Perspective(sourceName: "Healthline", sourceLogoName: "health", perspectiveType: .analysis, headline: "Benefits and risks of daily coffee consumption"),
@@ -94,12 +94,6 @@ struct TodayView: View {
                         // Main Top Story Card
                         PerspectiveNewsCard(article: topStory)
                             .padding(.horizontal)
-                        
-                        Text("Recentes")
-                            .font(.system(size: 34, weight: .heavy))
-                            .kerning(-1.4)
-                            .padding(.horizontal)
-                            .foregroundStyle(.primary)
                         
                         // Other stories
                         ForEach(gridStories) { article in
