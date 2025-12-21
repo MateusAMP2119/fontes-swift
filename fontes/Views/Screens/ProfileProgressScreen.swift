@@ -121,7 +121,9 @@ struct ProfileProgressScreen: View {
             Spacer()
             
             Button(action: {
-                userManager.logout()
+                Task {
+                    await userManager.logout()
+                }
             }) {
                 Text("Sign Out")
                     .font(.subheadline)

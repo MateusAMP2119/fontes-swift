@@ -3,10 +3,15 @@ import SwiftUI
 
 struct CreateAccountView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var userManager: UserManager
     @Binding var navigationSelection: String?
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
+    @State private var username = ""
+    @State private var errorMessage: String?
+    @State private var isLoading: Bool = false
+    @State private var showError: Bool = false
     
     init(navigationSelection: Binding<String?> = .constant(nil)) {
         self._navigationSelection = navigationSelection
@@ -15,6 +20,10 @@ struct CreateAccountView: View {
     var body: some View {
         Form {
             Section {
+                TextField("Username", text: $username)
+                    .textContentType(.username)
+                    .textInputAutocapitalization(.never)
+                
                 TextField("Email", text: $email)
                     .textContentType(.emailAddress)
                     .textInputAutocapitalization(.never)
@@ -31,16 +40,38 @@ struct CreateAccountView: View {
             
             Section {
                 VStack(spacing: 16) {
-                    Button {
-                        // TODO: Implement create account logic
-                    } label: {
-                        Text("Create Account")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
+                    if isLoading {
+                        ProgressView()
                             .padding()
-                            .background(Color.black)
-                            .cornerRadius(8)
+                    } else {
+                        Button {
+                            guard password == confirmPassword else {
+                                errorMessage = "Passwords do not match"
+                                showError = true
+                                return
+                            }
+                            
+                            Task {
+                                isLoading = true
+                                do {
+                                    let request = SignupRequestModel(username: username, password: password, email: email, role: "VIEWER")
+                                    try await userManager.register(request: request)
+                                    dismiss()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                                isLoading = false
+                            }
+                        } label: {
+                            Text("Create Account")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.black)
+                                .cornerRadius(8)
+                        }
                     }
                     Button {
                         withAnimation {
@@ -107,6 +138,9 @@ struct CreateAccountView: View {
         }
         .navigationTitle("Create Account")
         .navigationBarTitleDisplayMode(.inline)
+        .alert(isPresented: $showError) {
+            Alert(title: Text("Registration Failed"), message: Text(errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
+        }
     }
 }
 

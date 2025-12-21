@@ -1,0 +1,1655 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Iris Web API",
+    "description": "Iris is a comprehensive news aggregation and analysis platform. The system provides automated web scraping to collect articles from multiple sources, storing them in a structured database while offering querying and filtering mechanisms.\n\n## Key Features\n\n**Article Management**: Create, read, update, and delete articles with rich metadata including authors, categories, publication dates, and content.\n\n**Source Management**: Configure and manage multiple news sources for automated scraping operations.\n\n**Query Configuration**: Define complex scraping queries with parent-child relationships to organize and categorize scraped content efficiently.\n\n**Job Management**: Schedule and monitor asynchronous scraping jobs with real-time status tracking.\n\n**Authentication**: Secure JWT-based authentication system with role-based access control (ADMIN and USER roles).\n",
+    "contact": { "name": "API Support", "email": "mateus.costa@bymarreco.com" },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:8080", "description": "Generated server url" }
+  ],
+  "security": [{ "Bearer Authentication": [] }],
+  "tags": [
+    {
+      "name": "Articles",
+      "description": "Retrieve and query articles with pagination support"
+    },
+    {
+      "name": "Authentication",
+      "description": "JWT-based user authentication and registration"
+    },
+    {
+      "name": "Source Management",
+      "description": "Configuration and management of article sources for web scraping"
+    },
+    {
+      "name": "Job Management",
+      "description": "Schedule, monitor, and control asynchronous scraping jobs"
+    },
+    {
+      "name": "Trend Management",
+      "description": "Retrieve trends and analytics from scraped data"
+    },
+    {
+      "name": "Query Configuration",
+      "description": "Define and manage scraping queries with hierarchical relationships"
+    }
+  ],
+  "paths": {
+    "/api/source/new-source": {
+      "post": {
+        "tags": ["Source Management"],
+        "summary": "Create source",
+        "description": "Registers a new article source (website/feed URL) for scraping",
+        "operationId": "createNewSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SourceRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/SourceResponseModel" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query-configuration/test-selector": {
+      "post": {
+        "tags": ["Query Configuration"],
+        "summary": "Test selector",
+        "description": "Tests a CSS selector against a URL and returns matching content",
+        "operationId": "testSelector",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TestSelectorRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTestSelectorData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query-configuration/new-configuration": {
+      "post": {
+        "tags": ["Query Configuration"],
+        "summary": "Create query",
+        "description": "Defines a new scraping query with search terms and source/parent relationships",
+        "operationId": "createQuery",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/QueryRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseQueryData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/new-job": {
+      "post": {
+        "tags": ["Job Management"],
+        "summary": "Create job",
+        "description": "Creates a new scraping job. Sources and queries can be existing IDs or new definitions to create inline. New queries are tested against sources before saving to ensure they scrape content.",
+        "operationId": "createJob",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JobRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseJobCreationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/launch-job/{id}": {
+      "post": {
+        "tags": ["Job Management"],
+        "summary": "Launch job",
+        "description": "Executes a scraping job immediately. Creates an execution record, scrapes articles from configured sources using the job's queries, and stores results in the database. Optionally mark scraped articles as featured by setting isFeatured=true.",
+        "operationId": "launchJob",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "isFeatured",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean", "default": false }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExecutionResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/cancel-job/{id}": {
+      "post": {
+        "tags": ["Job Management"],
+        "summary": "Cancel job",
+        "description": "Stops a running job and marks it as cancelled",
+        "operationId": "cancelJob",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ApiResponseJobData" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verify": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Verify token",
+        "description": "Verifies the current access token and returns user info",
+        "operationId": "verifyToken",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthApiResponseVerifyData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register user",
+        "description": "Public registration creates VIEWER users. ADMIN users can create users with any role.",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthApiResponseAuthData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Refresh token",
+        "description": "Exchanges a valid refresh token for a new access and refresh token pair",
+        "operationId": "refreshToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthApiResponseTokenData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout",
+        "description": "Invalidates the refresh token and logs out the user",
+        "operationId": "logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LogoutRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/AuthApiResponseVoid" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login",
+        "description": "Authenticates user credentials and returns JWT access and refresh tokens",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthApiResponseAuthData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Change password",
+        "description": "Changes the password for the authenticated user",
+        "operationId": "changePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/AuthApiResponseVoid" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/source/update-source/{id}": {
+      "patch": {
+        "tags": ["Source Management"],
+        "summary": "Update source",
+        "description": "Modifies an existing source's URL, name, or configuration",
+        "operationId": "updateSource",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SourceRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/SourceResponseModel" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query-configuration/update-configuration/{id}": {
+      "patch": {
+        "tags": ["Query Configuration"],
+        "summary": "Update query",
+        "description": "Modifies query parameters or enables/disables a query",
+        "operationId": "updateQuery",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/QueryRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseQueryData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/update-job/{id}": {
+      "patch": {
+        "tags": ["Job Management"],
+        "summary": "Update job",
+        "description": "Modifies job configuration, schedule, or settings",
+        "operationId": "updateJob",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JobRequestModel" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ApiResponseJobData" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trends/category-trends/{id}": {
+      "get": {
+        "tags": ["Trend Management"],
+        "summary": "Get category trends",
+        "description": "Retrieves trends for different categories",
+        "operationId": "getCategoryTrends",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/api/trends/categories": {
+      "get": {
+        "tags": ["Trend Management"],
+        "summary": "List top categories",
+        "description": "Lists categories with most articles from the last 3 days",
+        "operationId": "getTopCategoriesFromLastThreeDays",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryTrendResponseModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/source/all-sources": {
+      "get": {
+        "tags": ["Source Management"],
+        "summary": "List sources",
+        "description": "Retrieves all configured article sources",
+        "operationId": "getAllSources",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/api/query-configuration/{id}": {
+      "get": {
+        "tags": ["Query Configuration"],
+        "summary": "Get query by ID",
+        "description": "Retrieves a specific query configuration by its ID",
+        "operationId": "getQueryById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseQueryData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query-configuration/by-source/{sourceId}": {
+      "get": {
+        "tags": ["Query Configuration"],
+        "summary": "Get queries by source",
+        "description": "Retrieves all queries associated with a specific source",
+        "operationId": "getQueriesBySource",
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseQueriesBySourceData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query-configuration/all-configurations": {
+      "get": {
+        "tags": ["Query Configuration"],
+        "summary": "List queries",
+        "description": "Retrieves all configured scraping queries",
+        "operationId": "getQueries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListQueryData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}": {
+      "get": {
+        "tags": ["Job Management"],
+        "summary": "Get job by ID",
+        "description": "Retrieves a specific job by its ID",
+        "operationId": "getJobById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ApiResponseJobData" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/job-status/{id}": {
+      "get": {
+        "tags": ["Job Management"],
+        "summary": "Get job status",
+        "description": "Retrieves current execution status and progress of a job",
+        "operationId": "getJobStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ApiResponseJobData" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/all-jobs": {
+      "get": {
+        "tags": ["Job Management"],
+        "summary": "List jobs",
+        "description": "Retrieves all configured scraping jobs",
+        "operationId": "getJobs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListJobData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get all articles",
+        "description": "Retrieves all articles with pagination support",
+        "operationId": "getAllArticles",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-indexed)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 0 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ArticlePageDto" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/{id}": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get article by ID",
+        "description": "Retrieves a specific article by its ID",
+        "operationId": "getArticleById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Article ID",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "$ref": "#/components/schemas/ArticleDto" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/top-stories": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get top stories",
+        "description": "Retrieves featured articles from trending categories",
+        "operationId": "getTopStories",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-indexed)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 0 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ArticlePageDto" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/latest-updates": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get latest updates",
+        "description": "Retrieves the most recently published articles",
+        "operationId": "getLatestUpdates",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-indexed)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 0 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ArticlePageDto" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/by-category/{categoryId}": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get articles by category",
+        "description": "Retrieves all articles in a specific category",
+        "operationId": "getArticlesByCategory",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "description": "Category ID",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-indexed)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 0 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ArticlePageDto" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/by-author/{authorId}": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get articles by author",
+        "description": "Retrieves all articles written by a specific author",
+        "operationId": "getArticlesByAuthor",
+        "parameters": [
+          {
+            "name": "authorId",
+            "in": "path",
+            "description": "Author ID",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-indexed)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 0 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/ArticlePageDto" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/breaking-news": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Get breaking news",
+        "description": "Retrieves featured articles sorted by publication date",
+        "operationId": "getBreakingNews",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (0-indexed)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 0 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/BreakingNewsPageDto" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SourceRequestModel": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "maxLength": 100, "minLength": 0 },
+          "logo": { "type": "string" },
+          "enabled": { "type": "boolean" }
+        },
+        "required": ["name", "url"]
+      },
+      "SourceResponseModel": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "logo": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      },
+      "TestSelectorRequest": {
+        "type": "object",
+        "properties": {
+          "selector": { "type": "string", "minLength": 1 },
+          "testUrl": { "type": "string", "minLength": 1 },
+          "selectorType": {
+            "type": "string",
+            "enum": [
+              "TITLE",
+              "SUBTITLE",
+              "CONTENT",
+              "AUTHOR",
+              "CATEGORY",
+              "PUBLICATION_DATE",
+              "IMAGE_URL",
+              "LINK",
+              "TAG"
+            ]
+          }
+        },
+        "required": ["selector", "selectorType", "testUrl"]
+      },
+      "ApiResponseTestSelectorData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/TestSelectorData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "FieldError": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      },
+      "TestSelectorData": {
+        "type": "object",
+        "properties": {
+          "matchesFound": { "type": "integer", "format": "int32" },
+          "extractedContent": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "executionTime": { "type": "string" }
+        }
+      },
+      "QueryRequestModel": {
+        "type": "object",
+        "properties": {
+          "parentQueryIds": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "sourceIds": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "selectorType": {
+            "type": "string",
+            "enum": [
+              "TITLE",
+              "SUBTITLE",
+              "CONTENT",
+              "AUTHOR",
+              "CATEGORY",
+              "PUBLICATION_DATE",
+              "IMAGE_URL",
+              "LINK",
+              "TAG"
+            ]
+          },
+          "selector": { "type": "string", "maxLength": 1000, "minLength": 0 },
+          "name": { "type": "string", "maxLength": 100, "minLength": 0 },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 0
+          },
+          "enabled": { "type": "boolean" }
+        },
+        "required": ["name", "selector", "selectorType"]
+      },
+      "ApiResponseQueryData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/QueryData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "QueryData": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "selectorType": {
+            "type": "string",
+            "enum": [
+              "TITLE",
+              "SUBTITLE",
+              "CONTENT",
+              "AUTHOR",
+              "CATEGORY",
+              "PUBLICATION_DATE",
+              "IMAGE_URL",
+              "LINK",
+              "TAG"
+            ]
+          },
+          "selector": { "type": "string" },
+          "sourceIds": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "parentQueryIds": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "enabled": { "type": "boolean" },
+          "createdBy": { "type": "integer", "format": "int32" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "JobRequestModel": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "sources": { "type": "array", "items": {}, "minItems": 1 },
+          "queries": { "type": "array", "items": {}, "minItems": 1 },
+          "schedule": { "type": "string" },
+          "enabled": { "type": "boolean" }
+        },
+        "required": ["description", "name", "queries", "sources"]
+      },
+      "ApiResponseJobCreationResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/JobCreationResponse" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "JobCreationResponse": {
+        "type": "object",
+        "properties": {
+          "job": { "$ref": "#/components/schemas/JobInfo" },
+          "sources": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SourceInfo" }
+          },
+          "queries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/QueryInfo" }
+          }
+        }
+      },
+      "JobInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "schedule": { "type": "string" },
+          "status": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "nextExecution": { "type": "string", "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "QueryInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "selectorType": {
+            "type": "string",
+            "enum": [
+              "TITLE",
+              "SUBTITLE",
+              "CONTENT",
+              "AUTHOR",
+              "CATEGORY",
+              "PUBLICATION_DATE",
+              "IMAGE_URL",
+              "LINK",
+              "TAG"
+            ]
+          },
+          "selector": { "type": "string" },
+          "parentId": { "type": "integer", "format": "int32" },
+          "existed": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SourceInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "url": { "type": "string" },
+          "logo": { "type": "string" },
+          "existed": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ApiResponseExecutionResult": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/ExecutionResult" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "ExecutionResult": {
+        "type": "object",
+        "properties": {
+          "executionId": { "type": "integer", "format": "int32" },
+          "jobId": { "type": "integer", "format": "int32" },
+          "jobName": { "type": "string" },
+          "status": { "type": "string" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "completedAt": { "type": "string", "format": "date-time" },
+          "articlesScraped": { "type": "integer", "format": "int32" },
+          "articlesFailed": { "type": "integer", "format": "int32" },
+          "articles": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ScrapedArticleInfo" }
+          },
+          "message": { "type": "string" }
+        }
+      },
+      "ScrapedArticleInfo": {
+        "type": "object",
+        "properties": {
+          "articleId": { "type": "integer", "format": "int32" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "sourceName": { "type": "string" },
+          "new": { "type": "boolean" }
+        }
+      },
+      "ApiResponseJobData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/JobData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "JobData": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "queryIds": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "sourceIds": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "schedule": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "status": { "type": "string" },
+          "createdBy": { "type": "integer", "format": "int32" },
+          "nextExecution": { "type": "string", "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AuthApiResponseVerifyData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/VerifyData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "UserData": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "VerifyData": {
+        "type": "object",
+        "properties": {
+          "user": { "$ref": "#/components/schemas/UserData" },
+          "expiresIn": { "type": "integer", "format": "int32" }
+        }
+      },
+      "RegisterRequestModel": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Desired username for the new user",
+            "maxLength": 50,
+            "minLength": 3
+          },
+          "password": {
+            "type": "string",
+            "description": "Desired password for the new user",
+            "maxLength": 2147483647,
+            "minLength": 8
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the new user",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "role": {
+            "type": "string",
+            "default": "VIEWER",
+            "description": "Role assigned to the new user. Only ADMIN users can set this field. If not provided or user is not ADMIN, defaults to VIEWER",
+            "enum": ["ADMIN", "EDITOR", "VIEWER"]
+          }
+        },
+        "required": ["email", "password", "username"]
+      },
+      "AuthApiResponseAuthData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/AuthData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "AuthData": {
+        "type": "object",
+        "properties": {
+          "user": { "$ref": "#/components/schemas/UserData" },
+          "tokens": { "$ref": "#/components/schemas/TokenData" }
+        }
+      },
+      "TokenData": {
+        "type": "object",
+        "properties": {
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" },
+          "expiresIn": { "type": "integer", "format": "int32" }
+        }
+      },
+      "RefreshTokenRequestModel": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token to exchange for a new access token",
+            "minLength": 1
+          }
+        },
+        "required": ["refreshToken"]
+      },
+      "AuthApiResponseTokenData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/TokenData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "LogoutRequestModel": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token to invalidate on logout",
+            "minLength": 1
+          }
+        },
+        "required": ["refreshToken"]
+      },
+      "AuthApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": {},
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "LoginRequestModel": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username for login (optional if email is provided)"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email for login (optional if username is provided)"
+          },
+          "password": { "type": "string", "minLength": 1 }
+        },
+        "required": ["password"]
+      },
+      "ChangePasswordRequestModel": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "description": "Current password of the user",
+            "minLength": 1
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "New password for the user",
+            "maxLength": 2147483647,
+            "minLength": 8
+          }
+        },
+        "required": ["currentPassword", "newPassword"]
+      },
+      "CategoryTrendResponseModel": {
+        "type": "object",
+        "properties": {
+          "categoryId": { "type": "integer", "format": "int32" },
+          "categoryName": { "type": "string" },
+          "articleCount": { "type": "integer", "format": "int64" }
+        }
+      },
+      "ApiResponseQueriesBySourceData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/QueriesBySourceData" },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "QueriesBySourceData": {
+        "type": "object",
+        "properties": {
+          "queries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/QuerySummary" }
+          }
+        }
+      },
+      "QuerySummary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "selectorType": {
+            "type": "string",
+            "enum": [
+              "TITLE",
+              "SUBTITLE",
+              "CONTENT",
+              "AUTHOR",
+              "CATEGORY",
+              "PUBLICATION_DATE",
+              "IMAGE_URL",
+              "LINK",
+              "TAG"
+            ]
+          },
+          "selector": { "type": "string" },
+          "enabled": { "type": "boolean" }
+        }
+      },
+      "ApiResponseListQueryData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/QueryData" }
+          },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "ApiResponseListJobData": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/JobData" }
+          },
+          "error": { "type": "string" },
+          "details": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FieldError" }
+          }
+        }
+      },
+      "ArticleDto": {
+        "type": "object",
+        "properties": {
+          "articleId": { "type": "integer", "format": "int32" },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "content": { "type": "string" },
+          "authors": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AuthorDto" }
+          },
+          "categories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CategoryDto" }
+          },
+          "url": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"]
+          },
+          "publicationDate": { "type": "string", "format": "date-time" },
+          "isFeatured": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "imgUrl": { "type": "string" },
+          "source": { "$ref": "#/components/schemas/SourceDto" }
+        }
+      },
+      "ArticlePageDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ArticleDto" }
+          },
+          "totalElements": { "type": "integer", "format": "int32" },
+          "totalPages": { "type": "integer", "format": "int32" },
+          "pageNumber": { "type": "integer", "format": "int32" },
+          "pageSize": { "type": "integer", "format": "int32" },
+          "hasNext": { "type": "boolean" },
+          "hasPrevious": { "type": "boolean" }
+        }
+      },
+      "AuthorDto": {
+        "type": "object",
+        "properties": {
+          "authorId": { "type": "integer", "format": "int32" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CategoryDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": { "type": "integer", "format": "int32" },
+          "categoryName": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SourceDto": {
+        "type": "object",
+        "properties": {
+          "sourceId": { "type": "integer", "format": "int32" },
+          "sourceName": { "type": "string" },
+          "sourceUrl": { "type": "string" },
+          "logo": { "type": "string" },
+          "reliabilityRating": {
+            "type": "string",
+            "enum": ["UNKNOWN", "HIGH", "MEDIUM", "LOW"]
+          },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "BreakingNewsArticleDto": {
+        "type": "object",
+        "properties": {
+          "articleId": { "type": "integer", "format": "int32" },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "content": { "type": "string" },
+          "authors": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BreakingNewsAuthorDto" }
+          },
+          "categories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BreakingNewsCategoryDto" }
+          },
+          "url": { "type": "string" },
+          "publicationDate": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "imgUrl": { "type": "string" },
+          "source": { "$ref": "#/components/schemas/BreakingNewsSourceDto" }
+        }
+      },
+      "BreakingNewsAuthorDto": {
+        "type": "object",
+        "properties": {
+          "authorId": { "type": "integer", "format": "int32" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" }
+        }
+      },
+      "BreakingNewsCategoryDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": { "type": "integer", "format": "int32" },
+          "categoryName": { "type": "string" }
+        }
+      },
+      "BreakingNewsPageDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BreakingNewsArticleDto" }
+          },
+          "totalElements": { "type": "integer", "format": "int32" },
+          "totalPages": { "type": "integer", "format": "int32" },
+          "pageNumber": { "type": "integer", "format": "int32" },
+          "pageSize": { "type": "integer", "format": "int32" },
+          "hasNext": { "type": "boolean" },
+          "hasPrevious": { "type": "boolean" }
+        }
+      },
+      "BreakingNewsSourceDto": {
+        "type": "object",
+        "properties": {
+          "sourceId": { "type": "integer", "format": "int32" },
+          "sourceName": { "type": "string" },
+          "sourceUrl": { "type": "string" },
+          "logo": { "type": "string" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer Authentication": {
+        "type": "http",
+        "description": "Enter JWT token obtained from /api/auth/login",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

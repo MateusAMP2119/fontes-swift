@@ -6,6 +6,9 @@ struct LoginView: View {
     @EnvironmentObject var userManager: UserManager
     @State private var email = ""
     @State private var password = ""
+    @State private var errorMessage: String?
+    @State private var isLoading: Bool = false
+    @State private var showError: Bool = false
     
     var body: some View {
         Form {
@@ -23,17 +26,33 @@ struct LoginView: View {
             
             Section {
                 VStack(spacing: 16) {
-                    Button {
-                        userManager.login()
-                        dismiss()
-                    } label: {
-                        Text("Login")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
+                    if isLoading {
+                        ProgressView()
                             .padding()
-                            .background(Color.black)
-                            .cornerRadius(8)
+                    } else {
+                        Button {
+                            Task {
+                                isLoading = true
+                                do {
+                                    // Assuming username is email for now, or we can add a username field
+                                    let request = LoginRequestModel(username: email, email: email, password: password)
+                                    try await userManager.login(request: request)
+                                    dismiss()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                                isLoading = false
+                            }
+                        } label: {
+                            Text("Login")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.black)
+                                .cornerRadius(8)
+                        }
                     }
                     
                     Text("Don't have an account?")
@@ -101,6 +120,9 @@ struct LoginView: View {
         }
         .navigationTitle("Login")
         .navigationBarTitleDisplayMode(.inline)
+        .alert(isPresented: $showError) {
+            Alert(title: Text("Login Failed"), message: Text(errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
+        }
     }
 }
 
