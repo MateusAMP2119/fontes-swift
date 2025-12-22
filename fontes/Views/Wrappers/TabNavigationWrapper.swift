@@ -48,40 +48,47 @@ struct TabNavigationWrapper: View {
     
     var body: some View {
         NavigationView {
-            ZStack(alignment: .top) {
-                VStack(spacing: 0) {
-                    
-                    TabView(selection: $selectedTab) {
-                        Tab(value: .today) {
-                            TodayView(isSettingsPresented: $isSettingsPresented)
-                        } label: {
-                            Label("Today", systemImage: "text.rectangle.page")
-                                .environment(\.symbolVariants, .none)
-                        }
-                        
-                        Tab(value: .forYou) {
-                            ForYouView(algorithms: $algorithms, selectedAlgorithmId: $selectedAlgorithmId)
-                        } label: {
-                            Label("For you", systemImage: "heart.square")
-                                .environment(\.symbolVariants, .none)
-                        }
-                        
-                        Tab(value: .forLater) {
-                            ForLaterView()
-                        } label: {
-                            Label("For later", systemImage: "book.pages")
-                                .environment(\.symbolVariants, .none)
-                        }
-                        
-                        Tab(value: .search, role: .search) {
-                            DiscoverView()
-                        } label: {
-                            Label("Discover", systemImage: "sparkle.magnifyingglass")
-                                .environment(\.symbolVariants, .none)
-                        }
-                    }
-                    .tint(Color(red: 252/255, green: 60/255, blue: 68/255))
+            TabView(selection: $selectedTab) {
+                Tab(value: .today) {
+                    TodayView(isSettingsPresented: $isSettingsPresented)
+                } label: {
+                    Label("Today", systemImage: "text.rectangle.page")
+                        .environment(\.symbolVariants, .none)
                 }
+                
+                Tab(value: .forYou) {
+                    ForYouView(algorithms: $algorithms, selectedAlgorithmId: $selectedAlgorithmId)
+                } label: {
+                    Label("For you", systemImage: "heart.square")
+                        .environment(\.symbolVariants, .none)
+                }
+                
+                Tab(value: .forLater) {
+                    ForLaterView()
+                } label: {
+                    Label("For later", systemImage: "book.pages")
+                        .environment(\.symbolVariants, .none)
+                }
+                
+                Tab(value: .search, role: .search) {
+                    DiscoverView()
+                } label: {
+                    Label("Discover", systemImage: "sparkle.magnifyingglass")
+                        .environment(\.symbolVariants, .none)
+                }
+            }
+            .tint(Color(red: 252/255, green: 60/255, blue: 68/255))
+            .tabViewBottomAccessory {
+                MiniPlayerView(
+                    selectedTab: selectedTab,
+                    algorithms: $algorithms,
+                    selectedAlgorithmId: $selectedAlgorithmId,
+                    onNewAlgorithm: { isBuildingAlgorithm = true },
+                    selectedTodayFilter: $selectedTodayFilter,
+                    folders: $folders,
+                    selectedFolderId: $selectedFolderId,
+                    onNewFolder: { isCreatingFolder = true }
+                )
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -89,6 +96,7 @@ struct TabNavigationWrapper: View {
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
+            .tabBarMinimizeBehavior(.onScrollDown)
         }
         
     }

@@ -85,6 +85,8 @@ struct DiscoverView: View {
     ]
     
     var body: some View {
+        @State var search: String = ""
+
         NavigationStack {
             ScrollView {
                 VStack(spacing: 32) {
@@ -133,7 +135,11 @@ struct DiscoverView: View {
                 .padding(.vertical)
             }
             .background(Color(uiColor: .systemGroupedBackground))
-            .toolbar(.hidden, for: .navigationBar)
+            .searchable(
+                text: $search,
+                placement: .toolbar,
+                prompt: "Type here to search"
+            )
         }
     }
 }
