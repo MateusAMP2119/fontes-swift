@@ -7,13 +7,6 @@
 
 import SwiftUI
 
-struct ArticleItem: Identifiable {
-    let id: Int
-    let title: String
-    let source: String
-    let time: String
-}
-
 struct TodayPage: View {
     // Sample data for the grid
     let items: [ArticleItem] = [
@@ -70,120 +63,6 @@ struct TodayPage: View {
                     }
                 }
                 .padding(.horizontal)
-            }
-        }
-    }
-}
-
-struct FeaturedCard: View {
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Main colorful background
-            Rectangle()
-                .fill(LinearGradient(
-                    gradient: Gradient(colors: [Color.teal, Color.blue]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-            
-            // Content Overlay
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Apple's cheapest iPad may be the star of Apple's October event")
-                    .font(.system(size: 28, weight: .bold)) // Large title
-                    .foregroundColor(.white)
-                    .shadow(radius: 2)
-                
-                HStack {
-                    Text("Macworld")
-                        .fontWeight(.semibold)
-                    Text("•")
-                    Text("3h")
-                }
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
-                .shadow(radius: 2)
-            }
-            .padding(20)
-            
-            // Top overlays
-            VStack {
-                HStack(alignment: .top) {
-                    // Red Logo Box
-                    Rectangle()
-                        .fill(Color.red)
-                        .frame(width: 60, height: 60)
-                        .overlay(
-                            Text("F")
-                                .font(.system(size: 40, weight: .heavy))
-                                .foregroundColor(.white)
-                        )
-                    
-                    Spacer()
-                    
-                    // Settings Icon
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.system(size: 20))
-                        .padding(10)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .foregroundColor(.white)
-                        .padding(.top, 16)
-                        .padding(.trailing, 16)
-                }
-                Spacer()
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-    }
-}
-
-struct GridCard: View {
-    let item: ArticleItem
-    
-    // Generate a consistent color based on index
-    var cardColor: Color {
-        let colors: [Color] = [.orange, .purple, .pink, .green, .yellow, .indigo]
-        return colors[item.id % colors.count]
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Image placeholder
-            GeometryReader { geometry in
-                if item.id % 2 == 0 {
-                    // Split view style for even items (mimicking the left card in grid)
-                    HStack(spacing: 2) {
-                        VStack(spacing: 2) {
-                            Rectangle().fill(cardColor.opacity(0.8))
-                            Rectangle().fill(cardColor.opacity(0.6))
-                        }
-                        Rectangle().fill(cardColor)
-                    }
-                } else {
-                    // Single image style
-                    Rectangle()
-                        .fill(cardColor)
-                }
-            }
-            .frame(height: 140)
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            
-            // Text Content
-            VStack(alignment: .leading, spacing: 6) {
-                Text(item.title)
-                    .font(.system(size: 16, weight: .bold))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .foregroundColor(.primary)
-                
-                HStack {
-                    Text("\(item.source) • \(item.time)")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Spacer()
-                    Image(systemName: "ellipsis")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
             }
         }
     }
