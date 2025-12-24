@@ -61,9 +61,6 @@ struct ProfileProgressScreen: View {
                         HStack {
                             Text("Daily Reading Goal")
                             Spacer()
-                            Stepper("", value: $dailyGoal, in: 1...100)
-                                .onChange(of: dailyGoal) { _ in Haptics.impact(.light) }
-                                .labelsHidden()
                             Text("\(dailyGoal)")
                                 .monospacedDigit()
                                 .frame(minWidth: 24)
@@ -77,7 +74,6 @@ struct ProfileProgressScreen: View {
                         Toggle(isOn: $isDarkMode) {
                             Text("Dark Mode")
                         }
-                        .onChange(of: isDarkMode) { _ in Haptics.impact(.light) }
                         .padding()
                         
                         Divider()
@@ -101,7 +97,6 @@ struct ProfileProgressScreen: View {
                 }
                 .padding()
             }
-            .onAppear { Haptics.prepare() }
             .background(colorScheme == .dark ? Color(uiColor: .systemBackground) : Color(uiColor: .secondarySystemBackground))
             .navigationTitle("Profile")
         .preferredColorScheme(isDarkMode ? .dark : .light)
@@ -123,7 +118,6 @@ struct ProfileProgressScreen: View {
             Spacer()
             
             Button(action: {
-                Haptics.notify(.warning)
                 Task {
                     await userManager.logout()
                 }
@@ -160,15 +154,12 @@ struct ProfileProgressScreen: View {
                     .background(Color.black)
                     .cornerRadius(8)
             }
-            .simultaneousGesture(TapGesture().onEnded { Haptics.playTransient() })
-
             NavigationLink(destination: AuthView(initialMode: .login)) {
                 Text("Already have an account?")
                     .font(.subheadline)
                     .foregroundColor(.primary)
                     .underline()
             }
-            .simultaneousGesture(TapGesture().onEnded { Haptics.playTransient() })
             
             HStack {
                 Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
@@ -177,7 +168,6 @@ struct ProfileProgressScreen: View {
             }
             
             Button {
-                Haptics.playTransient()
                 // action for google sign in
             } label: {
                 HStack {
@@ -198,7 +188,6 @@ struct ProfileProgressScreen: View {
             }
             
             Button {
-                Haptics.playTransient()
                 // action for apple sign in
             } label: {
                 HStack {

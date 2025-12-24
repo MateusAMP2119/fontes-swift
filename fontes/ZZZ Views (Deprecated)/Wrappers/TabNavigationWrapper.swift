@@ -50,28 +50,24 @@ struct TabNavigationWrapper: View {
         NavigationView {
             TabView(selection: $selectedTab) {
                 Tab(value: .today) {
-                    TodayViewZZ(isSettingsPresented: $isSettingsPresented)
                 } label: {
                     Label("Today", systemImage: "text.rectangle.page")
                         .environment(\.symbolVariants, .none)
                 }
                 
                 Tab(value: .forYou) {
-                    ForYouView(algorithms: $algorithms, selectedAlgorithmId: $selectedAlgorithmId)
                 } label: {
                     Label("For you", systemImage: "heart.square")
                         .environment(\.symbolVariants, .none)
                 }
                 
                 Tab(value: .forLater) {
-                    ForLaterView()
                 } label: {
                     Label("For later", systemImage: "book.pages")
                         .environment(\.symbolVariants, .none)
                 }
                 
                 Tab(value: .search, role: .search) {
-                    DiscoverView()
                 } label: {
                     Label("Discover", systemImage: "sparkle.magnifyingglass")
                         .environment(\.symbolVariants, .none)

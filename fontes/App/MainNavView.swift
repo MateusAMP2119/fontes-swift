@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct MainTabView: View {
+struct MainNavView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        GlassTabView()
     }
 }
 
 #Preview {
-    MainTabView()
+    MainNavView()
 }

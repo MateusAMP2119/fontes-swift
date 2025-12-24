@@ -15,7 +15,11 @@ struct TodayPage: View {
         ArticleItem(id: 3, title: "New iPhone 16 Pro Max Review: The Best Just Got Better", source: "theverge.com", time: "4h"),
         ArticleItem(id: 4, title: "NASA's James Webb Space Telescope captures stunning new image of the Pillars of Creation", source: "nasa.gov", time: "8h"),
         ArticleItem(id: 5, title: "Why the future of renewable energy depends on this one critical mineral found in the deep ocean", source: "wired.com", time: "5h"),
-        ArticleItem(id: 6, title: "Top 10 Places to Visit in Japan", source: "travelandleisure.com", time: "6h")
+        ArticleItem(id: 6, title: "Top 10 Places to Visit in Japan", source: "travelandleisure.com", time: "6h"),
+        ArticleItem(id: 7, title: "The Ultimate Guide to Homemade Pasta", source: "bonappetit.com", time: "1h"),
+        ArticleItem(id: 8, title: "SpaceX successfully launches another batch of Starlink satellites", source: "space.com", time: "3h"),
+        ArticleItem(id: 9, title: "Understanding the basics of Quantum Computing", source: "mit.edu", time: "7h"),
+        ArticleItem(id: 10, title: "10 Hidden Gems in Europe You Must Visit", source: "lonelyplanet.com", time: "9h")
     ]
     
     let columns = [
