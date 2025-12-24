@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TodayView: View {
+struct TodayViewZZ: View {
     @Binding var isSettingsPresented: Bool
     @State private var isReadingGoalsPresented = false
     
@@ -110,5 +110,5 @@ struct TodayView: View {
 }
 
 #Preview {
-    TodayView(isSettingsPresented: .constant(false))
+    TodayViewZZ(isSettingsPresented: .constant(false))
 }

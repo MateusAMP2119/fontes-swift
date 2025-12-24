@@ -50,7 +50,7 @@ struct TabNavigationWrapper: View {
         NavigationView {
             TabView(selection: $selectedTab) {
                 Tab(value: .today) {
-                    TodayView(isSettingsPresented: $isSettingsPresented)
+                    TodayViewZZ(isSettingsPresented: $isSettingsPresented)
                 } label: {
                     Label("Today", systemImage: "text.rectangle.page")
                         .environment(\.symbolVariants, .none)
