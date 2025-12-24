@@ -43,7 +43,7 @@ struct TodayPage: View {
         ScrollView {
             VStack(spacing: 0) {
                 // Header
-                HeaderView()
+                TodayHeaderView()
                     .padding(.horizontal)
                     .padding(.bottom, 16)
                 
@@ -72,34 +72,6 @@ struct TodayPage: View {
                 .padding(.horizontal)
             }
         }
-    }
-}
-
-struct HeaderView: View {
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 20) {
-            VStack(spacing: 8) {
-                Text("FOR YOU")
-                    .font(.system(size: 16, weight: .black))
-                    .foregroundColor(.primary)
-                Rectangle()
-                    .frame(height: 3)
-                    .foregroundColor(.red)
-            }
-            .fixedSize()
-            
-            Text("EXPLORE MORE PASSIONS")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(.gray.opacity(0.5))
-                .padding(.bottom, 11) // Align baseline with FOR YOU
-            
-            Spacer()
-            
-            Image(systemName: "line.3.horizontal")
-                .font(.title2)
-                .padding(.bottom, 8)
-        }
-        .padding(.top)
     }
 }
 

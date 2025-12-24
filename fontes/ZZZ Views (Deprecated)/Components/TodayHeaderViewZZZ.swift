@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TodayHeaderView: View {
+struct TodayHeaderViewZZZ: View {
     var body: some View {
         VStack(alignment: .leading) {
             // Row 1: Icon and Title
@@ -30,5 +30,5 @@ struct TodayHeaderView: View {
 }
 
 #Preview {
-    TodayHeaderView()
+    TodayHeaderViewZZZ()
 }
