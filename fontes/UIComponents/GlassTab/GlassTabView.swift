@@ -10,6 +10,28 @@ import SwiftUI
 struct GlassTabView: View {
     @State private var selectedTab = 0
     @State var search: String = ""
+    @State private var scrollProgress: Double = 0.0
+    @State private var selectedSubTab: TabAccessoryView.TodaySubTab = .tech
+    
+    var tabAccessoryBinding: Binding<TabAccessoryView.TabItem> {
+        Binding<TabAccessoryView.TabItem>(
+            get: {
+                switch selectedTab {
+                case 0: return .today
+                case 1: return .forYou
+                case 2: return .forLater
+                default: return .today
+                }
+            },
+            set: { newItem in
+                switch newItem {
+                case .today: selectedTab = 0
+                case .forYou: selectedTab = 1
+                case .forLater: selectedTab = 2
+                }
+            }
+        )
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -42,7 +64,14 @@ struct GlassTabView: View {
         }
         .tint(.red)
         .tabViewBottomAccessory {
-            TabAccessoryView()
+            TabAccessoryView(
+                scrollProgress: scrollProgress,
+                selectedTab: tabAccessoryBinding,
+                selectedSubTab: $selectedSubTab,
+                onSearchTap: {
+                    selectedTab = 3
+                }
+            )
         }
         .tabBarMinimizeBehavior(.onScrollDown)
     }
