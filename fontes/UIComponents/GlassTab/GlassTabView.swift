@@ -12,6 +12,8 @@ struct GlassTabView: View {
     @State var search: String = ""
     @State private var scrollProgress: Double = 0.0
     @State private var sortOption: TabAccessoryView.SortOption = .hot
+    @State private var showSortMenu: Bool = false
+    @Namespace private var transition
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -46,12 +48,22 @@ struct GlassTabView: View {
         .tabViewBottomAccessory {
             TabAccessoryView(
                 selectedSort: $sortOption,
-                onFilterTap: { print("Filter tapped") },
+                onFilterTap: { showSortMenu.toggle() },
                 readingProgress: scrollProgress,
                 isMinimized: scrollProgress > 0.02
             )
+            .matchedTransitionSource(
+                id: "expansion", in: transition
+            )
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+        .sheet(isPresented: $showSortMenu) {
+            Text("Hello, world!")
+                .presentationDetents([.medium, .large])
+                .navigationTransition(
+                    .zoom(sourceID: "expansion", in: transition)
+                )
+        }
     }
 }
 
