@@ -15,19 +15,21 @@ struct TabAccessoryView: View {
     var onFilterTap: () -> Void
     var readingProgress: Double
     var isMinimized: Bool = false
+    var hasActiveFilters: Bool = false
     
     var body: some View {
         HStack(spacing: 8) {
             // Section 1: Sorting Picker
             TabAccessoryPicker(selectedSort: $selectedSort, isMinimized: isMinimized)
             // Section 2: Filter
-            TabAccessoryFilter(onTap: onFilterTap)
+            TabAccessoryFilter(onTap: onFilterTap, hasActiveFilters: hasActiveFilters)
             Spacer()
             // Section 3: Reading Goal
             TabAccessoryGoal(progress: readingProgress)
         }
         .padding(.vertical)
         .padding(.horizontal, 6)
+        .background(Color(.systemBackground))
     }
 }
 

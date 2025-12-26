@@ -9,19 +9,32 @@ import SwiftUI
 
 struct TabAccessoryFilter: View {
     var onTap: () -> Void
+    var hasActiveFilters: Bool = false
     
     var body: some View {
         Button {
             onTap()
         } label: {
-            Image(systemName: "circle.hexagonpath")
-                .font(.system(size: 22))
-                .foregroundColor(.primary)
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 22))
+                    .foregroundColor(.primary)
+                
+                if hasActiveFilters {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 8, height: 8)
+                        .offset(x: 2, y: -2)
+                }
+            }
         }
     }
 }
 
 #Preview {
-    TabAccessoryFilter(onTap: { print("Filter tapped") })
-        .padding()
+    HStack(spacing: 20) {
+        TabAccessoryFilter(onTap: { print("Filter tapped") }, hasActiveFilters: false)
+        TabAccessoryFilter(onTap: { print("Filter tapped") }, hasActiveFilters: true)
+    }
+    .padding()
 }

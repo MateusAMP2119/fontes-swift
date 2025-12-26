@@ -15,6 +15,10 @@ struct GlassTabView: View {
     @State private var showSortMenu: Bool = false
     @Namespace private var transition
     
+    @State private var selectedTags: Set<String> = []
+    @State private var selectedJournalists: Set<String> = []
+    @State private var selectedSources: Set<String> = []
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
@@ -50,7 +54,8 @@ struct GlassTabView: View {
                 selectedSort: $sortOption,
                 onFilterTap: { showSortMenu.toggle() },
                 readingProgress: scrollProgress,
-                isMinimized: scrollProgress > 0.02
+                isMinimized: scrollProgress > 0.02,
+                hasActiveFilters: !selectedTags.isEmpty || !selectedJournalists.isEmpty || !selectedSources.isEmpty
             )
             .matchedTransitionSource(
                 id: "expansion", in: transition
@@ -58,11 +63,15 @@ struct GlassTabView: View {
         }
         .tabBarMinimizeBehavior(.onScrollDown)
         .sheet(isPresented: $showSortMenu) {
-            Text("Hello, world!")
-                .presentationDetents([.medium, .large])
-                .navigationTransition(
-                    .zoom(sourceID: "expansion", in: transition)
-                )
+            FilterExpansion(
+                selectedTags: $selectedTags,
+                selectedJournalists: $selectedJournalists,
+                selectedSources: $selectedSources
+            )
+            .presentationDetents([.medium, .large])
+            .navigationTransition(
+                .zoom(sourceID: "expansion", in: transition)
+            )
         }
     }
 }
