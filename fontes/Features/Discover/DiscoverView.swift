@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct DiscoverView: View {
+    @Binding var scrollProgress: Double
     @State var search: String = ""
 
     @State private var selectedTab = "ALL"
@@ -125,6 +126,18 @@ struct DiscoverView: View {
                                     prompt: "Type here to search"
                                 )
                 }
+                .onScrollGeometryChange(for: Double.self) { geometry in
+                    let contentHeight = geometry.contentSize.height
+                    let visibleHeight = geometry.containerSize.height
+                    let offset = geometry.contentOffset.y
+                    let maxOffset = contentHeight - visibleHeight
+                    if maxOffset > 0 {
+                        return max(0, min(1, offset / maxOffset))
+                    }
+                    return 0.0
+                } action: { oldValue, newValue in
+                    scrollProgress = newValue
+                }
             }
         }
     }
@@ -197,5 +210,5 @@ struct DiscoverTopicRow: View {
 }
 
 #Preview {
-    DiscoverView()
+    DiscoverView(scrollProgress: .constant(0.0))
 }

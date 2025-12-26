@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TodayPage: View {
+    @Binding var scrollProgress: Double
+    
     // Sample data for the grid
     let items: [ArticleItem] = [
         ArticleItem(id: 1, title: "'I annoyed him a lot - I think that's why he was a little bit angry.", source: "dailymail.co.uk", time: "2h"),
@@ -69,12 +71,24 @@ struct TodayPage: View {
                 .padding(.horizontal)
             }
         }
+        .onScrollGeometryChange(for: Double.self) { geometry in
+            let contentHeight = geometry.contentSize.height
+            let visibleHeight = geometry.containerSize.height
+            let offset = geometry.contentOffset.y
+            let maxOffset = contentHeight - visibleHeight
+            if maxOffset > 0 {
+                return max(0, min(1, offset / maxOffset))
+            }
+            return 0.0
+        } action: { oldValue, newValue in
+            scrollProgress = newValue
+        }
     }
 }
 
 struct TodayPage_Previews: PreviewProvider {
     static var previews: some View {
-        TodayPage()
+        TodayPage(scrollProgress: .constant(0.0))
     }
 }
 
