@@ -35,6 +35,17 @@ struct FilterExpansion: View {
         selectedTags.count + selectedJournalists.count + selectedSources.count
     }
     
+    // Helper to get logo URL for a source
+    func logo(for source: String) -> String? {
+        if let item = MockData.shared.items.first(where: { $0.source == source }) {
+            return item.sourceLogo
+        }
+        if MockData.shared.featuredItem.source == source {
+            return MockData.shared.featuredItem.sourceLogo
+        }
+        return nil
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -43,9 +54,15 @@ struct FilterExpansion: View {
                     dismiss()
                 }) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
-                        .padding()
+                        .frame(width: 44, height: 44)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
                 }
                 
                 Spacer()
@@ -77,9 +94,15 @@ struct FilterExpansion: View {
                     }
                 }) {
                     Image(systemName: "eraser")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(totalSelectedCount > 0 ? .primary : .clear)
-                        .padding()
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(totalSelectedCount > 0 ? .primary : .secondary.opacity(0.5))
+                        .frame(width: 44, height: 44)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
                 }
                 .disabled(totalSelectedCount == 0)
             }
@@ -96,7 +119,9 @@ struct FilterExpansion: View {
                     FilterSection(title: "Journalists", items: journalists, selectedItems: $selectedJournalists)
                     
                     // Sources Section
-                    FilterSection(title: "Sources", items: sources, selectedItems: $selectedSources)
+                    FilterSection(title: "Sources", items: sources, selectedItems: $selectedSources) { source in
+                        logo(for: source)
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 100) // Space for fixed button
@@ -109,6 +134,7 @@ struct FilterSection: View {
     let title: String
     let items: [String]
     @Binding var selectedItems: Set<String>
+    var logoProvider: ((String) -> String?)? = nil
     
     @State private var isExpanded = false
     private let limit = 6
@@ -141,7 +167,11 @@ struct FilterSection: View {
                 let visibleItems = isExpanded ? items : Array(items.prefix(limit))
                 
                 ForEach(visibleItems, id: \.self) { item in
-                    FilterChip(text: item, isSelected: selectedItems.contains(item)) {
+                    FilterChip(
+                        text: item,
+                        isSelected: selectedItems.contains(item),
+                        imageUrl: logoProvider?(item)
+                    ) {
                         withAnimation {
                             if selectedItems.contains(item) {
                                 selectedItems.remove(item)
@@ -176,20 +206,46 @@ struct FilterSection: View {
 struct FilterChip: View {
     let text: String
     let isSelected: Bool
+    var imageUrl: String? = nil
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            Text(text)
-                .font(.system(size: 15, weight: .semibold))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color.clear)
-                .foregroundColor(.primary)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(isSelected ? Color.primary : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
-                )
+            Group {
+                if let imageUrl, let url = URL(string: imageUrl) {
+                    // Logo Style
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Color.secondary.opacity(0.1)
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        case .failure:
+                            Color.secondary.opacity(0.1) // Fallback
+                        @unknown default:
+                            Color.secondary.opacity(0.1)
+                        }
+                    }
+                    .frame(height: 24) // Fixed height for logos
+                    .frame(minWidth: 60) // Ensure reasonable width
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                } else {
+                    // Text Style
+                    Text(text)
+                        .font(.system(size: 15, weight: .semibold))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                }
+            }
+            .background(Color.clear)
+            .foregroundColor(.primary)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.primary : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
+            )
         }
         .buttonStyle(.plain)
     }
