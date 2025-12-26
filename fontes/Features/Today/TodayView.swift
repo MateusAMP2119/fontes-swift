@@ -77,6 +77,7 @@ struct TodayPage: View {
                     if let featuredItem = featuredItem {
                         FeaturedCard(item: featuredItem)
                             .frame(height: 400)
+                            .transition(.scale.combined(with: .opacity))
                     }
                     
                     // Masonry Grid
@@ -85,6 +86,7 @@ struct TodayPage: View {
                         LazyVStack(spacing: 24) {
                             ForEach(leftColumnItems) { item in
                                 GridCard(item: item)
+                                    .transition(.scale.combined(with: .opacity))
                             }
                         }
                         
@@ -92,11 +94,14 @@ struct TodayPage: View {
                         LazyVStack(spacing: 24) {
                             ForEach(rightColumnItems) { item in
                                 GridCard(item: item)
+                                    .transition(.scale.combined(with: .opacity))
                             }
                         }
                     }
                 }
                 .padding(.horizontal)
+                .animation(.default, value: items.map { $0.id })
+                .animation(.default, value: featuredItem?.id)
             }
         }
         .onScrollGeometryChange(for: Double.self) { geometry in

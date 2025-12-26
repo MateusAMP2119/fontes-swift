@@ -142,10 +142,12 @@ struct FilterSection: View {
                 
                 ForEach(visibleItems, id: \.self) { item in
                     FilterChip(text: item, isSelected: selectedItems.contains(item)) {
-                        if selectedItems.contains(item) {
-                            selectedItems.remove(item)
-                        } else {
-                            selectedItems.insert(item)
+                        withAnimation {
+                            if selectedItems.contains(item) {
+                                selectedItems.remove(item)
+                            } else {
+                                selectedItems.insert(item)
+                            }
                         }
                     }
                 }
