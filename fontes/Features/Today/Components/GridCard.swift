@@ -40,19 +40,39 @@ struct GridCard: View {
             
             // Text Content
             VStack(alignment: .leading, spacing: 6) {
+                if let url = URL(string: item.sourceLogo) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    } placeholder: {
+                        Color.gray.opacity(0.3)
+                    }
+                    .frame(height: 32)
+                }
+                
                 Text(item.title)
                     .font(.system(size: 16, weight: .bold))
                     .fixedSize(horizontal: false, vertical: true)
                     .foregroundColor(.primary)
                 
-                HStack {
-                    Text("\(item.source) • \(item.time)")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Spacer()
-                    Image(systemName: "ellipsis")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                Text("\(item.author) • \(item.time)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                if !item.tags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 4) {
+                            ForEach(item.tags, id: \.self) { tag in
+                                Text(tag)
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.gray.opacity(0.1))
+                                    .cornerRadius(4)
+                            }
+                        }
+                    }
                 }
             }
         }

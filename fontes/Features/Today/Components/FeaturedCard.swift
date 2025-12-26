@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct FeaturedCard: View {
+    let item: ArticleItem
+    
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             // Main colorful background
@@ -20,20 +22,49 @@ struct FeaturedCard: View {
             
             // Content Overlay
             VStack(alignment: .leading, spacing: 8) {
-                Text("Apple's cheapest iPad may be the star of Apple's October event")
+                if let url = URL(string: item.sourceLogo) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    } placeholder: {
+                        Color.gray.opacity(0.3)
+                    }
+                    .frame(height: 32)
+                }
+                
+                Text(item.title)
                     .font(.system(size: 28, weight: .bold)) // Large title
                     .foregroundColor(.white)
                     .shadow(radius: 2)
+                    .lineLimit(3)
                 
                 HStack {
-                    Text("Macworld")
-                        .fontWeight(.semibold)
+                    Text(item.author)
                     Text("•")
-                    Text("3h")
+                    Text(item.time)
                 }
                 .font(.subheadline)
                 .foregroundColor(.white.opacity(0.9))
                 .shadow(radius: 2)
+                
+                // Tags
+                if !item.tags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(item.tags, id: \.self) { tag in
+                                Text(tag.uppercased())
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.3))
+                                    .cornerRadius(4)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
+                }
             }
             .padding(20)
             

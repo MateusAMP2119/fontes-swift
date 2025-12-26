@@ -12,4 +12,7 @@ struct ArticleItem: Identifiable {
     let title: String
     let source: String
     let time: String
+    let author: String
+    let tags: [String]
+    let sourceLogo: String
 }
