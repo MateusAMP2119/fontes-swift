@@ -5,7 +5,7 @@
 //  Created by Mateus Costa on 24/12/2025.
 //
 
-import Foundation
+import SwiftUI
 
 struct ArticleItem: Identifiable {
     let id: Int
@@ -15,4 +15,5 @@ struct ArticleItem: Identifiable {
     let author: String
     let tags: [String]
     let sourceLogo: String
+    let mainColor: Color
 }

@@ -15,7 +15,7 @@ struct FeaturedCard: View {
             // Main colorful background
             Rectangle()
                 .fill(LinearGradient(
-                    gradient: Gradient(colors: [Color.teal, Color.blue]),
+                    gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ))

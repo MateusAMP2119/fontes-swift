@@ -22,21 +22,36 @@ struct GlassTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
-                TodayPage(scrollProgress: $scrollProgress)
+                TodayPage(
+                    scrollProgress: $scrollProgress,
+                    selectedTags: selectedTags,
+                    selectedJournalists: selectedJournalists,
+                    selectedSources: selectedSources
+                )
             } label: {
                 Label("Today", systemImage: "text.rectangle.page")
                     .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
             }
             
             Tab(value: 1) {
-                TodayPage(scrollProgress: $scrollProgress)
+                TodayPage(
+                    scrollProgress: $scrollProgress,
+                    selectedTags: selectedTags,
+                    selectedJournalists: selectedJournalists,
+                    selectedSources: selectedSources
+                )
             } label: {
                 Label("For you", systemImage: "paperplane")
                     .environment(\.symbolVariants, selectedTab == 1 ? .fill : .none)
             }
             
             Tab(value: 2) {
-                TodayPage(scrollProgress: $scrollProgress)
+                TodayPage(
+                    scrollProgress: $scrollProgress,
+                    selectedTags: selectedTags,
+                    selectedJournalists: selectedJournalists,
+                    selectedSources: selectedSources
+                )
             } label: {
                 Label("For later", systemImage: "bookmark")
                     .environment(\.symbolVariants, selectedTab == 2 ? .fill : .none)
