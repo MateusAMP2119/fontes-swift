@@ -22,6 +22,11 @@ struct TabAccessoryView: View {
     @Binding var folders: [String]
     var onAddFolder: (String) -> Void
     
+    // Algorithm State
+    @Binding var selectedAlgorithm: Algorithm?
+    @Binding var algorithms: [Algorithm]
+    var onAddAlgorithm: (Algorithm) -> Void
+    
     var onFilterTap: () -> Void
     var onGoalTap: () -> Void
     var readingProgress: Double
@@ -38,7 +43,14 @@ struct TabAccessoryView: View {
                     onAddFolder: onAddFolder,
                     isMinimized: isMinimized
                 )
-            } else { // Today, For You, etc.
+            } else if activePage == 1 { // For You
+                TabAccessoryAlgorithmPicker(
+                    selectedAlgorithm: $selectedAlgorithm,
+                    algorithms: $algorithms,
+                    onAddAlgorithm: onAddAlgorithm,
+                    isMinimized: isMinimized
+                )
+            } else { // Today, etc.
                 TabAccessoryPicker(selectedSort: $selectedSort, isMinimized: isMinimized)
             }
             
@@ -66,6 +78,8 @@ struct TabAccessoryView: View {
         @State var sort = TabAccessoryView.SortOption.hot
         @State var selectedFolder: String? = nil
         @State var folders = ["Tech", "Design"]
+        @State var selectedAlgorithm: Algorithm? = nil
+        @State var algorithms: [Algorithm] = []
         
         var body: some View {
             ZStack {
@@ -77,6 +91,9 @@ struct TabAccessoryView: View {
                     selectedFolder: $selectedFolder,
                     folders: $folders,
                     onAddFolder: { _ in },
+                    selectedAlgorithm: $selectedAlgorithm,
+                    algorithms: $algorithms,
+                    onAddAlgorithm: { _ in },
                     onFilterTap: { print("Filter") },
                     onGoalTap: { print("Goal") },
                     readingProgress: 0.6

@@ -23,6 +23,10 @@ struct GlassTabView: View {
     @State private var selectedFolder: String? = nil
     @State private var folders: [String] = ["Read Later", "Favorites", "Tech", "Recipes"]
     
+    // Algorithm State
+    @State private var selectedAlgorithm: Algorithm? = nil
+    @State private var algorithms: [Algorithm] = []
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
@@ -77,12 +81,35 @@ struct GlassTabView: View {
                 onAddFolder: { name in
                     folders.append(name)
                 },
+                selectedAlgorithm: $selectedAlgorithm,
+                algorithms: $algorithms,
+                onAddAlgorithm: { newAlgo in
+                    algorithms.append(newAlgo)
+                    selectedAlgorithm = newAlgo
+                },
                 onFilterTap: { showSortMenu.toggle() },
                 onGoalTap: { showGoalExpansion.toggle() },
                 readingProgress: scrollProgress,
                 isMinimized: scrollProgress > 0.02,
                 hasActiveFilters: !selectedTags.isEmpty || !selectedJournalists.isEmpty || !selectedSources.isEmpty
             )
+            .onChange(of: selectedAlgorithm) { newValue in
+                if let algo = newValue {
+                    selectedTags = algo.tags
+                    selectedJournalists = algo.journalists
+                    selectedSources = algo.sources
+                } else {
+                    // Optional: Clear filters or leave them? 
+                    // Usually "Default" implies no filters or a specific set.
+                    // For now, if deselected (Default), we might want to clear filters if that's the intended behavior.
+                    // But the logic for "Default" wasn't strictly defined.
+                    // Assuming "Default" means no algorithm applied -> clear specific filters?
+                    // Let's clear them to be safe/consistent with "resetting".
+                    selectedTags = []
+                    selectedJournalists = []
+                    selectedSources = []
+                }
+            }
             .matchedTransitionSource(
                 id: "expansion", in: transition
             )
