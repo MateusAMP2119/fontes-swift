@@ -57,50 +57,61 @@ struct ForLaterPage: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                // Header
-                TodayHeaderView()
-                    .padding(.horizontal)
-                    .padding(.bottom, 16)
-                
-                VStack(spacing: 24) {
-                    // Start directly with Masonry Grid, no Featured Card
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Header
+                    TodayHeaderView()
+                        .padding(.horizontal)
+                        .padding(.bottom, 16)
                     
-                    // Masonry Grid
-                    HStack(alignment: .top, spacing: 16) {
-                        // Left Column
-                        LazyVStack(spacing: 24) {
-                            ForEach(leftColumnItems) { item in
-                                GridCard(item: item)
-                                    .transition(.scale.combined(with: .opacity))
-                            }
-                        }
+                    VStack(spacing: 24) {
+                        // Start directly with Masonry Grid, no Featured Card
                         
-                        // Right Column
-                        LazyVStack(spacing: 24) {
-                            ForEach(rightColumnItems) { item in
-                                GridCard(item: item)
-                                    .transition(.scale.combined(with: .opacity))
+                        // Masonry Grid
+                        HStack(alignment: .top, spacing: 16) {
+                            // Left Column
+                            LazyVStack(spacing: 24) {
+                                ForEach(leftColumnItems) { item in
+                                    NavigationLink(value: item) {
+                                        GridCard(item: item)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                            
+                            // Right Column
+                            LazyVStack(spacing: 24) {
+                                ForEach(rightColumnItems) { item in
+                                    NavigationLink(value: item) {
+                                        GridCard(item: item)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
                             }
                         }
                     }
+                    .padding(.horizontal)
+                    .animation(.default, value: items.map { $0.id })
                 }
-                .padding(.horizontal)
-                .animation(.default, value: items.map { $0.id })
             }
-        }
-        .onScrollGeometryChange(for: Double.self) { geometry in
-            let contentHeight = geometry.contentSize.height
-            let visibleHeight = geometry.containerSize.height
-            let offset = geometry.contentOffset.y
-            let maxOffset = contentHeight - visibleHeight
-            if maxOffset > 0 {
-                return max(0, min(1, offset / maxOffset))
+            .onScrollGeometryChange(for: Double.self) { geometry in
+                let contentHeight = geometry.contentSize.height
+                let visibleHeight = geometry.containerSize.height
+                let offset = geometry.contentOffset.y
+                let maxOffset = contentHeight - visibleHeight
+                if maxOffset > 0 {
+                    return Double(max(0, min(1, offset / maxOffset)))
+                }
+                return 0.0
+            } action: { oldValue, newValue in
+                scrollProgress = newValue
             }
-            return 0.0
-        } action: { oldValue, newValue in
-            scrollProgress = newValue
+            .navigationDestination(for: ArticleItem.self) { item in
+                ArticleDetailView(item: item)
+            }
         }
     }
 }
