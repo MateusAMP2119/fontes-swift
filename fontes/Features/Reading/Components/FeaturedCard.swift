@@ -20,6 +20,23 @@ struct FeaturedCard: View {
                     endPoint: .bottomTrailing
                 ))
             
+            // Action Menu
+            VStack {
+                HStack {
+                    Spacer()
+                    ArticleActionMenu(
+                        onSave: { print("Saved \(item.title)") },
+                        onMoreLikeThis: { print("More like This: \(item.title)") },
+                        onBuildAlgorithm: { print("Build algo: \(item.title)") },
+                        showBackground: true,
+                        menuId: "\(item.id)"
+                    )
+                    .foregroundColor(.white) // Override default gray for FeaturedCard
+                }
+                Spacer()
+            }
+            .padding(16)
+            
             // Content Overlay
             VStack(alignment: .leading, spacing: 8) {
                 if let url = URL(string: item.sourceLogo) {

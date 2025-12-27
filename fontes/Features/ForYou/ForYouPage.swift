@@ -64,6 +64,8 @@ struct ForYouPage: View {
         items.enumerated().filter { $0.offset % 2 != 0 }.map { $0.element }
     }
 
+    @State private var activeMenuId: String? = nil
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -114,6 +116,16 @@ struct ForYouPage: View {
                     .animation(.default, value: featuredItem?.id)
                 }
             }
+            .simultaneousGesture(
+                DragGesture().onChanged { _ in
+                    if activeMenuId != nil {
+                        withAnimation {
+                            activeMenuId = nil
+                        }
+                    }
+                }
+            )
+            .environment(\.activeMenuId, $activeMenuId)
             .onScrollGeometryChange(for: Double.self) { geometry in
                 let contentHeight = geometry.contentSize.height
                 let visibleHeight = geometry.containerSize.height

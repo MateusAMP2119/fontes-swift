@@ -48,6 +48,8 @@ struct DiscoverView: View {
         )
     ]
 
+    @State private var activeMenuId: String? = nil
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -92,9 +94,9 @@ struct DiscoverView: View {
                             // Action for see more
                         }) {
                             Text("See more")
-                                .font(.subheadline)
-                                .foregroundColor(.red)
-                                .fontWeight(.medium)
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                            .fontWeight(.medium)
                         }
                         .padding(.leading, 40) // Align with title (24 rank width + 16 spacing)
                     }
@@ -149,6 +151,16 @@ struct DiscoverView: View {
                                 prompt: "Type here to search"
                             )
             }
+            .simultaneousGesture(
+                DragGesture().onChanged { _ in
+                    if activeMenuId != nil {
+                        withAnimation {
+                            activeMenuId = nil
+                        }
+                    }
+                }
+            )
+            .environment(\.activeMenuId, $activeMenuId)
             .onScrollGeometryChange(for: Double.self) { geometry in
                 let contentHeight = geometry.contentSize.height
                 let visibleHeight = geometry.containerSize.height
