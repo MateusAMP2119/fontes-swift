@@ -13,6 +13,7 @@ struct TabAccessoryView: View {
     
     @Binding var selectedSort: SortOption
     var onFilterTap: () -> Void
+    var onGoalTap: () -> Void
     var readingProgress: Double
     var isMinimized: Bool = false
     var hasActiveFilters: Bool = false
@@ -26,6 +27,10 @@ struct TabAccessoryView: View {
             Spacer()
             // Section 3: Reading Goal
             TabAccessoryGoal(progress: readingProgress)
+                .contentShape(Rectangle()) // Make it easier to tap
+                .onTapGesture {
+                    onGoalTap()
+                }
         }
         .padding(.vertical)
         .padding(.horizontal, 6)
@@ -44,6 +49,7 @@ struct TabAccessoryView: View {
                 TabAccessoryView(
                     selectedSort: $sort,
                     onFilterTap: { print("Filter") },
+                    onGoalTap: { print("Goal") },
                     readingProgress: 0.6
                 )
                 .padding()

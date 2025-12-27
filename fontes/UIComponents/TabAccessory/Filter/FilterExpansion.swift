@@ -57,11 +57,10 @@ struct FilterExpansion: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial)
                         .clipShape(Circle())
                         .overlay(
                             Circle()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                         )
                 }
                 
@@ -97,11 +96,11 @@ struct FilterExpansion: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(totalSelectedCount > 0 ? .primary : .secondary.opacity(0.5))
                         .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial)
+                        .background(totalSelectedCount > 0 ? Color.clear : .gray.opacity(0.1))
                         .clipShape(Circle())
                         .overlay(
                             Circle()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                         )
                 }
                 .disabled(totalSelectedCount == 0)

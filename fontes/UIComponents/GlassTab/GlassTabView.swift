@@ -13,6 +13,7 @@ struct GlassTabView: View {
     @State private var scrollProgress: Double = 0.0
     @State private var sortOption: TabAccessoryView.SortOption = .hot
     @State private var showSortMenu: Bool = false
+    @State private var showGoalExpansion: Bool = false
     @Namespace private var transition
     
     @State private var selectedTags: Set<String> = []
@@ -68,12 +69,16 @@ struct GlassTabView: View {
             TabAccessoryView(
                 selectedSort: $sortOption,
                 onFilterTap: { showSortMenu.toggle() },
+                onGoalTap: { showGoalExpansion.toggle() },
                 readingProgress: scrollProgress,
                 isMinimized: scrollProgress > 0.02,
                 hasActiveFilters: !selectedTags.isEmpty || !selectedJournalists.isEmpty || !selectedSources.isEmpty
             )
             .matchedTransitionSource(
                 id: "expansion", in: transition
+            )
+            .matchedTransitionSource(
+                id: "goalExpansion", in: transition
             )
         }
         .tabBarMinimizeBehavior(.onScrollDown)
@@ -87,6 +92,13 @@ struct GlassTabView: View {
             .navigationTransition(
                 .zoom(sourceID: "expansion", in: transition)
             )
+        }
+        .sheet(isPresented: $showGoalExpansion) {
+            GoalExpansion()
+                .presentationDetents([.medium, .large])
+                .navigationTransition(
+                    .zoom(sourceID: "goalExpansion", in: transition)
+                )
         }
     }
 }
