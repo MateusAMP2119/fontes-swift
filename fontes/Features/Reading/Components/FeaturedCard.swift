@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FeaturedCard: View {
-    let item: ArticleItem
+    let item: ReadingItem
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {

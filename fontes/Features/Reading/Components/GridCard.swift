@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GridCard: View {
-    let item: ArticleItem
+    let item: ReadingItem
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

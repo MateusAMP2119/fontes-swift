@@ -16,11 +16,11 @@ struct ForLaterPage: View {
     var selectedSources: Set<String>
     
     // Unified data access to handle dynamic filtering
-    var filteredContent: [ArticleItem] {
+    var filteredContent: [ReadingItem] {
         // Reuse the same mock data for now, but in a real app this would probably be saved items
         let allItems = MockData.shared.forLaterItems
         
-        let filtered: [ArticleItem]
+        let filtered: [ReadingItem]
         
         if selectedTags.isEmpty && selectedJournalists.isEmpty && selectedSources.isEmpty {
             filtered = allItems
@@ -38,7 +38,7 @@ struct ForLaterPage: View {
     }
     
     // Sample data for the grid
-    var items: [ArticleItem] {
+    var items: [ReadingItem] {
         filteredContent
     }
     
@@ -48,11 +48,11 @@ struct ForLaterPage: View {
     ]
     
     // Split items into two columns for masonry layout
-    var leftColumnItems: [ArticleItem] {
+    var leftColumnItems: [ReadingItem] {
         items.enumerated().filter { $0.offset % 2 == 0 }.map { $0.element }
     }
     
-    var rightColumnItems: [ArticleItem] {
+    var rightColumnItems: [ReadingItem] {
         items.enumerated().filter { $0.offset % 2 != 0 }.map { $0.element }
     }
 
@@ -109,8 +109,8 @@ struct ForLaterPage: View {
             } action: { oldValue, newValue in
                 scrollProgress = newValue
             }
-            .navigationDestination(for: ArticleItem.self) { item in
-                ArticleDetailView(item: item)
+            .navigationDestination(for: ReadingItem.self) { item in
+                ReadingDetailView(item: item)
             }
         }
     }

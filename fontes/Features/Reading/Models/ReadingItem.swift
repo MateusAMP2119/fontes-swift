@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ArticleItem: Identifiable, Hashable {
+struct ReadingItem: Identifiable, Hashable {
     let id: Int
     let title: String
     let source: String
@@ -27,7 +27,7 @@ struct ArticleItem: Identifiable, Hashable {
         hasher.combine(sourceLogo)
     }
     
-    static func == (lhs: ArticleItem, rhs: ArticleItem) -> Bool {
+    static func == (lhs: ReadingItem, rhs: ReadingItem) -> Bool {
         lhs.id == rhs.id &&
         lhs.title == rhs.title &&
         lhs.source == rhs.source &&

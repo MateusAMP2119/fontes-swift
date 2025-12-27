@@ -16,10 +16,10 @@ struct ForYouPage: View {
     var selectedSources: Set<String>
     
     // Unified data access to handle dynamic filtering
-    var filteredContent: (featured: ArticleItem?, list: [ArticleItem]) {
+    var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
         let allItems = [MockData.shared.forYouFeaturedItem] + MockData.shared.forYouItems
         
-        let filtered: [ArticleItem]
+        let filtered: [ReadingItem]
         
         if selectedTags.isEmpty && selectedJournalists.isEmpty && selectedSources.isEmpty {
             filtered = allItems
@@ -41,12 +41,12 @@ struct ForYouPage: View {
     }
     
     // Featured item
-    var featuredItem: ArticleItem? {
+    var featuredItem: ReadingItem? {
         filteredContent.featured
     }
     
     // Sample data for the grid
-    var items: [ArticleItem] {
+    var items: [ReadingItem] {
         filteredContent.list
     }
     
@@ -56,11 +56,11 @@ struct ForYouPage: View {
     ]
     
     // Split items into two columns for masonry layout
-    var leftColumnItems: [ArticleItem] {
+    var leftColumnItems: [ReadingItem] {
         items.enumerated().filter { $0.offset % 2 == 0 }.map { $0.element }
     }
     
-    var rightColumnItems: [ArticleItem] {
+    var rightColumnItems: [ReadingItem] {
         items.enumerated().filter { $0.offset % 2 != 0 }.map { $0.element }
     }
 
@@ -126,8 +126,8 @@ struct ForYouPage: View {
             } action: { oldValue, newValue in
                 scrollProgress = newValue
             }
-            .navigationDestination(for: ArticleItem.self) { item in
-                ArticleDetailView(item: item)
+            .navigationDestination(for: ReadingItem.self) { item in
+                ReadingDetailView(item: item)
             }
         }
     }
