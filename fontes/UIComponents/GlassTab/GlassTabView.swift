@@ -74,10 +74,8 @@ struct GlassTabView: View {
                 selectedSort: $sortOption,
                 selectedFolder: $selectedFolder,
                 folders: $folders,
-                onAddFolder: {
-                    // Logic to add folder (e.g. show alert)
-                    // For now, simple append for demo or placeholder
-                    folders.append("Folder \(folders.count + 1)")
+                onAddFolder: { name in
+                    folders.append(name)
                 },
                 onFilterTap: { showSortMenu.toggle() },
                 onGoalTap: { showGoalExpansion.toggle() },

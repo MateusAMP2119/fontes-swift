@@ -10,8 +10,9 @@ import SwiftUI
 struct TabAccessoryFolderPicker: View {
     @Binding var selectedFolder: String?
     @Binding var folders: [String]
-    var onAddFolder: () -> Void
+    var onAddFolder: (String) -> Void
     var isMinimized: Bool = false
+    @Namespace private var transition
     
     @State private var showExpansion = false
     
@@ -22,14 +23,26 @@ struct TabAccessoryFolderPicker: View {
                 showExpansion = true
             } label: {
                 HStack(spacing: 6) {
-                    Text(selectedFolder ?? "All")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .lineLimit(1)
+                    HStack(spacing: 12) {
+                        Image(systemName: "folder")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        
+                        Text(selectedFolder ?? "Guardados")
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                            .lineLimit(1)
+                    }
+                        .padding(.horizontal)
                     
-                    Image(systemName: "chevron.up")
-                        .font(.caption2)
+                    Rectangle()
+                        .frame(width: 1)
+                        .padding(.vertical, 6)
+                    
+                    Image(systemName: "square.and.pencil")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6)
                 }
                 .padding(.horizontal, 12)
                 .frame(height: 32)
@@ -37,29 +50,18 @@ struct TabAccessoryFolderPicker: View {
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
-                        .strokeBorder(Color.primary.opacity(0.1), lineWidth: 1)
+                        .strokeBorder(Color.gray, lineWidth: 0)
                 )
             }
+            .matchedTransitionSource(
+                id: "expansion", in: transition
+            )
             .tint(.primary)
             
-            // Edit Button (opens expansion too)
-            Button {
-                showExpansion = true
-            } label: {
-                Image(systemName: "square.and.pencil")
-                    .font(.subheadline)
-                    .frame(width: 32, height: 32)
-                    .background(Color.primary.opacity(0.05))
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                            .strokeBorder(Color.primary.opacity(0.1), lineWidth: 1)
-                    )
-            }
-            .tint(.primary)
+            // Edit Button removed (merged into pill)
         }
         .padding(.vertical, 4)
-        .fullScreenCover(isPresented: $showExpansion) {
+        .sheet(isPresented: $showExpansion) {
             FolderExpansion(
                 selectedFolder: $selectedFolder,
                 folders: $folders,
@@ -70,6 +72,10 @@ struct TabAccessoryFolderPicker: View {
                 onMoveFolder: { indexSet, index in
                     folders.move(fromOffsets: indexSet, toOffset: index)
                 }
+            )
+            .presentationDetents([.medium, .large])
+            .navigationTransition(
+                .zoom(sourceID: "expansion", in: transition)
             )
         }
     }
@@ -85,15 +91,15 @@ struct TabAccessoryFolderPicker: View {
                 TabAccessoryFolderPicker(
                     selectedFolder: $selectedFolder,
                     folders: $folders,
-                    onAddFolder: {
-                        folders.append("New Folder \(folders.count + 1)")
+                    onAddFolder: { name in
+                        folders.append(name)
                     }
                 )
                 
                 TabAccessoryFolderPicker(
                     selectedFolder: $selectedFolder,
                     folders: $folders,
-                    onAddFolder: {},
+                    onAddFolder: { _ in },
                     isMinimized: true
                 )
             }

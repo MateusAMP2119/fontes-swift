@@ -20,7 +20,7 @@ struct TabAccessoryView: View {
     // Folder State
     @Binding var selectedFolder: String?
     @Binding var folders: [String]
-    var onAddFolder: () -> Void
+    var onAddFolder: (String) -> Void
     
     var onFilterTap: () -> Void
     var onGoalTap: () -> Void
@@ -76,7 +76,7 @@ struct TabAccessoryView: View {
                     selectedSort: $sort,
                     selectedFolder: $selectedFolder,
                     folders: $folders,
-                    onAddFolder: {},
+                    onAddFolder: { _ in },
                     onFilterTap: { print("Filter") },
                     onGoalTap: { print("Goal") },
                     readingProgress: 0.6

@@ -12,11 +12,17 @@ struct FolderExpansion: View {
     
     @Binding var selectedFolder: String?
     @Binding var folders: [String]
-    var onAddFolder: () -> Void
+    var onAddFolder: (String) -> Void
     var onDeleteFolder: (IndexSet) -> Void
     var onMoveFolder: (IndexSet, Int) -> Void
     
     @State private var isEditing = false
+    
+    // Alert State
+    @State private var showingAddAlert = false
+    @State private var showingRenameAlert = false
+    @State private var newFolderName = ""
+    @State private var folderToRename: String? = nil
     
     var body: some View {
         VStack(spacing: 0) {
@@ -90,7 +96,11 @@ struct FolderExpansion: View {
                 Section("My Folders") {
                     ForEach(folders, id: \.self) { folder in
                         Button {
-                            if !isEditing {
+                            if isEditing {
+                                folderToRename = folder
+                                newFolderName = folder
+                                showingRenameAlert = true
+                            } else {
                                 selectedFolder = folder
                                 dismiss()
                             }
@@ -103,6 +113,10 @@ struct FolderExpansion: View {
                                     Image(systemName: "checkmark")
                                         .foregroundColor(.blue)
                                 }
+                                if isEditing {
+                                    Image(systemName: "pencil")
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                     }
@@ -112,7 +126,10 @@ struct FolderExpansion: View {
                 
                 if isEditing {
                     Section {
-                        Button(action: onAddFolder) {
+                        Button(action: {
+                            newFolderName = ""
+                            showingAddAlert = true
+                        }) {
                             Label("Add New Folder", systemImage: "plus.circle.fill")
                                 .foregroundColor(.blue)
                         }
@@ -122,6 +139,30 @@ struct FolderExpansion: View {
             .environment(\.editMode, .constant(isEditing ? .active : .inactive))
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
+            .alert("New Folder", isPresented: $showingAddAlert) {
+                TextField("Folder Name", text: $newFolderName)
+                Button("Cancel", role: .cancel) { }
+                Button("Add") {
+                    if !newFolderName.isEmpty {
+                        onAddFolder(newFolderName)
+                        newFolderName = ""
+                    }
+                }
+            }
+            .alert("Rename Folder", isPresented: $showingRenameAlert) {
+                TextField("Folder Name", text: $newFolderName)
+                Button("Cancel", role: .cancel) { }
+                Button("Rename") {
+                    if let folderToRename = folderToRename, !newFolderName.isEmpty, let index = folders.firstIndex(of: folderToRename) {
+                        folders[index] = newFolderName
+                        if selectedFolder == folderToRename {
+                            selectedFolder = newFolderName
+                        }
+                    }
+                    folderToRename = nil
+                    newFolderName = ""
+                }
+            }
         }
         .background(Color(.systemBackground))
     }
@@ -131,7 +172,7 @@ struct FolderExpansion: View {
     FolderExpansion(
         selectedFolder: .constant(nil),
         folders: .constant(["Tech", "Design", "Recipes"]),
-        onAddFolder: {},
+        onAddFolder: { _ in },
         onDeleteFolder: { _ in },
         onMoveFolder: { _, _ in }
     )
