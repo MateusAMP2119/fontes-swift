@@ -137,43 +137,18 @@ struct GoalActivityCard: View {
                         Spacer()
                         
                         // Right: Ring
+                        // Right: Flame
                         ZStack {
-                            Circle()
-                                .stroke(Color.pink.opacity(0.15), lineWidth: 20)
+                            Image("ember")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 120, height: 120)
                             
-                            // Base Ring (up to 100%)
-                            Circle()
-                                .trim(from: 0, to: min(progressPercentage, 1.0))
-                                .stroke(
-                                    AngularGradient(
-                                        gradient: Gradient(colors: [.pink, Color.pink.opacity(0.8)]),
-                                        center: .center,
-                                        startAngle: .degrees(0),
-                                        endAngle: .degrees(360)
-                                    ),
-                                    style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                                )
-                                .rotationEffect(.degrees(-90))
-                            
-                            // Overflow Ring (loop 2+)
-                            if progressPercentage > 1.0 {
-                                Circle()
-                                    .trim(from: 0, to: CGFloat(progressPercentage.truncatingRemainder(dividingBy: 1.0)))
-                                    .stroke(
-                                        AngularGradient(
-                                            gradient: Gradient(colors: [.orange, .red]),
-                                            center: .center,
-                                            startAngle: .degrees(0),
-                                            endAngle: .degrees(360)
-                                        ),
-                                        style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                                    )
-                                    .rotationEffect(.degrees(-90))
-                            }
-                            
-                            Image(systemName: "book.fill")
-                                .font(.title2)
-                                .foregroundColor(.pink)
+                            Image("fire_big")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 80, height: 80)
+                                .offset(y: 10)
                         }
                         .frame(width: 100, height: 100)
                         .padding(.trailing, 8)
