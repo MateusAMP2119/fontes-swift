@@ -19,6 +19,9 @@ struct GlassTabView: View {
     @State private var selectedTags: Set<String> = []
     @State private var selectedJournalists: Set<String> = []
     @State private var selectedSources: Set<String> = []
+
+    @State private var selectedFolder: String? = nil
+    @State private var folders: [String] = ["Read Later", "Favorites", "Tech", "Recipes"]
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -67,7 +70,15 @@ struct GlassTabView: View {
         .tint(.red)
         .tabViewBottomAccessory {
             TabAccessoryView(
+                activePage: selectedTab,
                 selectedSort: $sortOption,
+                selectedFolder: $selectedFolder,
+                folders: $folders,
+                onAddFolder: {
+                    // Logic to add folder (e.g. show alert)
+                    // For now, simple append for demo or placeholder
+                    folders.append("Folder \(folders.count + 1)")
+                },
                 onFilterTap: { showSortMenu.toggle() },
                 onGoalTap: { showGoalExpansion.toggle() },
                 readingProgress: scrollProgress,
@@ -100,6 +111,8 @@ struct GlassTabView: View {
                     .zoom(sourceID: "goalExpansion", in: transition)
                 )
         }
+        .background(Color.white)
+        .environment(\.colorScheme, .light)
     }
 }
 
