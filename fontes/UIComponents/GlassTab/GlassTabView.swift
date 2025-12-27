@@ -35,7 +35,7 @@ struct GlassTabView: View {
             }
             
             Tab(value: 1) {
-                TodayPage(
+                ForYouPage(
                     scrollProgress: $scrollProgress,
                     selectedTags: selectedTags,
                     selectedJournalists: selectedJournalists,
@@ -47,7 +47,7 @@ struct GlassTabView: View {
             }
             
             Tab(value: 2) {
-                TodayPage(
+                ForLaterPage(
                     scrollProgress: $scrollProgress,
                     selectedTags: selectedTags,
                     selectedJournalists: selectedJournalists,

@@ -33,4 +33,35 @@ struct MockData {
         sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fvectorseek.com%2Fwp-content%2Fuploads%2F2023%2F10%2FCorreio-da-Manha-Logo-Vector.svg-.png&f=1&nofb=1&ipt=fc21ec43bf88a94dabfedc06efe86762663499facfcd48710bd6332161dae90f",
         mainColor: .red
     )
+
+    
+    // MARK: - For You Data
+    let forYouItems: [ArticleItem] = [
+        ArticleItem(id: 101, title: "The Art of Minimalist Living: Less is More", source: "Kinfolk", time: "1h", author: "Nathan Williams", tags: ["Lifestyle", "Design"], sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Logo_publico.svg/250px-Logo_publico.svg.png?20171009220824", mainColor: .gray),
+        ArticleItem(id: 102, title: "Best Coffee Shops in Lisbon 2025", source: "TimeOut", time: "30m", author: "Maria Sousa", tags: ["Food", "Lisbon"], sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/RTP.svg/1024px-RTP.svg.png?20211101150043", mainColor: .brown),
+        ArticleItem(id: 103, title: "Understanding SwiftUI Layout System", source: "Hacking within Swift", time: "5h", author: "Paul Hudson", tags: ["Code", "SwiftUI"], sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.empregoestagios.com%2Fwp-content%2Fuploads%2F2022%2F02%2FObservador-660x330.png&f=1&nofb=1&ipt=6ce4e74a3dcc0cf828b8f6ae8283bbdcdfbeb71a6871e61fd5990a04c804a8b6", mainColor: .orange),
+        ArticleItem(id: 104, title: "The Rise of Electric Vehicles in Europe", source: "Bloomberg", time: "12h", author: "Tom Randall", tags: ["Auto", "Economy"], sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fvectorseek.com%2Fwp-content%2Fuploads%2F2023%2F10%2FCorreio-da-Manha-Logo-Vector.svg-.png&f=1&nofb=1&ipt=fc21ec43bf88a94dabfedc06efe86762663499facfcd48710bd6332161dae90f", mainColor: .blue),
+        ArticleItem(id: 105, title: "Why sleep is your superpower", source: "TED", time: "1d", author: "Matt Walker", tags: ["Health", "Science"], sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Logo_publico.svg/250px-Logo_publico.svg.png?20171009220824", mainColor: .purple)
+    ]
+    
+    let forYouFeaturedItem = ArticleItem(
+        id: 100,
+        title: "Discovering the Hidden Beaches of Algarve",
+        source: "Travel & Leisure",
+        time: "2h",
+        author: "Joana Silva",
+        tags: ["Travel", "Portugal"],
+        sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fvectorseek.com%2Fwp-content%2Fuploads%2F2023%2F10%2FCorreio-da-Manha-Logo-Vector.svg-.png&f=1&nofb=1&ipt=fc21ec43bf88a94dabfedc06efe86762663499facfcd48710bd6332161dae90f",
+        mainColor: .teal
+    )
+    
+    // MARK: - For Later Data
+    let forLaterItems: [ArticleItem] = [
+        ArticleItem(id: 201, title: "Deep Dive into Artificial Intelligence Ethics", source: "Wired", time: "Saved 2d ago", author: "Will Knight", tags: ["AI", "Tech"], sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.empregoestagios.com%2Fwp-content%2Fuploads%2F2022%2F02%2FObservador-660x330.png&f=1&nofb=1&ipt=6ce4e74a3dcc0cf828b8f6ae8283bbdcdfbeb71a6871e61fd5990a04c804a8b6", mainColor: .black),
+        ArticleItem(id: 202, title: "The History of Modern Architecture", source: "ArchDaily", time: "Saved 1w ago", author: "David Basulto", tags: ["Design", "History"], sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Logo_publico.svg/250px-Logo_publico.svg.png?20171009220824", mainColor: .gray),
+        ArticleItem(id: 203, title: "How to Bake the Perfect Sourdough Bread", source: "Bon Appétit", time: "Saved 3d ago", author: "Claire Saffitz", tags: ["Food", "Cooking"], sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/RTP.svg/1024px-RTP.svg.png?20211101150043", mainColor: .yellow),
+        ArticleItem(id: 204, title: "Financial Freedom: A multiple step guide", source: "Forbes", time: "Saved 5d ago", author: "Rob Berger", tags: ["Finance", "Money"], sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fvectorseek.com%2Fwp-content%2Fuploads%2F2023%2F10%2FCorreio-da-Manha-Logo-Vector.svg-.png&f=1&nofb=1&ipt=fc21ec43bf88a94dabfedc06efe86762663499facfcd48710bd6332161dae90f", mainColor: .green),
+        ArticleItem(id: 205, title: "Long Form: The Cold War Espionage", source: "The New Yorker", time: "Saved 2w ago", author: "Patrick Radden Keefe", tags: ["History", "Long Read"], sourceLogo: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.empregoestagios.com%2Fwp-content%2Fuploads%2F2022%2F02%2FObservador-660x330.png&f=1&nofb=1&ipt=6ce4e74a3dcc0cf828b8f6ae8283bbdcdfbeb71a6871e61fd5990a04c804a8b6", mainColor: .red),
+        ArticleItem(id: 206, title: "Swift Concurrency: Behind the Scenes", source: "WWDC Notes", time: "Saved 1mo ago", author: "Apple", tags: ["Dev", "Swift"], sourceLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Logo_publico.svg/250px-Logo_publico.svg.png?20171009220824", mainColor: .orange)
+    ]
 }
