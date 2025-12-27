@@ -19,25 +19,13 @@ struct GoalActivityCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Activity")
+                Text("Objetivos")
                     .font(.title3)
                     .fontWeight(.bold)
                 
                 Spacer()
                 
-                if !isEditing {
-                    Button("CHANGE GOAL") {
-                        withAnimation {
-                            isEditing = true
-                        }
-                    }
-                    .font(.system(size: 12, weight: .bold))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(Capsule())
-                    .foregroundColor(.pink)
-                } else {
+                if isEditing {
                     Button("DONE") {
                         withAnimation {
                             isEditing = false
@@ -53,115 +41,124 @@ struct GoalActivityCard: View {
             }
             .padding(.horizontal)
             
-            // Activity Card
-            HStack(spacing: 0) {
-                if isEditing {
-                    // EDIT MODE: Stepper
-                    HStack(spacing: 24) {
-                        Button(action: {
-                            if dailyGoalArticles > 1 {
+            HStack {
+                // Activity Card
+                ZStack {
+                    if isEditing {
+                        // EDIT MODE: Stepper
+                        HStack(spacing: 24) {
+                            Button(action: {
+                                if dailyGoalArticles > 1 {
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                        dailyGoalArticles -= 1
+                                    }
+                                }
+                            }) {
+                                Image(systemName: "minus")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .frame(width: 56, height: 56)
+                                    .background(dailyGoalArticles > 1 ? Color.white : Color.clear)
+                                    .foregroundColor(dailyGoalArticles > 1 ? .primary : Color(.tertiaryLabel))
+                                    .clipShape(Circle())
+                            }
+                            .disabled(dailyGoalArticles <= 1)
+                            .buttonStyle(ScaleButtonStyle())
+                            
+                            VStack(spacing: 4) {
+                                Text("\(dailyGoalArticles)")
+                                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                                    .contentTransition(.numericText(value: Double(dailyGoalArticles)))
+                                
+                                Text("TARGET")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(minWidth: 80)
+                            
+                            Button(action: {
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                    dailyGoalArticles -= 1
+                                    dailyGoalArticles += 1
                                 }
+                            }) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .frame(width: 56, height: 56)
+                                    .background(Color.white)
+                                    .foregroundColor(.primary)
+                                    .clipShape(Circle())
                             }
-                        }) {
-                            Image(systemName: "minus")
-                                .font(.system(size: 24, weight: .bold))
-                                .frame(width: 56, height: 56)
-                                .background(dailyGoalArticles > 1 ? Color.white : Color.clear)
-                                .foregroundColor(dailyGoalArticles > 1 ? .primary : Color(.tertiaryLabel))
-                                .clipShape(Circle())
+                            .buttonStyle(ScaleButtonStyle())
                         }
-                        .disabled(dailyGoalArticles <= 1)
-                        .buttonStyle(ScaleButtonStyle())
+                        .frame(maxWidth: .infinity)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
                         
-                        VStack(spacing: 4) {
-                            Text("\(dailyGoalArticles)")
-                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                    } else {
+                        // The Container
+                        HStack(spacing: 0) {
+                            // Left: Stats
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                                    Text("\(currentProgressArticles)")
+                                        .foregroundColor(.pink)
+                                    Text("/")
+                                        .foregroundColor(.pink)
+                                    Text("\(dailyGoalArticles)")
+                                        .foregroundColor(.pink.opacity(0.7))
+                                }
+                                .font(.system(size: 39, weight: .bold, design: .rounded))
                                 .contentTransition(.numericText(value: Double(dailyGoalArticles)))
-                            
-                            Text("TARGET")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(minWidth: 80)
-                        
-                        Button(action: {
-                            let generator = UIImpactFeedbackGenerator(style: .light)
-                            generator.impactOccurred()
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                dailyGoalArticles += 1
                             }
-                        }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 24, weight: .bold))
-                                .frame(width: 56, height: 56)
-                                .background(Color.white)
-                                .foregroundColor(.primary)
-                                .clipShape(Circle())
-                        }
-                        .buttonStyle(ScaleButtonStyle())
-                    }
-                    .padding(.vertical, 22)
-                    .frame(maxWidth: .infinity)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                    
-                } else {
-                    // VIEW MODE: Stats + Ring
-                    HStack(spacing: 0) {
-                        // Left: Stats
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Readings")
-                                .font(.headline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.primary)
                             
-                            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                                Text("\(currentProgressArticles)")
-                                    .foregroundColor(.pink)
-                                Text("/")
-                                    .foregroundColor(.pink)
-                                Text("\(dailyGoalArticles)")
-                                    .foregroundColor(.pink.opacity(0.7))
+                            Spacer()
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 24)
+                        .background {
+                            ZStack(alignment: .bottomTrailing) {
+                                Color(.secondarySystemBackground)
+                                
+                                Image("fire_big")
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 280)
+                                    .offset(x: 38, y: -36)
+                                    .opacity(0.14)
                             }
-                            .font(.system(size: 38, weight: .bold, design: .rounded))
-                            .contentTransition(.numericText(value: Double(dailyGoalArticles)))
-                            
-                            Text("ARTICLES")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.secondary)
                         }
-                        
-                        Spacer()
-                        
-                        // Right: Ring
-                        // Right: Flame
-                        ZStack {
-                            Image("ember")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 120, height: 120)
-                            
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .overlay(alignment: .bottomTrailing) {
+                            Button {
+                                withAnimation {
+                                    isEditing = true
+                                }
+                            } label: {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 28, height: 28)
+                                    .background(Color(.tertiarySystemFill))
+                                    .clipShape(Circle())
+                            }
+                            .padding(12)
+                        }
+                        .overlay(alignment: .trailing) {
                             Image("fire_big")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 80, height: 80)
-                                .offset(y: 10)
+                                .frame(width: 180)
+                                .fixedSize()
+                                .offset(x: -14)
                         }
-                        .frame(width: 100, height: 100)
-                        .padding(.trailing, 8)
-                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: progressPercentage)
                     }
-                    .padding(24)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 }
+                .padding(.horizontal)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isEditing)
             }
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .padding(.horizontal)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isEditing)
         }
     }
 }
