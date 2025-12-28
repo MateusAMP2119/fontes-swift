@@ -95,7 +95,7 @@ struct ArticleActionMenu: View {
                         
                         // Check proximity to buttons
                         let location = value.translation
-                        var processedLocation = location
+                        let processedLocation = location
                         // The translation is relative to start point (center of button)
                         // Our button offsets are relative to center as well.
                         
@@ -151,7 +151,7 @@ struct ArticleActionMenu: View {
                     }
             )
         }
-        .onChange(of: activeMenuId.wrappedValue) { newValue in
+        .onChange(of: activeMenuId.wrappedValue) { oldValue, newValue in
             if newValue != menuId && isExpanded {
                 // Another menu opened or background tapped
                 isExpanded = false

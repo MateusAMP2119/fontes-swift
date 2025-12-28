@@ -93,18 +93,14 @@ struct GlassTabView: View {
                 isMinimized: scrollProgress > 0.02,
                 hasActiveFilters: !selectedTags.isEmpty || !selectedJournalists.isEmpty || !selectedSources.isEmpty
             )
-            .onChange(of: selectedAlgorithm) { newValue in
+            .onChange(of: selectedAlgorithm) { oldValue, newValue in
                 if let algo = newValue {
                     selectedTags = algo.tags
                     selectedJournalists = algo.journalists
                     selectedSources = algo.sources
                 } else {
-                    // Optional: Clear filters or leave them? 
-                    // Usually "Default" implies no filters or a specific set.
-                    // For now, if deselected (Default), we might want to clear filters if that's the intended behavior.
-                    // But the logic for "Default" wasn't strictly defined.
-                    // Assuming "Default" means no algorithm applied -> clear specific filters?
-                    // Let's clear them to be safe/consistent with "resetting".
+                    // Optional: Clear filters or leave them?
+                    // Assuming "Default" means no algorithm applied -> clear specific filters.
                     selectedTags = []
                     selectedJournalists = []
                     selectedSources = []
