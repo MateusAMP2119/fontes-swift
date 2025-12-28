@@ -10,16 +10,14 @@ import SwiftUI
 struct GoalExpansion: View {
     @Environment(\.dismiss) var dismiss
     
-    // User preference for daily goal (in articles)
-    @AppStorage("dailyReadingGoalArticles") private var dailyGoalArticles: Int = 5
-    @State private var isEditing: Bool = false
+    // User preference for daily goal (in articles) - REMOVED
     
     // Badge Interaction State
     @State private var selectedBadge: Badge?
     @Namespace private var namespace
     
     // Derived progress (mocked for now)
-    var currentProgressArticles: Int = 2
+    var currentProgressArticles: Int = 11
     
     var body: some View {
         ZStack {
@@ -60,8 +58,6 @@ struct GoalExpansion: View {
                 VStack(spacing: 32) {
                     
                     GoalActivityCard(
-                        isEditing: $isEditing,
-                        dailyGoalArticles: $dailyGoalArticles,
                         currentProgressArticles: currentProgressArticles
                     )
                     
