@@ -49,6 +49,7 @@ struct DiscoverView: View {
     ]
 
     @State private var activeMenuId: String? = nil
+    @State private var selectedArticle: DiscoverArticle?
 
     var body: some View {
         NavigationStack {
@@ -66,7 +67,9 @@ struct DiscoverView: View {
                             .foregroundColor(.gray)
                             .padding(.horizontal)
                         
-                        NavigationLink(value: topResult) {
+                        Button {
+                            selectedArticle = topResult
+                        } label: {
                             DiscoverResultRow(
                                 imageName: topResult.imageName,
                                 title: topResult.title,
@@ -130,7 +133,9 @@ struct DiscoverView: View {
                             .padding(.horizontal)
                         
                         ForEach(magazines) { magazine in
-                            NavigationLink(value: magazine) {
+                            Button {
+                                selectedArticle = magazine
+                            } label: {
                                 DiscoverResultRow(
                                     imageName: magazine.imageName,
                                     title: magazine.title,
@@ -173,8 +178,8 @@ struct DiscoverView: View {
             } action: { oldValue, newValue in
                 scrollProgress = newValue
             }
-            .navigationDestination(for: DiscoverArticle.self) { article in
-                DiscoverArticleDetailView(article: article)
+            .fullScreenCover(item: $selectedArticle) { article in
+                ReadingDetailView(item: article.asReadingItem)
             }
         }
     }

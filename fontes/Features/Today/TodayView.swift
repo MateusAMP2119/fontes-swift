@@ -64,6 +64,9 @@ struct TodayPage: View {
         items.enumerated().filter { $0.offset % 2 != 0 }.map { $0.element }
     }
 
+    @State private var activeMenuId: String? = nil
+    @State private var selectedItem: ReadingItem?
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -76,7 +79,9 @@ struct TodayPage: View {
                     VStack(spacing: 24) {
                         // Featured Card
                         if let featuredItem = featuredItem {
-                            NavigationLink(value: featuredItem) {
+                            Button {
+                                selectedItem = featuredItem
+                            } label: {
                                 FeaturedCard(item: featuredItem)
                                     .frame(height: 400)
                                     .transition(.scale.combined(with: .opacity))
@@ -89,7 +94,9 @@ struct TodayPage: View {
                             // Left Column
                             LazyVStack(spacing: 24) {
                                 ForEach(leftColumnItems) { item in
-                                    NavigationLink(value: item) {
+                                    Button {
+                                        selectedItem = item
+                                    } label: {
                                         GridCard(item: item)
                                             .transition(.scale.combined(with: .opacity))
                                     }
@@ -100,7 +107,9 @@ struct TodayPage: View {
                             // Right Column
                             LazyVStack(spacing: 24) {
                                 ForEach(rightColumnItems) { item in
-                                    NavigationLink(value: item) {
+                                    Button {
+                                        selectedItem = item
+                                    } label: {
                                         GridCard(item: item)
                                             .transition(.scale.combined(with: .opacity))
                                     }
@@ -126,7 +135,7 @@ struct TodayPage: View {
             } action: { oldValue, newValue in
                 scrollProgress = newValue
             }
-            .navigationDestination(for: ReadingItem.self) { item in
+            .fullScreenCover(item: $selectedItem) { item in
                 ReadingDetailView(item: item)
             }
         }

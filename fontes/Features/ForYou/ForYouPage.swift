@@ -65,6 +65,7 @@ struct ForYouPage: View {
     }
 
     @State private var activeMenuId: String? = nil
+    @State private var selectedItem: ReadingItem?
 
     var body: some View {
         NavigationStack {
@@ -78,7 +79,9 @@ struct ForYouPage: View {
                     VStack(spacing: 24) {
                         // Featured Card
                         if let featuredItem = featuredItem {
-                            NavigationLink(value: featuredItem) {
+                            Button {
+                                selectedItem = featuredItem
+                            } label: {
                                 FeaturedCard(item: featuredItem)
                                     .frame(height: 400)
                                     .transition(.scale.combined(with: .opacity))
@@ -91,7 +94,9 @@ struct ForYouPage: View {
                             // Left Column
                             LazyVStack(spacing: 24) {
                                 ForEach(leftColumnItems) { item in
-                                    NavigationLink(value: item) {
+                                    Button {
+                                        selectedItem = item
+                                    } label: {
                                         GridCard(item: item)
                                             .transition(.scale.combined(with: .opacity))
                                     }
@@ -102,7 +107,9 @@ struct ForYouPage: View {
                             // Right Column
                             LazyVStack(spacing: 24) {
                                 ForEach(rightColumnItems) { item in
-                                    NavigationLink(value: item) {
+                                    Button {
+                                        selectedItem = item
+                                    } label: {
                                         GridCard(item: item)
                                             .transition(.scale.combined(with: .opacity))
                                     }
@@ -138,7 +145,7 @@ struct ForYouPage: View {
             } action: { oldValue, newValue in
                 scrollProgress = newValue
             }
-            .navigationDestination(for: ReadingItem.self) { item in
+            .fullScreenCover(item: $selectedItem) { item in
                 ReadingDetailView(item: item)
             }
         }

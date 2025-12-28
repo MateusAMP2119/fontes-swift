@@ -33,4 +33,23 @@ struct DiscoverArticle: Identifiable, Hashable {
         lhs.details == rhs.details &&
         lhs.isFollowing == rhs.isFollowing
     }
+    
+    var asReadingItem: ReadingItem {
+        // Map DiscoverArticle to ReadingItem
+        // Using hash of ID for the Int ID requirement of ReadingItem
+        var hasher = Hasher()
+        hasher.combine(id)
+        let intId = hasher.finalize()
+        
+        return ReadingItem(
+            id: intId,
+            title: title,
+            source: subtitle.replacingOccurrences(of: "By ", with: ""),
+            time: "Recently", // Discover doesn't have time, default to Recently
+            author: subtitle.replacingOccurrences(of: "By ", with: ""),
+            tags: [], // Discover items don't have tags in this model
+            sourceLogo: imageName,
+            mainColor: color
+        )
+    }
 }
