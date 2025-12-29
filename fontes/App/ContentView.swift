@@ -7,12 +7,9 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView : View {
+
     var body: some View {
         MainNavView()
     }
-}
-
-#Preview {
-    ContentView()
 }

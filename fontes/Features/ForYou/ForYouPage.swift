@@ -1,5 +1,5 @@
 //
-//  TodayPage.swift
+//  ForYouPage.swift
 //  fontes
 //
 //  Created by Mateus Costa on 24/12/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TodayPage: View {
+struct ForYouPage: View {
     @Binding var scrollProgress: Double
     
     // Filter State
@@ -17,7 +17,7 @@ struct TodayPage: View {
     
     // Unified data access to handle dynamic filtering
     var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
-        let allItems = [MockData.shared.featuredItem] + MockData.shared.items
+        let allItems = [MockData.shared.forYouFeaturedItem] + MockData.shared.forYouItems
         
         let filtered: [ReadingItem]
         
@@ -123,6 +123,16 @@ struct TodayPage: View {
                     .animation(.default, value: featuredItem?.id)
                 }
             }
+            .simultaneousGesture(
+                DragGesture().onChanged { _ in
+                    if activeMenuId != nil {
+                        withAnimation {
+                            activeMenuId = nil
+                        }
+                    }
+                }
+            )
+            .environment(\.activeMenuId, $activeMenuId)
             .onScrollGeometryChange(for: Double.self) { geometry in
                 let contentHeight = geometry.contentSize.height
                 let visibleHeight = geometry.containerSize.height
@@ -142,9 +152,9 @@ struct TodayPage: View {
     }
 }
 
-struct TodayPage_Previews: PreviewProvider {
+struct ForYouPage_Previews: PreviewProvider {
     static var previews: some View {
-        TodayPage(
+        ForYouPage(
             scrollProgress: .constant(0.0),
             selectedTags: [],
             selectedJournalists: [],
@@ -152,4 +162,3 @@ struct TodayPage_Previews: PreviewProvider {
         )
     }
 }
-

@@ -11,201 +11,177 @@ struct DiscoverView: View {
     @Binding var scrollProgress: Double
     @State var search: String = ""
 
-    @State private var selectedTab = "ALL"
+    let topics: [TopicData] = [
+        TopicData(rank: 1, title: "Coronavirus (COVID-19)", trend: .up, change: "15%"),
+        TopicData(rank: 2, title: "Health (India)", trend: .down, change: "8%"),
+        TopicData(rank: 3, title: "World Politics", trend: .stable, change: "0%"),
+        TopicData(rank: 4, title: "Technology Trends", trend: .up, change: "12%"),
+        TopicData(rank: 5, title: "Climate Change", trend: .stable, change: "1%")
+    ]
+
+
+    let topResult = DiscoverArticle(
+        imageName: "virus_icon",
+        title: "Coronavirus COVID-19",
+        subtitle: "By euronews en español",
+        details: "5,944 viewers • 4,968 stories",
+        isFollowing: true,
+        color: .blue
+    )
     
-    let tabs = ["ALL", "TOPICS", "MAGAZINES", "PROFILES", "SOCIAL"]
-    
+    let magazines = [
+        DiscoverArticle(
+            imageName: "vaccine_icon",
+            title: "The Latest on Coronavirus...",
+            subtitle: "By The News Desk",
+            details: "1.2M viewers • 11,293 stories",
+            isFollowing: false,
+            color: .orange
+        ),
+        DiscoverArticle(
+            imageName: "flag_icon",
+            title: "Coronavirus: COVID-19",
+            subtitle: "By CaliGypsyGurl",
+            details: "1.2M viewers • 11,293 stories",
+            isFollowing: false,
+            color: .green
+        )
+    ]
+
+    @State private var activeMenuId: String? = nil
+    @State private var selectedArticle: DiscoverArticle?
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Tabs
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 24) {
-                        ForEach(tabs, id: \.self) { tab in
-                            VStack(spacing: 8) {
-                                Text(tab)
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(selectedTab == tab ? .red : .gray)
-                                
-                                Rectangle()
-                                    .fill(selectedTab == tab ? Color.red : Color.clear)
-                                    .frame(height: 2)
-                            }
-                            .onTapGesture {
-                                selectedTab = tab
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.bottom, 8)
-                
-                Divider()
-                
-                // Content
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        
-                        // Top Result
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("TOP RESULT")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
-                            
-                            DiscoverResultRow(
-                                imageName: "virus_icon", // Placeholder
-                                title: "Coronavirus COVID-19",
-                                subtitle: "By euronews en español",
-                                details: "5,944 viewers • 4,968 stories",
-                                isFollowing: true
-                            )
-                        }
-                        .padding(.top)
-                        
-                        // Topics
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("TOPICS")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
-                            
-                            DiscoverTopicRow(title: "#Coronavirus (COVID-19)")
-                            DiscoverTopicRow(title: "#Health (India)")
-                        }
-                        
-                        // Sources
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("SOURCES")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
-                            
-                            HStack(spacing: 12) {
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.2))
-                                    .frame(width: 50, height: 50)
-                                    .overlay(Image(systemName: "map").foregroundColor(.gray)) // Placeholder
-                                
-                                Text("COVID-19 Visualized Through Charts")
-                                    .font(.headline)
-                                
-                                Spacer()
-                            }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Header
+                    TodayHeaderView()
+                        .padding(.horizontal)
+                        .padding(.bottom, 16)
+                    
+                    // Top Result
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("TOP RESULT")
+                            .font(.caption)
+                            .foregroundColor(.gray)
                             .padding(.horizontal)
+                        
+                        Button {
+                            selectedArticle = topResult
+                        } label: {
+                            DiscoverResultRow(
+                                imageName: topResult.imageName,
+                                title: topResult.title,
+                                subtitle: topResult.subtitle,
+                                details: topResult.details,
+                                isFollowing: topResult.isFollowing,
+                                color: topResult.color
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    
+                    // Topics
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("TOPICS")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        ForEach(topics) { topic in
+                            DiscoverTopicRow(rank: topic.rank, title: topic.title, trend: topic.trend, change: topic.change)
                         }
                         
-                        // Magazines
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("MAGAZINES")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
+                        Button(action: {
+                            // Action for see more
+                        }) {
+                            Text("See more")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                            .fontWeight(.medium)
+                        }
+                        .padding(.leading, 40) // Align with title (24 rank width + 16 spacing)
+                    }
+                    
+                    // Sources
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("SOURCES")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        HStack(spacing: 12) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.purple)
+                                .frame(width: 50, height: 50)
+                                .overlay(Image(systemName: "map").foregroundColor(.white)) // Placeholder
                             
-                            DiscoverResultRow(
-                                imageName: "vaccine_icon",
-                                title: "The Latest on Coronavirus...",
-                                subtitle: "By The News Desk",
-                                details: "1.2M viewers • 11,293 stories",
-                                isFollowing: false
-                            )
+                            Text("COVID-19 Visualized Through Charts")
+                                .font(.headline)
                             
-                            DiscoverResultRow(
-                                imageName: "flag_icon",
-                                title: "Coronavirus: COVID-19",
-                                subtitle: "By CaliGypsyGurl",
-                                details: "1.2M viewers • 11,293 stories",
-                                isFollowing: false
-                            )
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Magazines
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("MAGAZINES")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        ForEach(magazines) { magazine in
+                            Button {
+                                selectedArticle = magazine
+                            } label: {
+                                DiscoverResultRow(
+                                    imageName: magazine.imageName,
+                                    title: magazine.title,
+                                    subtitle: magazine.subtitle,
+                                    details: magazine.details,
+                                    isFollowing: magazine.isFollowing,
+                                    color: magazine.color
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    .padding(.bottom)
-                    .searchable(
-                                    text: $search,
-                                    placement: .toolbar, // Integrates with the glass navigation bar
-                                    prompt: "Type here to search"
-                                )
                 }
-                .onScrollGeometryChange(for: Double.self) { geometry in
-                    let contentHeight = geometry.contentSize.height
-                    let visibleHeight = geometry.containerSize.height
-                    let offset = geometry.contentOffset.y
-                    let maxOffset = contentHeight - visibleHeight
-                    if maxOffset > 0 {
-                        return max(0, min(1, offset / maxOffset))
+                .padding(.bottom)
+                .searchable(
+                                text: $search,
+                                placement: .toolbar, // Integrates with the glass navigation bar
+                                prompt: "Type here to search"
+                            )
+            }
+            .simultaneousGesture(
+                DragGesture().onChanged { _ in
+                    if activeMenuId != nil {
+                        withAnimation {
+                            activeMenuId = nil
+                        }
                     }
-                    return 0.0
-                } action: { oldValue, newValue in
-                    scrollProgress = newValue
                 }
+            )
+            .environment(\.activeMenuId, $activeMenuId)
+            .onScrollGeometryChange(for: Double.self) { geometry in
+                let contentHeight = geometry.contentSize.height
+                let visibleHeight = geometry.containerSize.height
+                let offset = geometry.contentOffset.y
+                let maxOffset = contentHeight - visibleHeight
+                if maxOffset > 0 {
+                    return Double(max(0, min(1, offset / maxOffset)))
+                }
+                return 0.0
+            } action: { oldValue, newValue in
+                scrollProgress = newValue
+            }
+            .fullScreenCover(item: $selectedArticle) { article in
+                ReadingDetailView(item: article.asReadingItem)
             }
         }
-    }
-}
-
-struct DiscoverResultRow: View {
-    let imageName: String
-    let title: String
-    let subtitle: String
-    let details: String
-    let isFollowing: Bool
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Image Placeholder
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 60, height: 60)
-                .cornerRadius(4)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Text(details)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            
-            Spacer()
-            
-            Button(action: {}) {
-                Text(isFollowing ? "Following" : "Follow")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(isFollowing ? .gray : .white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(isFollowing ? Color.gray.opacity(0.2) : Color.red)
-                    .cornerRadius(4)
-            }
-        }
-        .padding(.horizontal)
-    }
-}
-
-struct DiscoverTopicRow: View {
-    let title: String
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.headline)
-            
-            Spacer()
-            
-            Button(action: {}) {
-                Text("Follow")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.red)
-                    .cornerRadius(4)
-            }
-        }
-        .padding(.horizontal)
     }
 }
 

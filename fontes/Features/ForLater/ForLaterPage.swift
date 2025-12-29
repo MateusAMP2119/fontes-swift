@@ -1,5 +1,5 @@
 //
-//  TodayPage.swift
+//  ForLaterPage.swift
 //  fontes
 //
 //  Created by Mateus Costa on 24/12/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TodayPage: View {
+struct ForLaterPage: View {
     @Binding var scrollProgress: Double
     
     // Filter State
@@ -16,8 +16,9 @@ struct TodayPage: View {
     var selectedSources: Set<String>
     
     // Unified data access to handle dynamic filtering
-    var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
-        let allItems = [MockData.shared.featuredItem] + MockData.shared.items
+    var filteredContent: [ReadingItem] {
+        // Reuse the same mock data for now, but in a real app this would probably be saved items
+        let allItems = MockData.shared.forLaterItems
         
         let filtered: [ReadingItem]
         
@@ -33,21 +34,12 @@ struct TodayPage: View {
             }
         }
         
-        if let first = filtered.first {
-            return (first, Array(filtered.dropFirst()))
-        } else {
-            return (nil, [])
-        }
-    }
-    
-    // Featured item
-    var featuredItem: ReadingItem? {
-        filteredContent.featured
+        return filtered
     }
     
     // Sample data for the grid
     var items: [ReadingItem] {
-        filteredContent.list
+        filteredContent
     }
     
     let columns = [
@@ -64,7 +56,6 @@ struct TodayPage: View {
         items.enumerated().filter { $0.offset % 2 != 0 }.map { $0.element }
     }
 
-    @State private var activeMenuId: String? = nil
     @State private var selectedItem: ReadingItem?
 
     var body: some View {
@@ -77,17 +68,7 @@ struct TodayPage: View {
                         .padding(.bottom, 16)
                     
                     VStack(spacing: 24) {
-                        // Featured Card
-                        if let featuredItem = featuredItem {
-                            Button {
-                                selectedItem = featuredItem
-                            } label: {
-                                FeaturedCard(item: featuredItem)
-                                    .frame(height: 400)
-                                    .transition(.scale.combined(with: .opacity))
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
+                        // Start directly with Masonry Grid, no Featured Card
                         
                         // Masonry Grid
                         HStack(alignment: .top, spacing: 16) {
@@ -120,7 +101,6 @@ struct TodayPage: View {
                     }
                     .padding(.horizontal)
                     .animation(.default, value: items.map { $0.id })
-                    .animation(.default, value: featuredItem?.id)
                 }
             }
             .onScrollGeometryChange(for: Double.self) { geometry in
@@ -142,9 +122,9 @@ struct TodayPage: View {
     }
 }
 
-struct TodayPage_Previews: PreviewProvider {
+struct ForLaterPage_Previews: PreviewProvider {
     static var previews: some View {
-        TodayPage(
+        ForLaterPage(
             scrollProgress: .constant(0.0),
             selectedTags: [],
             selectedJournalists: [],
@@ -152,4 +132,3 @@ struct TodayPage_Previews: PreviewProvider {
         )
     }
 }
-
