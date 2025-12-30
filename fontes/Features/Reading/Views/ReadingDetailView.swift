@@ -15,11 +15,6 @@ struct ReadingDetailView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    // MARK: - State
-    @State private var showNextArticleHint = false
-    @State private var dragOffset: CGFloat = 0
-    @State private var isScrolledToBottom = false
-    
     var body: some View {
         ZStack(alignment: .top) {
             // MARK: - Main Scroll Content
@@ -45,33 +40,9 @@ struct ReadingDetailView: View {
                         
                         // Placeholder Content
                         contentPlaceholder
-                        
-                        // Bottom Detector
-                        GeometryReader { proxy -> Color in
-                            let minY = proxy.frame(in: .global).minY
-                            let screenHeight = UIScreen.main.bounds.height
-                            let threshold = screenHeight - 100 // Trigger when close to bottom
-                            
-                            DispatchQueue.main.async {
-                                if minY < threshold {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                        isScrolledToBottom = true
-                                        showNextArticleHint = true
-                                    }
-                                } else {
-                                    withAnimation {
-                                        isScrolledToBottom = false
-                                        // Optional: Hide hint if scrolled back up considerably?
-                                        // For now sticky once shown or strictly bound to bottom
-                                    }
-                                }
-                            }
-                            return Color.clear
-                        }
-                        .frame(height: 50)
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 120) // Space for next article card
+                    .padding(.bottom, 120)
                 }
             }
             .edgesIgnoringSafeArea(.top)
@@ -89,45 +60,16 @@ struct ReadingDetailView: View {
             }
             .padding(.horizontal)
             
-            // MARK: - Next Article Pull-Up Card
-            if let nextItem = nextItem {
-                VStack {
-                    Spacer()
-                    nextArticleCard(nextItem)
-                        .offset(y: showNextArticleHint ? 0 : 200) // 200 to hide
-                        .offset(y: dragOffset)
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
-                                    // Allow dragging up (negative translation)
-                                    if value.translation.height < 0 {
-                                        dragOffset = value.translation.height
-                                    }
-                                }
-                                .onEnded { value in
-                                    // If dragged up significantly, trigger transition
-                                    if value.translation.height < -50 {
-                                        triggerNextArticle(nextItem)
-                                    } else {
-                                        // Reset
-                                        withAnimation {
-                                            dragOffset = 0
-                                        }
-                                    }
-                                }
-                        )
-                        .onTapGesture {
-                            triggerNextArticle(nextItem)
-                        }
-                }
-                .ignoresSafeArea(edges: .bottom)
+            // MARK: - Bottom Actions
+            VStack {
+                Spacer()
+                ReadingActions(nextItem: item, showHint: false)
             }
         }
         .navigationBarHidden(true)
     }
     
     // MARK: - Subviews
-    
     private var headerImage: some View {
         ZStack {
             if let url = URL(string: "https://picsum.photos/800/600") {
@@ -191,77 +133,16 @@ struct ReadingDetailView: View {
         }
     }
     
-    private func nextArticleCard(_ next: ReadingItem) -> some View {
-        VStack(spacing: 0) {
-            // Drag Indicator
-            if showNextArticleHint {
-                Capsule()
-                    .fill(Color.gray.opacity(0.5))
-                    .frame(width: 40, height: 4)
-                    .padding(.top, 12)
-            }
-            
-            HStack(spacing: 16) {
-                // Next Label & Title
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("UP NEXT")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.secondary)
-                    
-                    Text(next.title)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .lineLimit(2)
-                }
-                
-                Spacer()
-                
-                // Color/Image Preview
-                ZStack {
-                    next.mainColor
-                }
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
-            }
-            .padding(20)
-            .padding(.bottom, 20)
-        }
-        .background(.regularMaterial)
-        .cornerRadius(20, corners: [.topLeft, .topRight])
-        .shadow(color: .black.opacity(0.1), radius: 10, y: -5)
-    }
+
     
     private func triggerNextArticle(_ next: ReadingItem) {
         withAnimation {
             onNext?(next)
-            // Reset state for new article
-            showNextArticleHint = false
-            isScrolledToBottom = false
         }
     }
 }
 
-// Extension to support specific corner radius
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
 
-struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        return Path(path.cgPath)
-    }
-}
 
 // MARK: - Previews
 
