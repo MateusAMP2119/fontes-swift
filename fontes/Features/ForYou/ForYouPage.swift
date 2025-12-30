@@ -146,7 +146,29 @@ struct ForYouPage: View {
                 scrollProgress = newValue
             }
             .fullScreenCover(item: $selectedItem) { item in
-                ReadingDetailView(item: item)
+                // Determine next item
+                let nextItem: ReadingItem? = {
+                    // Create a flattened list of all visible items to easily find the next one
+                    var visibleItems: [ReadingItem] = []
+                    if let featured = featuredItem {
+                        visibleItems.append(featured)
+                    }
+                    visibleItems.append(contentsOf: items)
+                    
+                    if let index = visibleItems.firstIndex(where: { $0.id == item.id }), 
+                       index + 1 < visibleItems.count {
+                        return visibleItems[index + 1]
+                    }
+                    return nil
+                }()
+                
+                ReadingDetailView(
+                    item: item,
+                    nextItem: nextItem,
+                    onNext: { next in
+                        selectedItem = next
+                    }
+                )
             }
         }
     }
