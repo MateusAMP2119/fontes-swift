@@ -8,13 +8,23 @@
 import SwiftUI
 
 struct DiscoverArticle: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID
     let imageName: String
     let title: String
     let subtitle: String
     let details: String
     let isFollowing: Bool
     let color: Color
+
+    init(id: UUID = UUID(), imageName: String, title: String, subtitle: String, details: String, isFollowing: Bool, color: Color) {
+        self.id = id
+        self.imageName = imageName
+        self.title = title
+        self.subtitle = subtitle
+        self.details = details
+        self.isFollowing = isFollowing
+        self.color = color
+    }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

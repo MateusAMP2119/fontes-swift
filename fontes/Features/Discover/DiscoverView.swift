@@ -20,7 +20,8 @@ struct DiscoverView: View {
     ]
 
 
-    let topResult = DiscoverArticle(
+    // Static data to ensure stable IDs during view updates
+    static let stableTopResult = DiscoverArticle(
         imageName: "virus_icon",
         title: "Coronavirus COVID-19",
         subtitle: "By euronews en español",
@@ -29,7 +30,7 @@ struct DiscoverView: View {
         color: .blue
     )
     
-    let magazines = [
+    static let stableMagazines = [
         DiscoverArticle(
             imageName: "vaccine_icon",
             title: "The Latest on Coronavirus...",
@@ -47,6 +48,9 @@ struct DiscoverView: View {
             color: .green
         )
     ]
+    
+    let topResult = DiscoverView.stableTopResult
+    let magazines = DiscoverView.stableMagazines
 
     @State private var activeMenuId: String? = nil
     @State private var selectedArticle: DiscoverArticle?
@@ -179,7 +183,34 @@ struct DiscoverView: View {
                 scrollProgress = newValue
             }
             .fullScreenCover(item: $selectedArticle) { article in
-                ReadingDetailView(item: article.asReadingItem)
+                // Determine next item
+                let nextItem: ReadingItem? = {
+                    // Flatten list: Top Result + Magazines
+                    var allArticles = [topResult]
+                    allArticles.append(contentsOf: magazines)
+                    
+                    if let index = allArticles.firstIndex(where: { $0.id == article.id }),
+                       index + 1 < allArticles.count {
+                        return allArticles[index + 1].asReadingItem
+                    }
+                    return nil
+                }()
+                
+                ReadingDetailView(
+                    item: article.asReadingItem,
+                    nextItem: nextItem,
+                    onNext: { nextReadingItem in
+                        // Find the corresponding DiscoverArticle to update the selection
+                        // This assumes we can find it by ID or matching properties. 
+                        // Since 'next' comes from our list, we can search our list again.
+                        var allArticles = [topResult]
+                        allArticles.append(contentsOf: magazines)
+                        
+                        if let match = allArticles.first(where: { $0.asReadingItem.id == nextReadingItem.id }) {
+                            selectedArticle = match
+                        }
+                    }
+                )
             }
         }
     }

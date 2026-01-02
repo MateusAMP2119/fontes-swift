@@ -116,7 +116,25 @@ struct ForLaterPage: View {
                 scrollProgress = newValue
             }
             .fullScreenCover(item: $selectedItem) { item in
-                ReadingDetailView(item: item)
+                // Determine next item
+                let nextItem: ReadingItem? = {
+                    // Create a list of all visible items (ForLater has no featured item)
+                    let visibleItems = items
+                    
+                    if let index = visibleItems.firstIndex(where: { $0.id == item.id }), 
+                       index + 1 < visibleItems.count {
+                        return visibleItems[index + 1]
+                    }
+                    return nil
+                }()
+                
+                ReadingDetailView(
+                    item: item,
+                    nextItem: nextItem,
+                    onNext: { next in
+                        selectedItem = next
+                    }
+                )
             }
         }
     }
