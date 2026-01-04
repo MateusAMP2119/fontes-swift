@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct ContentView : View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
-        MainNavView()
+        if hasCompletedOnboarding {
+            MainNavView()
+        } else {
+            OnboardingFlowView(isOnboardingCompleted: $hasCompletedOnboarding)
+        }
     }
 }
