@@ -6,7 +6,7 @@ struct OnboardingFlowView: View {
         case shareInterests
         case signUp
         case login
-        case emailAuth(username: String?)
+        case emailAuth(email: String)
     }
     
     @State private var showSplash = true
@@ -31,6 +31,8 @@ struct OnboardingFlowView: View {
                 NavigationStack(path: $path) {
                     WelcomeView(onGetStarted: {
                         path.append(Step.interests)
+                    }, onLogin: {
+                        path.append(Step.login)
                     })
                     .navigationBarHidden(true)
                     .navigationDestination(for: Step.self) { step in
@@ -38,31 +40,29 @@ struct OnboardingFlowView: View {
                         case .interests:
                             InterestsView(onContinue: {
                                 showProfileSheet = true
+                            }, onBack: {
+                                path.removeLast()
                             }, onLogin: {
                                 path.append(.login)
                             })
                         case .shareInterests:
                             ShareInterestsView(onNext: {
                                 path.append(.signUp)
+                            }, onBack: {
+                                path.removeLast()
                             })
                         case .signUp:
                             SignUpView(onDismiss: {
-                                if path.contains(.shareInterests) {
-                                    withAnimation {
-                                        isOnboardingCompleted = true
-                                    }
-                                } else {
-                                    path.removeLast()
-                                }
+                                path.removeLast()
                             }, onLogin: {
                                 if path.contains(.login) {
                                     path.removeLast()
                                 } else {
                                     path.append(.login)
                                 }
-                            }, onEmailContinue: {
-                                path.append(.emailAuth(username: username))
-                            })
+                            }, onEmailContinue: { email in
+                                path.append(.emailAuth(email: email))
+                            }, username: username)
                         case .login:
                             LoginView(onDismiss: {
                                 path.removeLast()
@@ -70,8 +70,8 @@ struct OnboardingFlowView: View {
                                 withAnimation {
                                     isOnboardingCompleted = true
                                 }
-                            }, onEmailLogin: {
-                                path.append(.emailAuth(username: nil))
+                            }, onEmailLogin: { email in
+                                path.append(.emailAuth(email: email))
                             }, onCreateAccount: {
                                 if !path.contains(.signUp) {
                                     path.append(.signUp)
@@ -80,14 +80,14 @@ struct OnboardingFlowView: View {
                                     path.removeLast()
                                 }
                             })
-                        case .emailAuth(let username):
+                        case .emailAuth(let email):
                             EmailAuthView(onDismiss: {
                                 path.removeLast()
                             }, onLogin: {
                                 withAnimation {
                                     isOnboardingCompleted = true
                                 }
-                            }, username: username)
+                            }, username: email)
                         }
                     }
                 }
@@ -96,7 +96,7 @@ struct OnboardingFlowView: View {
                         showProfileSheet = false
                         // Small delay to allow sheet to dismiss before pushing next view
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            path.append(Step.shareInterests)
+                            path.append(.shareInterests)
                         }
                     }, username: $username)
                     .presentationDetents([.fraction(0.94)])

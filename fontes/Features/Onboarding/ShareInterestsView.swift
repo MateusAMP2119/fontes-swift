@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ShareInterestsView: View {
     var onNext: () -> Void
+    var onBack: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -70,22 +71,30 @@ struct ShareInterestsView: View {
             
             Spacer()
             
-            // Continue Button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: onNext) {
-                        Text("Continuar")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                    }
-                    .padding()
-                    .padding(.horizontal, 32)
-                    .glassEffect(.regular.tint(Color.baseRed).interactive())
-                    Spacer()
+            // Bottom Navigation
+            HStack {
+                Button(action: onBack) {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.black)
+                        .frame(width: 50, height: 50)
+                        .background(Color.gray.opacity(0.1))
+                        .clipShape(Circle())
                 }
-                .padding(.bottom, 16)
+                
+                Spacer()
+                
+                Button(action: onNext) {
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 50, height: 50)
+                        .background(Color.baseRed)
+                        .clipShape(Circle())
+                }
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 16)
         }
         .background(Color.white.ignoresSafeArea())
         .navigationBarHidden(true)
@@ -93,5 +102,5 @@ struct ShareInterestsView: View {
 }
 
 #Preview {
-    ShareInterestsView(onNext: {})
+    ShareInterestsView(onNext: {}, onBack: {})
 }

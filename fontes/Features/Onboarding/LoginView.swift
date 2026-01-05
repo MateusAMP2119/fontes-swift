@@ -3,112 +3,164 @@ import SwiftUI
 struct LoginView: View {
     var onDismiss: () -> Void
     var onLoginSuccess: () -> Void
-    var onEmailLogin: () -> Void
+    var onEmailLogin: (String) -> Void
     var onCreateAccount: () -> Void
+    
+    @State private var email: String = ""
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header with Back button
+            // Header
             HStack {
-                Button(action: onDismiss) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.black)
-                        .padding(12)
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                }
+                Image("headerLight")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 60)
                 Spacer()
             }
-            .padding()
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
             
             Spacer()
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text("WELCOME BACK")
-                    .font(.system(size: 32, weight: .black))
+            VStack(spacing: 24) {
+                Text("Bem-vindo de volta")
+                    .font(.system(size: 28, weight: .black))
+                    .multilineTextAlignment(.center)
                     .foregroundColor(.black)
+                    .padding(.horizontal)
                 
-                Text("Please log in to continue")
-                    .font(.body)
-                    .foregroundColor(.gray)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
-            
-            VStack(spacing: 16) {
-                Text("Previously used")
-                    .font(.caption)
-                    .foregroundColor(.gray.opacity(0.6))
+                // Email Input
+                TextField("Insere o teu email", text: $email)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    .padding(.horizontal, 24)
                 
-                // Log in with Email
-                Button(action: onEmailLogin) {
-                    Text("Log in with Email")
+                // Continue Button
+                Button(action: { onEmailLogin(email) }) {
+                    Text("Continuar")
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.baseRed)
-                        .cornerRadius(4)
-                }
-                
-                // Log in with other account
-                Button(action: {}) {
-                    Text("Log in with other account")
-                        .fontWeight(.medium)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        .padding(.vertical, 18)
+                        .background(
+                            Capsule()
+                                .fill(Color.baseRed)
                         )
                 }
+                .padding(.horizontal, 24)
                 
-                // Get login link
-                Button(action: {}) {
-                    Text("Get login link")
-                        .fontWeight(.medium)
+                // Divider
+                HStack {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                    Text("OU")
+                        .font(.caption)
                         .foregroundColor(.gray)
+                        .padding(.horizontal, 8)
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                }
+                .padding(.horizontal, 24)
+                
+                // Social Buttons
+                VStack(spacing: 16) {
+                    // Apple Button
+                    Button(action: {}) {
+                        HStack {
+                            Image(systemName: "applelogo")
+                                .font(.system(size: 22))
+                            Text("Continuar com Apple")
+                                .fontWeight(.bold)
+                        }
+                        .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
+                        .padding(.vertical, 18)
+                        .background(
+                            Capsule()
                                 .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                         )
-                }
-                
-                // Create new account
-                Button(action: onCreateAccount) {
-                    Text("Create new account")
-                        .fontWeight(.medium)
-                        .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal, 24)
+                    
+                    // Google Button
+                    Button(action: {}) {
+                        HStack {
+                            Image("Google")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                            Text("Continuar com Google")
+                                .fontWeight(.bold)
+                        }
+                        .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
+                        .padding(.vertical, 18)
+                        .background(
+                            Capsule()
                                 .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                         )
+                    }
+                    .padding(.horizontal, 24)
                 }
+                
+                // Create Account Link
+                HStack(spacing: 4) {
+                    Text("Ainda não tens conta?")
+                        .foregroundColor(.gray)
+                    Button(action: onCreateAccount) {
+                        Text("Criar conta.")
+                            .fontWeight(.bold)
+                            .foregroundColor(.baseRed)
+                    }
+                }
+                .font(.subheadline)
+                
+                // Terms
+                Text("Ao continuar, aceitas os Termos de Uso e a Política de Privacidade.")
+                    .font(.caption2)
+                    .foregroundColor(.gray.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
             }
-            .padding(.horizontal, 24)
             
             Spacer()
             
-            Text("By continuing, you accept the Terms of Use and Privacy Policy.")
-                .font(.caption2)
-                .foregroundColor(.gray.opacity(0.6))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-                .padding(.bottom, 20)
+            // Bottom Navigation
+            HStack {
+                Button(action: onDismiss) {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.black)
+                        .frame(width: 50, height: 50)
+                        .background(Color.gray.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                
+                Spacer()
+                
+                Button(action: { onEmailLogin(email) }) {
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 50, height: 50)
+                        .background(Color.baseRed)
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 16)
         }
         .background(Color.white.ignoresSafeArea())
-        .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview {
-    LoginView(onDismiss: {}, onLoginSuccess: {}, onEmailLogin: {}, onCreateAccount: {})
+    LoginView(onDismiss: {}, onLoginSuccess: {}, onEmailLogin: { _ in }, onCreateAccount: {})
 }

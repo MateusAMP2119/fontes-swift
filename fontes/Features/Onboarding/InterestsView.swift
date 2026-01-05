@@ -2,6 +2,7 @@ import SwiftUI
 
 struct InterestsView: View {
     var onContinue: () -> Void
+    var onBack: () -> Void
     var onLogin: () -> Void
     
     @State private var selectedTopics: Set<String> = []
@@ -71,29 +72,40 @@ struct InterestsView: View {
             
             Spacer()
             
-            // Footer Button
+            // Footer
             VStack {
-                HStack {
-                    Spacer()
-                    Button(action: onContinue) {
-                        Text(buttonText)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                    }
-                    .disabled(!canContinue)
-                    .padding()
-                    .padding(.horizontal, 32)
-                    .glassEffect(.regular.tint(canContinue ? Color.baseRed : Color.gray).interactive())
-                    Spacer()
-                }
-                .padding(.bottom, 16)
-                
                 Text("Ao continuar, aceitas os Termos de Uso e a Política de Privacidade.")
                     .font(.caption2)
                     .foregroundColor(.gray.opacity(0.6))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 16)
+                
+                // Bottom Navigation
+                HStack {
+                    Button(action: onBack) {
+                        Image(systemName: "arrow.left")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: onContinue) {
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(canContinue ? Color.baseRed : Color.gray)
+                            .clipShape(Circle())
+                    }
+                    .disabled(!canContinue)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
             .background(Color.white) // Ensure background covers content behind
         }
@@ -184,5 +196,5 @@ struct InterestsFlowLayout: Layout {
 }
 
 #Preview {
-    InterestsView(onContinue: {}, onLogin: {})
+    InterestsView(onContinue: {}, onBack: {}, onLogin: {})
 }
