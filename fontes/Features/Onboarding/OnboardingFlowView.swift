@@ -5,11 +5,14 @@ struct OnboardingFlowView: View {
         case interests
         case shareInterests
         case signUp
+        case login
+        case emailAuth(username: String?)
     }
     
     @State private var showSplash = true
     @State private var path: [Step] = []
     @State private var showProfileSheet = false
+    @State private var username: String = ""
     @Binding var isOnboardingCompleted: Bool
     
     var body: some View {
@@ -36,7 +39,7 @@ struct OnboardingFlowView: View {
                             InterestsView(onContinue: {
                                 showProfileSheet = true
                             }, onLogin: {
-                                path.append(.signUp)
+                                path.append(.login)
                             })
                         case .shareInterests:
                             ShareInterestsView(onNext: {
@@ -52,10 +55,39 @@ struct OnboardingFlowView: View {
                                     path.removeLast()
                                 }
                             }, onLogin: {
+                                if path.contains(.login) {
+                                    path.removeLast()
+                                } else {
+                                    path.append(.login)
+                                }
+                            }, onEmailContinue: {
+                                path.append(.emailAuth(username: username))
+                            })
+                        case .login:
+                            LoginView(onDismiss: {
+                                path.removeLast()
+                            }, onLoginSuccess: {
                                 withAnimation {
                                     isOnboardingCompleted = true
                                 }
+                            }, onEmailLogin: {
+                                path.append(.emailAuth(username: nil))
+                            }, onCreateAccount: {
+                                if !path.contains(.signUp) {
+                                    path.append(.signUp)
+                                } else {
+                                    // If we came from SignUp, pop back to it
+                                    path.removeLast()
+                                }
                             })
+                        case .emailAuth(let username):
+                            EmailAuthView(onDismiss: {
+                                path.removeLast()
+                            }, onLogin: {
+                                withAnimation {
+                                    isOnboardingCompleted = true
+                                }
+                            }, username: username)
                         }
                     }
                 }
@@ -66,7 +98,7 @@ struct OnboardingFlowView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             path.append(Step.shareInterests)
                         }
-                    })
+                    }, username: $username)
                     .presentationDetents([.fraction(0.94)])
                     .presentationDragIndicator(.visible)
                 }

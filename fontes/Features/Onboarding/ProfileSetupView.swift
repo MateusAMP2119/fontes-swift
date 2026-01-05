@@ -3,9 +3,9 @@ import PhotosUI
 
 struct ProfileSetupView: View {
     var onDone: () -> Void
+    @Binding var username: String
     
     @State private var fullName: String = ""
-    @State private var username: String = ""
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImage: Image?
     
@@ -111,5 +111,5 @@ struct ProfileSetupView: View {
 }
 
 #Preview {
-    ProfileSetupView(onDone: {})
+    ProfileSetupView(onDone: {}, username: .constant("PreviewUser"))
 }

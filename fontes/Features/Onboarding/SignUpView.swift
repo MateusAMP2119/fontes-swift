@@ -3,25 +3,20 @@ import SwiftUI
 struct SignUpView: View {
     var onDismiss: () -> Void
     var onLogin: () -> Void
+    var onEmailContinue: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header with Skip button
+            // Header
             HStack {
+                Image("headerLight")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 60)
                 Spacer()
-                Button(action: onDismiss) {
-                    Text("Saltar por agora")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                        )
-                }
             }
-            .padding()
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
             
             Spacer()
             
@@ -33,19 +28,17 @@ struct SignUpView: View {
                     .padding(.horizontal)
                 
                 // Email Button
-                Button(action: {}) {
+                Button(action: onEmailContinue) {
                     HStack {
                         Image(systemName: "envelope.fill")
                         Text("Continuar com Email")
                             .fontWeight(.bold)
                     }
                     .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.baseRed)
-                    .cornerRadius(4)
                 }
-                .padding(.horizontal, 24)
+                .padding()
+                .padding(.horizontal, 32)
+                .glassEffect(.regular.tint(Color.baseRed).interactive())
                 
                 // Divider
                 HStack {
@@ -63,13 +56,42 @@ struct SignUpView: View {
                 .padding(.horizontal, 24)
                 
                 // Social Buttons
-                HStack(spacing: 20) {
-                    SocialButton(icon: "applelogo", color: .black)
-                    SocialButton(text: "G", color: .blue) // Google placeholder
-                    SocialButton(text: "f", color: Color(red: 0.23, green: 0.35, blue: 0.6)) // Facebook placeholder
-                    SocialButton(text: "X", color: Color(red: 0.11, green: 0.63, blue: 0.95)) // Twitter/X placeholder
+                VStack(spacing: 16) {
+                    // Apple Button
+                    Button(action: {}) {
+                        HStack {
+                            Image(systemName: "applelogo")
+                            Text("Continuar com Apple")
+                                .fontWeight(.bold)
+                        }
+                        .foregroundColor(.black)
+                    }
+                    .padding()
+                    .padding(.horizontal, 32)
+                    .glassEffect(.regular.tint(Color.gray.opacity(0.2)).interactive())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    
+                    // Google Button
+                    Button(action: {}) {
+                        HStack {
+                            Text("G")
+                                .font(.system(size: 20, weight: .bold))
+                            Text("Continuar com Google")
+                                .fontWeight(.bold)
+                        }
+                        .foregroundColor(.black)
+                    }
+                    .padding()
+                    .padding(.horizontal, 32)
+                    .glassEffect(.regular.tint(Color.gray.opacity(0.2)).interactive())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
                 }
-                .padding(.horizontal, 24)
                 
                 // Login Link
                 HStack(spacing: 4) {
@@ -95,35 +117,10 @@ struct SignUpView: View {
             Spacer()
         }
         .background(Color.white.ignoresSafeArea())
-    }
-}
-
-struct SocialButton: View {
-    var icon: String?
-    var text: String?
-    var color: Color
-    
-    var body: some View {
-        Button(action: {}) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(color)
-                    .frame(width: 60, height: 60)
-                
-                if let icon = icon {
-                    Image(systemName: icon)
-                        .font(.system(size: 24))
-                        .foregroundColor(.white)
-                } else if let text = text {
-                    Text(text)
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                }
-            }
-        }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview {
-    SignUpView(onDismiss: {}, onLogin: {})
+    SignUpView(onDismiss: {}, onLogin: {}, onEmailContinue: {})
 }
