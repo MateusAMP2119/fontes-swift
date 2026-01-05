@@ -75,7 +75,7 @@ struct InterestsView: View {
             
             Spacer()
             
-            // Bottom Section
+            // Bottom Navigation
             VStack(spacing: 16) {
                 // Terms text
                 Text("Ao continuar, aceitas os Termos de Uso e a Política de Privacidade.")
@@ -84,19 +84,38 @@ struct InterestsView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
                 
-                // Continue Button - full width, activates with 3+ selections
-                Button(action: onContinue) {
-                    Text(buttonText)
-                        .font(.system(size: 17, weight: .bold))
+                // Back + Continue buttons
+                HStack {
+                    Button(action: onBack) {
+                        Image(systemName: "arrow.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 48, height: 48)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: onContinue) {
+                        HStack(spacing: 8) {
+                            Text(canContinue ? "Continuar" : buttonText)
+                                .font(.system(size: 17, weight: .bold))
+                            if canContinue {
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 15, weight: .bold))
+                            }
+                        }
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 16)
                         .background(
-                            RoundedRectangle(cornerRadius: 8)
+                            Capsule()
                                 .fill(canContinue ? Color.baseRed : Color.gray)
                         )
+                    }
+                    .disabled(!canContinue)
                 }
-                .disabled(!canContinue)
                 .padding(.horizontal, 24)
             }
             .padding(.bottom, 32)

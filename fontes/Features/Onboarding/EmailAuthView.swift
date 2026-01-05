@@ -99,35 +99,43 @@ struct EmailAuthView: View {
             }
             .padding(.horizontal, 24)
             
-            // Bottom toolbar (mimics keyboard toolbar)
-            VStack(spacing: 0) {
-                Divider()
+            Spacer()
+            
+            // Bottom Navigation
+            VStack(spacing: 16) {
+                // Back + Continue buttons
                 HStack {
                     Button(action: onDismiss) {
-                        Text("Voltar")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                        Image(systemName: "arrow.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 48, height: 48)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
                     }
                     
                     Spacer()
                     
                     Button(action: onLogin) {
-                        Text("Entrar")
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(canLogin ? Color.baseRed : Color.gray)
-                            )
+                        HStack(spacing: 8) {
+                            Text("Continuar")
+                                .font(.system(size: 17, weight: .bold))
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 16)
+                        .background(
+                            Capsule()
+                                .fill(canLogin ? Color.baseRed : Color.gray)
+                        )
                     }
                     .disabled(!canLogin)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(UIColor.darkGray))
+                .padding(.horizontal, 24)
             }
+            .padding(.bottom, 32)
         }
         .background(Color.white.ignoresSafeArea())
         .navigationBarHidden(true)

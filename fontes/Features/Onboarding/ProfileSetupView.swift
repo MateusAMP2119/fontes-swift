@@ -128,29 +128,31 @@ struct ProfileSetupView: View {
                 }
             }
             
-            // Bottom toolbar (mimics keyboard toolbar with Done button)
-            VStack(spacing: 0) {
-                Divider()
-                HStack {
-                    Spacer()
-                    
-                    Button(action: onDone) {
-                        Text("Concluir")
+            Spacer()
+            
+            // Bottom Navigation
+            HStack {
+                Spacer()
+                
+                Button(action: onDone) {
+                    HStack(spacing: 8) {
+                        Text("Continuar")
+                            .font(.system(size: 17, weight: .bold))
+                        Image(systemName: "arrow.right")
                             .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(isValid ? Color.baseRed : Color.gray)
-                            )
                     }
-                    .disabled(!isValid)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 16)
+                    .background(
+                        Capsule()
+                            .fill(isValid ? Color.baseRed : Color.gray)
+                    )
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(UIColor.darkGray))
+                .disabled(!isValid)
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 32)
         }
         .background(Color.white)
         .navigationBarHidden(true)

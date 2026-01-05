@@ -151,13 +151,48 @@ struct LoginView: View {
                 }
             }
             
-            // Terms at bottom
-            Text("Ao continuar, aceitas os Termos de Uso e a Política de Privacidade.")
-                .font(.caption2)
-                .foregroundColor(.gray.opacity(0.6))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-                .padding(.bottom, 32)
+            // Bottom Navigation
+            VStack(spacing: 16) {
+                // Terms text
+                Text("Ao continuar, aceitas os Termos de Uso e a Política de Privacidade.")
+                    .font(.caption2)
+                    .foregroundColor(.gray.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                
+                // Back + Continue buttons
+                HStack {
+                    Button(action: onDismiss) {
+                        Image(systemName: "arrow.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 48, height: 48)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { onEmailLogin(email) }) {
+                        HStack(spacing: 8) {
+                            Text("Continuar")
+                                .font(.system(size: 17, weight: .bold))
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 16)
+                        .background(
+                            Capsule()
+                                .fill(email.isEmpty ? Color.gray : Color.baseRed)
+                        )
+                    }
+                    .disabled(email.isEmpty)
+                }
+                .padding(.horizontal, 24)
+            }
+            .padding(.bottom, 32)
         }
         .background(Color.white.ignoresSafeArea())
         .navigationBarBackButtonHidden(true)

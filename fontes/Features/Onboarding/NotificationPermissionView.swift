@@ -46,21 +46,38 @@ struct NotificationPermissionView: View {
             
             Spacer()
             
-            // Buttons
+            // Bottom Navigation
             VStack(spacing: 16) {
-                // Primary CTA - Red "Yes, please" button
-                Button(action: {
-                    requestNotificationPermission()
-                }) {
-                    Text("Sim, por favor")
-                        .font(.system(size: 17, weight: .bold))
+                // Back + Continue buttons
+                HStack {
+                    Button(action: onSkip) {
+                        Image(systemName: "arrow.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 48, height: 48)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        requestNotificationPermission()
+                    }) {
+                        HStack(spacing: 8) {
+                            Text("Continuar")
+                                .font(.system(size: 17, weight: .bold))
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 15, weight: .bold))
+                        }
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 16)
                         .background(
-                            RoundedRectangle(cornerRadius: 8)
+                            Capsule()
                                 .fill(Color.baseRed)
                         )
+                    }
                 }
                 .padding(.horizontal, 24)
                 
@@ -71,7 +88,7 @@ struct NotificationPermissionView: View {
                         .foregroundColor(.gray)
                 }
             }
-            .padding(.bottom, 50)
+            .padding(.bottom, 32)
         }
         .background(Color.white.ignoresSafeArea())
         .navigationBarHidden(true)
