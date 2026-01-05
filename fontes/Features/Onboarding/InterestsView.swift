@@ -1,5 +1,11 @@
 import SwiftUI
 
+/// Interests selection screen matching Flipboard design (Screenshots 2-5, 9-11)
+/// - Header with logo + red "Entrar" button
+/// - Bold uppercase title "O QUE TE INTERESSA?"
+/// - Gray subtitle explaining purpose
+/// - Pill/chip tags with #hashtags, selected = red with white text
+/// - Continue button activates (red) with 3+ selections
 struct InterestsView: View {
     var onContinue: () -> Void
     var onBack: () -> Void
@@ -7,31 +13,37 @@ struct InterestsView: View {
     
     @State private var selectedTopics: Set<String> = []
     
-    // Using the topics from the screenshot, translated to Portuguese where appropriate
-    // or keeping them generic.
+    // Topics matching Flipboard style with hashtag prefix
     let topics = [
         "NOTÍCIAS", "TECNOLOGIA", "DESPORTO", "POLÍTICA",
         "NEGÓCIOS", "FAMOSOS", "ECONOMIA", "RECEITAS",
         "CIÊNCIA", "DESIGN", "FUTEBOL", "CLIMA",
         "FOTOGRAFIA", "PROGRAMAÇÃO", "VIAGENS", "SAÚDE",
-        "MODA", "BELEZA"
+        "MODA", "BELEZA", "MÚSICA", "CINEMA",
+        "JOGOS", "CULTURA", "EDUCAÇÃO", "AMBIENTE"
     ]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Top Bar
+            // Header with logo and Login button
             HStack {
-                Image("headerLight")
+                Image("logo")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 60)
+                    .frame(height: 28)
                 
                 Spacer()
+                
+                Button(action: onLogin) {
+                    Text("Entrar")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.baseRed)
+                }
             }
             .padding(.horizontal, 24)
-            .padding(.top, 8)
+            .padding(.vertical, 12)
             
-            // Header
+            // Title Section
             VStack(alignment: .leading, spacing: 8) {
                 Text("O QUE TE INTERESSA?")
                     .font(.system(size: 28, weight: .black))
@@ -42,15 +54,15 @@ struct InterestsView: View {
                     .foregroundColor(.gray)
             }
             .padding(.horizontal, 24)
-            .padding(.top, 20)
+            .padding(.top, 12)
             .padding(.bottom, 24)
             
-            // Topics Grid
-            ScrollView {
+            // Topics Grid with Flow Layout
+            ScrollView(showsIndicators: false) {
                 InterestsFlowLayout(spacing: 10) {
                     ForEach(topics, id: \.self) { topic in
                         TopicTag(
-                            text: topic,
+                            text: "#\(topic)",
                             isSelected: selectedTopics.contains(topic)
                         ) {
                             toggleTopic(topic)
@@ -58,53 +70,42 @@ struct InterestsView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.bottom, 24)
+                .padding(.bottom, 120) // Space for bottom bar
             }
             
             Spacer()
             
-            // Footer
-            VStack {
+            // Bottom Section
+            VStack(spacing: 16) {
+                // Terms text
                 Text("Ao continuar, aceitas os Termos de Uso e a Política de Privacidade.")
                     .font(.caption2)
                     .foregroundColor(.gray.opacity(0.6))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
-                    .padding(.bottom, 16)
                 
-                // Bottom Navigation
-                HStack {
-                    Button(action: onBack) {
-                        Image(systemName: "arrow.left")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.black)
-                            .frame(width: 50, height: 50)
-                            .background(Color.gray.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: onContinue) {
-                        HStack {
-                            Text("Continuar")
-                                .font(.headline)
-                            Image(systemName: "arrow.right")
-                                .font(.headline)
-                        }
+                // Continue Button - full width, activates with 3+ selections
+                Button(action: onContinue) {
+                    Text(buttonText)
+                        .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 16)
-                        .background(canContinue ? Color.baseRed : Color.gray)
-                        .clipShape(Capsule())
-                    }
-                    .disabled(!canContinue)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(canContinue ? Color.baseRed : Color.gray)
+                        )
                 }
+                .disabled(!canContinue)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 16)
             }
-            .background(Color.white) // Ensure background covers content behind
+            .padding(.bottom, 32)
+            .background(
+                Color.white
+                    .shadow(color: .black.opacity(0.05), radius: 10, y: -5)
+            )
         }
+        .background(Color.white)
         .navigationBarHidden(true)
     }
     
@@ -132,6 +133,10 @@ struct InterestsView: View {
     }
 }
 
+/// Topic tag pill matching Flipboard design
+/// - Rectangular with slight corner radius
+/// - Gray background when unselected, red when selected
+/// - Hashtag prefix on text
 struct TopicTag: View {
     let text: String
     let isSelected: Bool
@@ -140,7 +145,7 @@ struct TopicTag: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.system(size: 16, weight: .bold)) // Condensed-like font
+                .font(.system(size: 15, weight: .bold))
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .background(isSelected ? Color.baseRed : Color(UIColor.systemGray6))
@@ -151,7 +156,7 @@ struct TopicTag: View {
     }
 }
 
-// Simple FlowLayout implementation
+// Flow Layout for tags
 struct InterestsFlowLayout: Layout {
     var spacing: CGFloat = 8
 

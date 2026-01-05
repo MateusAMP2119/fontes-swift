@@ -1,5 +1,11 @@
 import SwiftUI
 
+/// Email/Password authentication screen matching Flipboard design (Screenshots 7-8)
+/// - Username displayed as title in uppercase
+/// - Username/email field with underline style
+/// - Password field with underline style
+/// - Keyboard toolbar with Back button and red "Entrar" button
+/// - Helper links for iCloud Keychain and Forgot Password
 struct EmailAuthView: View {
     var onDismiss: () -> Void
     var onLogin: () -> Void
@@ -16,119 +22,137 @@ struct EmailAuthView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header with gray background
             HStack {
+                Button(action: onDismiss) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.black)
+                }
+                
                 Spacer()
+                
+                Text("Palavras-passe")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                // Invisible placeholder for centering
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.clear)
             }
-            .padding()
-            .frame(height: 44)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(UIColor.systemGray6))
             
-            Spacer()
-            
+            // Main content
             VStack(alignment: .leading, spacing: 24) {
+                // Title - username in uppercase if available
                 Text(titleText)
                     .font(.system(size: 32, weight: .black))
                     .foregroundColor(.black)
+                    .padding(.top, 32)
                 
-                VStack(spacing: 20) {
-                    TextField("Username or Email", text: $emailOrUsername)
+                // Email/Username field with underline
+                VStack(spacing: 0) {
+                    TextField("Email ou nome de utilizador", text: $emailOrUsername)
+                        .font(.system(size: 17))
                         .focused($focusedField, equals: .email)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .padding(.bottom, 8)
-                        .overlay(
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 1),
-                            alignment: .bottom
-                        )
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                     
-                    SecureField("Password", text: $password)
-                        .focused($focusedField, equals: .password)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .padding(.bottom, 8)
-                        .overlay(
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 1),
-                            alignment: .bottom
-                        )
+                    Rectangle()
+                        .fill(focusedField == .email ? Color.baseRed : Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.top, 12)
                 }
                 
+                // Password field with underline
+                VStack(spacing: 0) {
+                    SecureField("Palavra-passe", text: $password)
+                        .font(.system(size: 17))
+                        .focused($focusedField, equals: .password)
+                    
+                    Rectangle()
+                        .fill(focusedField == .password ? Color.baseRed : Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.top, 12)
+                }
+                
+                // Helper links
                 HStack {
-                    Button("iCloud Keychain") { }
+                    Button("Porta-chaves iCloud") { }
                         .font(.caption)
                         .foregroundColor(.gray)
                     
                     Spacer()
                     
-                    Button("Forgot your password?") { }
+                    Button("Esqueceste a palavra-passe?") { }
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
                 .padding(.top, 8)
+                
+                Spacer()
             }
             .padding(.horizontal, 24)
             
-            Spacer()
-            
-            // Custom Keyboard Accessory / Bottom Bar
+            // Bottom toolbar (mimics keyboard toolbar)
             VStack(spacing: 0) {
                 Divider()
                 HStack {
                     Button(action: onDismiss) {
-                        Text("Back")
+                        Text("Voltar")
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
                     }
-                    
-                    Spacer()
-                    
-                    Text("Passwords")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.leading, -40) // Center visually roughly
                     
                     Spacer()
                     
                     Button(action: onLogin) {
-                        Text("Log in")
-                            .fontWeight(.bold)
+                        Text("Entrar")
+                            .font(.system(size: 15, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.baseRed)
-                            .cornerRadius(4)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(canLogin ? Color.baseRed : Color.gray)
+                            )
                     }
+                    .disabled(!canLogin)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 8)
-                .background(Color.black)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(UIColor.darkGray))
             }
         }
         .background(Color.white.ignoresSafeArea())
         .navigationBarHidden(true)
         .onAppear {
             if let username = username, !username.isEmpty {
-                // If we have a username from onboarding, maybe prefill it?
-                // The requirement says "Instead of 'Login' ... it should says the username"
-                // It doesn't explicitly say to prefill the field, but it makes sense if we are "logging in" as that user?
-                // Actually, if it's SIGN UP flow, we are creating a password for that username.
-                // But the view is "EmailAuthView" (Log In style).
-                // Let's stick to the title change requirement.
+                emailOrUsername = username
+                focusedField = .password
+            } else {
+                focusedField = .email
             }
-            focusedField = .email
         }
+    }
+    
+    var canLogin: Bool {
+        !emailOrUsername.isEmpty && !password.isEmpty
     }
     
     var titleText: String {
         if let username = username, !username.isEmpty {
             return username.uppercased()
         }
-        return "LOG IN"
+        return "ENTRAR"
     }
 }
 
 #Preview {
-    EmailAuthView(onDismiss: {}, onLogin: {}, username: nil)
+    EmailAuthView(onDismiss: {}, onLogin: {}, username: "mateus@example.com")
 }

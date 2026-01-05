@@ -1,17 +1,19 @@
 import SwiftUI
 
+/// Splash screen matching Flipboard design (Screenshot 0)
+/// - Centered red logo on clean white background
+/// - Minimal, focused branding moment
 struct SplashView: View {
     var body: some View {
         ZStack {
             Color.white
                 .ignoresSafeArea()
             
-            VStack(spacing: 20) {                
-                Image("logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150)
-            }
+            // Centered logo - matches Flipboard's centered red logo
+            Image("logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80)
         }
     }
 }
