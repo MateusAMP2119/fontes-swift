@@ -3,6 +3,7 @@ import SwiftUI
 struct OnboardingFlowView: View {
     enum Step: Hashable {
         case interests
+        case algorithmExplanation
         case shareInterests
         case signUp
         case login
@@ -39,11 +40,17 @@ struct OnboardingFlowView: View {
                         switch step {
                         case .interests:
                             InterestsView(onContinue: {
-                                showProfileSheet = true
+                                path.append(.algorithmExplanation)
                             }, onBack: {
                                 path.removeLast()
                             }, onLogin: {
                                 path.append(.login)
+                            })
+                        case .algorithmExplanation:
+                            AlgorithmExplanationView(onContinue: {
+                                showProfileSheet = true
+                            }, onBack: {
+                                path.removeLast()
                             })
                         case .shareInterests:
                             ShareInterestsView(onNext: {

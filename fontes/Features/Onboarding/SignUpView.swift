@@ -148,12 +148,17 @@ struct SignUpView: View {
                 Spacer()
                 
                 Button(action: { onEmailContinue(email) }) {
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(width: 50, height: 50)
-                        .background(Color.baseRed)
-                        .clipShape(Circle())
+                    HStack {
+                        Text("Continuar")
+                            .font(.headline)
+                        Image(systemName: "arrow.right")
+                            .font(.headline)
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 16)
+                    .background(Color.baseRed)
+                    .clipShape(Capsule())
                 }
             }
             .padding(.horizontal, 24)

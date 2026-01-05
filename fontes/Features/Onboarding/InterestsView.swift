@@ -27,15 +27,6 @@ struct InterestsView: View {
                     .frame(height: 60)
                 
                 Spacer()
-                
-                Button(action: onLogin) {
-                    Text("Entrar")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
-                        .glassEffect(.regular.tint(Color.baseRed), in: .rect(cornerRadius: 16.0))
-                }
             }
             .padding(.horizontal, 24)
             .padding(.top, 8)
@@ -95,12 +86,17 @@ struct InterestsView: View {
                     Spacer()
                     
                     Button(action: onContinue) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 50, height: 50)
-                            .background(canContinue ? Color.baseRed : Color.gray)
-                            .clipShape(Circle())
+                        HStack {
+                            Text("Continuar")
+                                .font(.headline)
+                            Image(systemName: "arrow.right")
+                                .font(.headline)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 16)
+                        .background(canContinue ? Color.baseRed : Color.gray)
+                        .clipShape(Capsule())
                     }
                     .disabled(!canContinue)
                 }
