@@ -94,7 +94,6 @@ struct GlassTabView: View {
             }
             .sharedBackgroundVisibility(.hidden)
 
-            
             ToolbarItem(placement: .topBarTrailing) {
                 PageSettings(
                     onFiltersTap: {
@@ -102,7 +101,6 @@ struct GlassTabView: View {
                     }
                 )
             }
-            .sharedBackgroundVisibility(.hidden)
         }
         .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
         }

@@ -15,12 +15,7 @@ struct PageSettings: View {
         Button(action: onFiltersTap) {
             Image(systemName: "slider.horizontal.3")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundColor(.primary)
-                .frame(width: 48, height: 48)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
         }
-        .buttonStyle(.plain)
     }
 }
 
