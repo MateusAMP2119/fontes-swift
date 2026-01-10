@@ -9,6 +9,8 @@ import SwiftUI
 
 struct GlassTabView: View {
     @State private var selectedTab = 0
+    @State private var previousTab = 0
+    @State private var isShowingActions = false
     
     @State private var selectedTags: Set<String> = []
     @State private var selectedJournalists: Set<String> = []
@@ -55,9 +57,28 @@ struct GlassTabView: View {
             }
         }
         .tint(.red)
-        .tabViewBottomAccessory {
-        }
         .tabBarMinimizeBehavior(.onScrollDown)
+        .onChange(of: selectedTab) { oldValue, newValue in
+            // Keep the current page and present a sheet when Actions is tapped.
+            guard newValue == 3 else {
+                previousTab = newValue
+                return
+            }
+            selectedTab = oldValue
+            isShowingActions = true
+        }
+        .tabViewBottomAccessory {
+            TabAccessoryView(
+                onFilterTap: {
+                    // TODO: Implement filter action
+                    isShowingActions = true
+                },
+                onGoalTap: {
+                    // TODO: Implement goal action
+                    isShowingActions = true
+                }
+            )
+        }
     }
 }
 
