@@ -47,49 +47,41 @@ struct ActionsPopupView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Quick actions")
-                        .font(.title3.weight(.semibold))
-                    Text("Do things fast without leaving the page.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+            List {
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Quick actions")
+                            .font(.title3.weight(.semibold))
+                        Text("Do things fast without leaving the page.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .listRowInsets(EdgeInsets())
                 }
                 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                Section {
                     ForEach(quickActions) { item in
                         Button {
                             trigger(item.action)
                         } label: {
-                            HStack(alignment: .top, spacing: 8) {
+                            HStack(spacing: 12) {
                                 Image(systemName: item.systemImage)
                                     .font(.title3.weight(.semibold))
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.gray.opacity(0.12))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(item.title)
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.primary)
                                     Text(item.subtitle)
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
-                                Spacer(minLength: 0)
                             }
-                            .padding(12)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                     }
                 }
-                
-                Spacer(minLength: 0)
             }
-            .padding(20)
+            .listStyle(.insetGrouped)
             .presentationDragIndicator(.visible)
-            .background(Color(.systemBackground))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Close") {

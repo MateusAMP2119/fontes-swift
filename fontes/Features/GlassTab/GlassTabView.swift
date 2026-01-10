@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct GlassTabView: View {
+    @Namespace private var transition
+
     @State private var selectedTab = 0
     @State private var previousTab = 0
     @State private var isShowingActions = false
@@ -21,6 +23,7 @@ struct GlassTabView: View {
     @State private var algorithms: [Algorithm] = []
     
     var body: some View {
+        
         TabView(selection: $selectedTab) {
             Tab(value: 0) {
                 TodayPage(
@@ -78,6 +81,14 @@ struct GlassTabView: View {
                     isShowingActions = true
                 }
             )
+            .matchedTransitionSource(                                            id: "info", in: transition)
+        }
+        .sheet(isPresented: $isShowingActions) {
+            Text("Hello there")
+                .presentationDetents([.medium, .large])
+                .navigationTransition(
+                    .zoom(sourceID: "info", in: transition)
+                )
         }
     }
 }
