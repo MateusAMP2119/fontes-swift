@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct TodayPage: View {
-    @Binding var scrollProgress: Double
-    
     // Filter State
     var selectedTags: Set<String>
     var selectedJournalists: Set<String>
@@ -123,18 +121,6 @@ struct TodayPage: View {
                     .animation(.default, value: featuredItem?.id)
                 }
             }
-            .onScrollGeometryChange(for: Double.self) { geometry in
-                let contentHeight = geometry.contentSize.height
-                let visibleHeight = geometry.containerSize.height
-                let offset = geometry.contentOffset.y
-                let maxOffset = contentHeight - visibleHeight
-                if maxOffset > 0 {
-                    return Double(max(0, min(1, offset / maxOffset)))
-                }
-                return 0.0
-            } action: { oldValue, newValue in
-                scrollProgress = newValue
-            }
             .fullScreenCover(item: $selectedItem) { item in
                 // Determine next item
                 let nextItem: ReadingItem? = {
@@ -167,7 +153,6 @@ struct TodayPage: View {
 struct TodayPage_Previews: PreviewProvider {
     static var previews: some View {
         TodayPage(
-            scrollProgress: .constant(0.0),
             selectedTags: [],
             selectedJournalists: [],
             selectedSources: []
