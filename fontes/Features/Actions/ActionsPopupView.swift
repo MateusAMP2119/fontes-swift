@@ -19,23 +19,23 @@ struct ActionsPopupView: View {
     private var quickActions: [QuickAction] {
         [
             QuickAction(
-                title: "My feed",
-                subtitle: "Create or edit a feed",
+                title: "As minhas fontes",
+                subtitle: "Cria ou edita páginas personalizadas.",
                 systemImage: "newspaper.fill",
                 isBeta: false,
                 action: onMyFeed
             ),
             QuickAction(
                 title: "Finder",
-                subtitle: "Find a feed and add it to your library",
+                subtitle: "Econtra páginas contruídas por outras pessoas.",
                 systemImage: "magnifyingglass",
                 isBeta: false,
                 action: onFinder
             ),
             QuickAction(
-                title: "Collaborative",
-                subtitle: "Build a feed with friends",
-                systemImage: "person.2.fill",
+                title: "Páginas colaborativas",
+                subtitle: "Constroi páginas personalizdas em conjunto com amigos.",
+                systemImage: "person.2",
                 isBeta: false,
                 action: onCollaborative
             )
@@ -44,18 +44,32 @@ struct ActionsPopupView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header pill
-            Text("Feed Actions")
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .glassEffect(.regular.tint(.clear).interactive())
-                .padding(.bottom, 18)
-                .padding(.top, 24)
+            // Header
+            ZStack {
+                Text("Feed Actions")
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .glassEffect(.regular.tint(.clear).interactive())
+                
+                HStack {
+                    Spacer()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .frame(width: 44, height: 44)
+                            .glassEffect()
+                    }
+                    .padding(.trailing, 20)
+                }
+            }
+            .padding(.bottom, 18)
+            .padding(.top, 18)
 
             // Action rows
-            VStack(spacing: 8) {
-                ForEach(quickActions) { item in
+            VStack(spacing: 0) {
+                ForEach(Array(quickActions.enumerated()), id: \.element.id) { index, item in
                     Button {
                         trigger(item.action)
                     } label: {
@@ -76,16 +90,6 @@ struct ActionsPopupView: View {
                                     Text(item.title)
                                         .font(.title3.weight(.semibold))
                                         .foregroundColor(.primary)
-                                    
-                                    if item.isBeta {
-                                        Text("Beta")
-                                            .font(.caption2.weight(.semibold))
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 3)
-                                            .background(Color.green)
-                                            .clipShape(Capsule())
-                                    }
                                 }
                                 
                                 Text(item.subtitle)
@@ -99,6 +103,11 @@ struct ActionsPopupView: View {
                         .padding(.horizontal, 24)
                     }
                     .buttonStyle(.plain)
+                    
+                    if index < quickActions.count - 1 {
+                        Divider()
+                            .padding(.horizontal, 24)
+                    }
                 }
             }
             
