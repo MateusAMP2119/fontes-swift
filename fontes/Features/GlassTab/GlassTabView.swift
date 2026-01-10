@@ -84,7 +84,7 @@ struct GlassTabView: View {
         }
         .sheet(isPresented: $isShowingActions) {
             ActionsPopupView()
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.medium])
         }
     }
 }

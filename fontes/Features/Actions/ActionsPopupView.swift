@@ -10,77 +10,71 @@ struct ActionsPopupView: View {
         let action: () -> Void
     }
     
-    var onSaveForLater: () -> Void = {}
-    var onStartFocusSession: () -> Void = {}
-    var onAddFolder: () -> Void = {}
-    var onShareLink: () -> Void = {}
+    var onMyFeed: () -> Void = {}
+    var onFinder: () -> Void = {}
+    var onCollaborative: () -> Void = {}
     
     @Environment(\.dismiss) private var dismiss
     
     private var quickActions: [QuickAction] {
         [
             QuickAction(
-                title: "Save for later",
-                subtitle: "Bookmark this page",
-                systemImage: "bookmark.fill",
+                title: "My feed",
+                subtitle: "Create or edit a feed",
+                systemImage: "newspaper.fill",
                 isBeta: false,
-                action: onSaveForLater
+                action: onMyFeed
             ),
             QuickAction(
-                title: "Start focus",
-                subtitle: "25 min reading session",
-                systemImage: "hourglass",
-                isBeta: true,
-                action: onStartFocusSession
+                title: "Finder",
+                subtitle: "Find a feed and add it to your library",
+                systemImage: "magnifyingglass",
+                isBeta: false,
+                action: onFinder
             ),
             QuickAction(
-                title: "New folder",
-                subtitle: "Organize your saves",
-                systemImage: "folder.badge.plus",
+                title: "Collaborative",
+                subtitle: "Build a feed with friends",
+                systemImage: "person.2.fill",
                 isBeta: false,
-                action: onAddFolder
-            ),
-            QuickAction(
-                title: "Share",
-                subtitle: "Send to a friend",
-                systemImage: "square.and.arrow.up",
-                isBeta: false,
-                action: onShareLink
+                action: onCollaborative
             )
         ]
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            // Drag indicator
-            Capsule()
-                .fill(Color(.systemGray4))
-                .frame(width: 36, height: 5)
-                .padding(.top, 8)
-                .padding(.bottom, 16)
-            
+            // Header pill
+            Text("Feed Actions")
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .glassEffect(.regular.tint(.clear).interactive())
+                .padding(.bottom, 18)
+                .padding(.top, 24)
+
             // Action rows
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 ForEach(quickActions) { item in
                     Button {
                         trigger(item.action)
                     } label: {
-                        HStack(spacing: 16) {
+                        HStack(spacing: 20) {
                             // Circular icon
                             Circle()
                                 .fill(Color(.systemGray5))
-                                .frame(width: 56, height: 56)
+                                .frame(width: 64, height: 64)
                                 .overlay(
                                     Image(systemName: item.systemImage)
-                                        .font(.title2)
+                                        .font(.title)
                                         .foregroundColor(.primary)
                                 )
                             
                             // Text content
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 HStack(spacing: 8) {
                                     Text(item.title)
-                                        .font(.body.weight(.semibold))
+                                        .font(.title3.weight(.semibold))
                                         .foregroundColor(.primary)
                                     
                                     if item.isBeta {
@@ -101,8 +95,8 @@ struct ActionsPopupView: View {
                             
                             Spacer()
                         }
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 24)
                     }
                     .buttonStyle(.plain)
                 }
@@ -111,7 +105,7 @@ struct ActionsPopupView: View {
             Spacer()
         }
         .background(Color(.systemBackground))
-        .presentationDetents([.medium])
+        .presentationDetents([.height(380)])
         .presentationDragIndicator(.hidden)
     }
     
