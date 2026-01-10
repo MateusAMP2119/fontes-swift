@@ -81,14 +81,10 @@ struct GlassTabView: View {
                     isShowingActions = true
                 }
             )
-            .matchedTransitionSource(                                            id: "info", in: transition)
         }
         .sheet(isPresented: $isShowingActions) {
-            Text("Hello there")
+            ActionsPopupView()
                 .presentationDetents([.medium, .large])
-                .navigationTransition(
-                    .zoom(sourceID: "info", in: transition)
-                )
         }
     }
 }

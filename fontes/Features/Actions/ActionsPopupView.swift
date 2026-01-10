@@ -6,6 +6,7 @@ struct ActionsPopupView: View {
         let title: String
         let subtitle: String
         let systemImage: String
+        let isBeta: Bool
         let action: () -> Void
     }
     
@@ -22,74 +23,96 @@ struct ActionsPopupView: View {
                 title: "Save for later",
                 subtitle: "Bookmark this page",
                 systemImage: "bookmark.fill",
+                isBeta: false,
                 action: onSaveForLater
             ),
             QuickAction(
                 title: "Start focus",
-                subtitle: "25 min reading",
+                subtitle: "25 min reading session",
                 systemImage: "hourglass",
+                isBeta: true,
                 action: onStartFocusSession
             ),
             QuickAction(
                 title: "New folder",
                 subtitle: "Organize your saves",
                 systemImage: "folder.badge.plus",
+                isBeta: false,
                 action: onAddFolder
             ),
             QuickAction(
                 title: "Share",
                 subtitle: "Send to a friend",
                 systemImage: "square.and.arrow.up",
+                isBeta: false,
                 action: onShareLink
             )
         ]
     }
     
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Quick actions")
-                            .font(.title3.weight(.semibold))
-                        Text("Do things fast without leaving the page.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .listRowInsets(EdgeInsets())
-                }
-                
-                Section {
-                    ForEach(quickActions) { item in
-                        Button {
-                            trigger(item.action)
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: item.systemImage)
-                                    .font(.title3.weight(.semibold))
-                                VStack(alignment: .leading, spacing: 2) {
+        VStack(spacing: 0) {
+            // Drag indicator
+            Capsule()
+                .fill(Color(.systemGray4))
+                .frame(width: 36, height: 5)
+                .padding(.top, 8)
+                .padding(.bottom, 16)
+            
+            // Action rows
+            VStack(spacing: 0) {
+                ForEach(quickActions) { item in
+                    Button {
+                        trigger(item.action)
+                    } label: {
+                        HStack(spacing: 16) {
+                            // Circular icon
+                            Circle()
+                                .fill(Color(.systemGray5))
+                                .frame(width: 56, height: 56)
+                                .overlay(
+                                    Image(systemName: item.systemImage)
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                )
+                            
+                            // Text content
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 8) {
                                     Text(item.title)
-                                        .font(.subheadline.weight(.semibold))
-                                    Text(item.subtitle)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                        .font(.body.weight(.semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    if item.isBeta {
+                                        Text("Beta")
+                                            .font(.caption2.weight(.semibold))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 3)
+                                            .background(Color.green)
+                                            .clipShape(Capsule())
+                                    }
                                 }
+                                
+                                Text(item.subtitle)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Spacer()
                         }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 20)
                     }
+                    .buttonStyle(.plain)
                 }
             }
-            .listStyle(.insetGrouped)
-            .presentationDragIndicator(.visible)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Close") {
-                        dismiss()
-                    }
-                }
-            }
+            
+            Spacer()
         }
+        .background(Color(.systemBackground))
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.hidden)
     }
     
     private func trigger(_ action: @escaping () -> Void) {
@@ -99,5 +122,8 @@ struct ActionsPopupView: View {
 }
 
 #Preview {
-    ActionsPopupView()
+    Text("Background")
+        .sheet(isPresented: .constant(true)) {
+            ActionsPopupView()
+        }
 }

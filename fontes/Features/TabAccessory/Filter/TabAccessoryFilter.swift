@@ -16,7 +16,7 @@ struct TabAccessoryFilter: View {
             onTap()
         } label: {
             ZStack(alignment: .topTrailing) {
-                Image(systemName: "slider.horizontal.3")
+                Image(systemName: "line.3.horizontal.decrease")
                     .font(.system(size: 22))
                     .foregroundColor(.primary)
                 

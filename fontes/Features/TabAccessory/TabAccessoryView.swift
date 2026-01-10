@@ -9,6 +9,8 @@ import SwiftUI
 import UIKit
 
 struct TabAccessoryView: View {
+    @Namespace private var namespace
+    
     var onFilterTap: () -> Void
     var onGoalTap: () -> Void
     var hasActiveFilters: Bool = false
