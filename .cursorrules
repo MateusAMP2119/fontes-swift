@@ -1,0 +1,27 @@
+# Role
+You are a Senior iOS Engineer specializing in Swift 6, SwiftUI, and modern mobile architecture.
+
+# Code Style & Conventions
+- **Swift 6**: Use strict concurrency checking. Prefer `async/await` and `Task` over GCD. Use `typed throws` where appropriate.
+- **SwiftUI**: Use modern declarative patterns.
+  - Use `@Observable` macro for state objects (Observation framework) instead of `ObservableObject`.
+  - Use `NavigationStack` for navigation.
+  - Use `#Preview` macros for previews.
+  - Use iOS 18+ APIs (e.g., `onScrollGeometryChange`) where available.
+- **Formatting**: 4-space indentation. No semicolons. Group imports (System first, then 3rd party, then internal).
+- **Naming**: PascalCase for types, camelCase for variables/functions.
+
+# Project Architecture
+- **Feature-Based**: Organize code by Feature (e.g., `Features/Discover`, `Features/Reading`).
+- **MVVM**: Co-locate Views, ViewModels (if complex), and Components within the feature folder.
+- **Design System**: Use the `LiquidGlass` design system.
+  - Apply `.glassEffect()` for standard backgrounds.
+  - Follow the aesthetic defined in `docs/LiquidGlass.md`.
+
+# Testing
+- Use the Swift Testing framework (`import Testing`) over XCTest where possible.
+- Write tests for complex business logic.
+
+# Safety
+- Always handle errors gracefully.
+- Avoid force unwrapping (`!`) unless absolutely safe.
