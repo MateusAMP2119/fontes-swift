@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct TodayPage: View {
+    // Feed Store
+    @StateObject private var feedStore = FeedStore.shared
+    
     // Filter State
     var selectedTags: Set<String>
     var selectedJournalists: Set<String>
@@ -15,27 +18,11 @@ struct TodayPage: View {
     
     // Unified data access to handle dynamic filtering
     var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
-        let allItems = [MockData.shared.featuredItem] + MockData.shared.items
-        
-        let filtered: [ReadingItem]
-        
-        if selectedTags.isEmpty && selectedJournalists.isEmpty && selectedSources.isEmpty {
-            filtered = allItems
-        } else {
-            filtered = allItems.filter { item in
-                let matchesTags = selectedTags.isEmpty || !selectedTags.isDisjoint(with: Set(item.tags))
-                let matchesJournalist = selectedJournalists.isEmpty || selectedJournalists.contains(item.author)
-                let matchesSource = selectedSources.isEmpty || selectedSources.contains(item.source)
-                
-                return matchesTags && matchesJournalist && matchesSource
-            }
-        }
-        
-        if let first = filtered.first {
-            return (first, Array(filtered.dropFirst()))
-        } else {
-            return (nil, [])
-        }
+        feedStore.filteredItems(
+            tags: selectedTags,
+            journalists: selectedJournalists,
+            sources: selectedSources
+        )
     }
     
     // Featured item
@@ -69,53 +56,88 @@ struct TodayPage: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    
-                    VStack(spacing: 24) {
-                        // Featured Card
-                        if let featuredItem = featuredItem {
-                            Button {
-                                selectedItem = featuredItem
-                            } label: {
-                                FeaturedCard(item: featuredItem)
-                                    .frame(height: 400)
-                                    .transition(.scale.combined(with: .opacity))
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                    if feedStore.isLoading && feedStore.items.isEmpty {
+                        // Loading state
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                            Text("Loading articles...")
+                                .foregroundStyle(.secondary)
                         }
-                        
-                        // Masonry Grid
-                        HStack(alignment: .top, spacing: 16) {
-                            // Left Column
-                            LazyVStack(spacing: 24) {
-                                ForEach(leftColumnItems) { item in
-                                    Button {
-                                        selectedItem = item
-                                    } label: {
-                                        GridCard(item: item)
-                                            .transition(.scale.combined(with: .opacity))
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
+                        .frame(maxWidth: .infinity, minHeight: 400)
+                    } else if let error = feedStore.error, feedStore.items.isEmpty {
+                        // Error state
+                        VStack(spacing: 16) {
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.system(size: 48))
+                                .foregroundStyle(.secondary)
+                            Text("Failed to load articles")
+                                .font(.headline)
+                            Text(error.localizedDescription)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Button("Try Again") {
+                                Task {
+                                    await feedStore.refresh()
                                 }
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 400)
+                    } else {
+                        VStack(spacing: 24) {
+                            // Featured Card
+                            if let featuredItem = featuredItem {
+                                Button {
+                                    selectedItem = featuredItem
+                                } label: {
+                                    FeaturedCard(item: featuredItem)
+                                        .frame(height: 400)
+                                        .transition(.scale.combined(with: .opacity))
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
                             
-                            // Right Column
-                            LazyVStack(spacing: 24) {
-                                ForEach(rightColumnItems) { item in
-                                    Button {
-                                        selectedItem = item
-                                    } label: {
-                                        GridCard(item: item)
-                                            .transition(.scale.combined(with: .opacity))
+                            // Masonry Grid
+                            HStack(alignment: .top, spacing: 16) {
+                                // Left Column
+                                LazyVStack(spacing: 24) {
+                                    ForEach(leftColumnItems) { item in
+                                        Button {
+                                            selectedItem = item
+                                        } label: {
+                                            GridCard(item: item)
+                                                .transition(.scale.combined(with: .opacity))
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
                                     }
-                                    .buttonStyle(PlainButtonStyle())
+                                }
+                                
+                                // Right Column
+                                LazyVStack(spacing: 24) {
+                                    ForEach(rightColumnItems) { item in
+                                        Button {
+                                            selectedItem = item
+                                        } label: {
+                                            GridCard(item: item)
+                                                .transition(.scale.combined(with: .opacity))
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal)
+                        .animation(.default, value: items.map { $0.id })
+                        .animation(.default, value: featuredItem?.id)
                     }
-                    .padding(.horizontal)
-                    .animation(.default, value: items.map { $0.id })
-                    .animation(.default, value: featuredItem?.id)
                 }
+            }
+            .refreshable {
+                await feedStore.refresh()
+            }
+            .task {
+                await feedStore.loadFeeds()
             }
             .fullScreenCover(item: $selectedItem) { item in
                 // Determine next item

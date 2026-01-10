@@ -11,14 +11,55 @@ struct FeaturedCard: View {
     let item: ReadingItem
     
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Main colorful background
-            Rectangle()
-                .fill(LinearGradient(
-                    gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
+        GeometryReader { geometry in
+            ZStack(alignment: .bottomLeading) {
+                // Article Image or fallback gradient
+                Group {
+                    if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
+                        AsyncImage(url: imageURL) { phase in
+                            switch phase {
+                            case .empty:
+                                Rectangle()
+                                    .fill(item.mainColor.opacity(0.3))
+                                    .overlay {
+                                        ProgressView()
+                                            .tint(.white)
+                                    }
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                Rectangle()
+                                    .fill(LinearGradient(
+                                        gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                            @unknown default:
+                                Rectangle()
+                                    .fill(item.mainColor)
+                            }
+                        }
+                    } else {
+                        // Fallback gradient when no image URL
+                        Rectangle()
+                            .fill(LinearGradient(
+                                gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                    }
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+            
+            // Dark gradient overlay for text readability
+            LinearGradient(
+                gradient: Gradient(colors: [.clear, .black.opacity(0.7)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
             
             // Action Menu
             VStack {
@@ -86,5 +127,6 @@ struct FeaturedCard: View {
             .padding(20)
         }
         .clipShape(RoundedRectangle(cornerRadius: 4))
+        }
     }
 }
