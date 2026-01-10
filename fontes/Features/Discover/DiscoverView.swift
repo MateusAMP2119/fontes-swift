@@ -16,9 +16,7 @@ struct DiscoverView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     // Header
-                    TodayHeaderView()
-                        .padding(.horizontal)
-                        .padding(.bottom, 16)
+                    AppHeader()
                     
                     // Top Result
                     VStack(alignment: .leading, spacing: 12) {

@@ -70,9 +70,7 @@ struct TodayPage: View {
             ScrollView {
                 VStack(spacing: 0) {
                     // Header
-                    TodayHeaderView()
-                        .padding(.horizontal)
-                        .padding(.bottom, 16)
+                    AppHeader()
                     
                     VStack(spacing: 24) {
                         // Featured Card
