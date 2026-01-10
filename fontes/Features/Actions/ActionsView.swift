@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ActionsPopupView: View {
+struct ActionsView: View {
     struct QuickAction: Identifiable {
         let id = UUID()
         let title: String
@@ -127,6 +127,6 @@ struct ActionsPopupView: View {
 #Preview {
     Text("Background")
         .sheet(isPresented: .constant(true)) {
-            ActionsPopupView()
+            ActionsView()
         }
 }
