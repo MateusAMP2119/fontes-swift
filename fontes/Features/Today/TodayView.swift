@@ -69,8 +69,6 @@ struct TodayPage: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Header
-                    AppHeader()
                     
                     VStack(spacing: 24) {
                         // Featured Card

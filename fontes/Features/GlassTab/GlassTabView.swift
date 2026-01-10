@@ -23,18 +23,18 @@ struct GlassTabView: View {
     @State private var algorithms: [Algorithm] = []
     
     var body: some View {
-        
-        TabView(selection: $selectedTab) {
-            Tab(value: 0) {
-                TodayPage(
-                    selectedTags: selectedTags,
-                    selectedJournalists: selectedJournalists,
-                    selectedSources: selectedSources
-                )
-            } label: {
-                Label("Home", systemImage: "text.rectangle.page")
-                    .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
-            }
+        NavigationStack {
+            TabView(selection: $selectedTab) {
+                Tab(value: 0) {
+                    TodayPage(
+                        selectedTags: selectedTags,
+                        selectedJournalists: selectedJournalists,
+                        selectedSources: selectedSources
+                    )
+                } label: {
+                    Label("Home", systemImage: "text.rectangle.page")
+                        .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
+                }
             
             Tab(value: 1) {
                 DiscoverView()
@@ -85,6 +85,27 @@ struct GlassTabView: View {
         .sheet(isPresented: $isShowingActions) {
             ActionsView()
                 .presentationDetents([.medium])
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                AppLogo()
+            }
+            .sharedBackgroundVisibility(.hidden)
+
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                AppHeaderTrailing(
+                    onSettingsTap: {
+                        // TODO: Handle settings
+                    },
+                    onFiltersTap: {
+                        // TODO: Handle filters
+                    }
+                )
+            }
+            .sharedBackgroundVisibility(.hidden)
+        }
+        .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
         }
     }
 }

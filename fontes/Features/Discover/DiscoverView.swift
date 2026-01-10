@@ -15,9 +15,6 @@ struct DiscoverView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    // Header
-                    AppHeader()
-                    
                     // Top Result
                     VStack(alignment: .leading, spacing: 12) {
                         Text("TOP RESULT")
