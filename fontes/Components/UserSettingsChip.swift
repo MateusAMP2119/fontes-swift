@@ -16,13 +16,13 @@ struct UserSettingsChip: View {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: [.purple, .blue],
+                        colors: [.red, .blue],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .overlay(
-                    Text("M")
+                    Text("MC")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                 )

@@ -88,16 +88,15 @@ struct GlassTabView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                AppLogo()
+                UserSettingsChip(onTap: {
+                    // TODO: Handle settings
+                })
             }
             .sharedBackgroundVisibility(.hidden)
 
             
             ToolbarItem(placement: .topBarTrailing) {
-                AppHeaderTrailing(
-                    onSettingsTap: {
-                        // TODO: Handle settings
-                    },
+                PageSettings(
                     onFiltersTap: {
                         // TODO: Handle filters
                     }
