@@ -9,12 +9,27 @@ import SwiftUI
 
 struct ContentView : View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @StateObject private var feedStore = FeedStore.shared
 
     var body: some View {
-        if hasCompletedOnboarding {
-            MainNavView()
-        } else {
-            OnboardingFlowView(isOnboardingCompleted: $hasCompletedOnboarding)
+        ZStack {
+            if hasCompletedOnboarding {
+                MainNavView()
+            } else {
+                OnboardingFlowView(isOnboardingCompleted: $hasCompletedOnboarding)
+            }
+            
+            // Show splash screen while initially loading
+            if feedStore.isInitialLoading && hasCompletedOnboarding {
+                SplashScreenView()
+                    .transition(.opacity)
+            }
+        }
+        .task {
+            // Start loading feeds when the app launches
+            if hasCompletedOnboarding {
+                await feedStore.loadFeeds()
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ class FeedStore: ObservableObject {
     
     @Published var items: [ReadingItem] = []
     @Published var isLoading = false
+    @Published var isInitialLoading = true
     @Published var error: Error?
     @Published var lastUpdated: Date?
     
@@ -86,6 +87,7 @@ class FeedStore: ObservableObject {
         self.items = allItems
         self.lastUpdated = Date()
         self.isLoading = false
+        self.isInitialLoading = false
         
         if allItems.isEmpty && !results.isEmpty {
             self.error = RSSError.parsingFailed
