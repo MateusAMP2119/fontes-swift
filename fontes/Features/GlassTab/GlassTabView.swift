@@ -23,6 +23,8 @@ struct GlassTabView: View {
     @State private var algorithms: [Algorithm] = []
     
     @State private var presentedArticle: ReadingItem? = nil
+    @State private var isHeaderVisible: Bool = true
+    @State private var showingPageSettings = false
     
     var body: some View {
         NavigationStack {
@@ -71,8 +73,7 @@ struct GlassTabView: View {
         .tabViewBottomAccessory {
             TabAccessoryView(
                 onFilterTap: {
-                    // TODO: Implement filter action
-                    isShowingActions = true
+                    showingPageSettings = true
                 },
                 onGoalTap: {
                     // TODO: Implement goal action
@@ -87,6 +88,13 @@ struct GlassTabView: View {
             ActionsView()
                 .presentationDetents([.medium])
         }
+        .sheet(isPresented: $showingPageSettings) {
+            FeedSettingsView(
+                selectedTags: $selectedTags,
+                selectedJournalists: $selectedJournalists,
+                selectedSources: $selectedSources
+            )
+        }
         .overlay(alignment: .top) {
             HStack {
                 AppLogo()
@@ -95,7 +103,7 @@ struct GlassTabView: View {
                 
                 PageSettings(
                     onFiltersTap: {
-                        // TODO: Handle filters
+                        showingPageSettings = true
                     }
                 )
                 
@@ -107,6 +115,14 @@ struct GlassTabView: View {
             }
             .padding(.horizontal, 24)
             .background(.clear)
+            .opacity(isHeaderVisible ? 1 : 0)
+            .offset(y: isHeaderVisible ? 0 : -100)
+            .animation(.easeInOut(duration: 0.3), value: isHeaderVisible)
+        }
+        .onPreferenceChange(HeaderVisibilityPreferenceKey.self) { visible in
+            withAnimation {
+                isHeaderVisible = visible
+            }
         }
         .fullScreenCover(item: $presentedArticle) { article in
             // Mock next item logic for now, or just show the article

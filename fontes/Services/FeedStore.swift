@@ -33,7 +33,8 @@ class FeedStore: ObservableObject {
     private let localStorage = LocalStorageService.shared
     private let networkMonitor = NetworkMonitor.shared
     private let imageCache = ImageCacheService.shared
-    private let feeds: [RSSFeed]
+    
+    @Published var feeds: [RSSFeed] = []
     
     // Cache duration in seconds (5 minutes for network, 24 hours max for offline)
     private let cacheDuration: TimeInterval = 300
@@ -44,9 +45,11 @@ class FeedStore: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
-    init(feeds: [RSSFeed] = RSSFeed.defaultFeeds) {
-        self.feeds = feeds
+    init() {
         setupNetworkMonitoring()
+        Task {
+            await loadConfiguration()
+        }
     }
     
     private func setupNetworkMonitoring() {
@@ -105,8 +108,14 @@ class FeedStore: ObservableObject {
             return
         }
         
+        // Ensure configuration is loaded before fetching
+        if feeds.isEmpty {
+            await loadConfiguration()
+        }
+        
         // Try to fetch from network
-        let results = await service.fetchAllFeeds(feeds)
+        let activeFeeds = feeds.filter { $0.isEnabled }
+        let results = await service.fetchAllFeeds(activeFeeds)
         
         // If network fetch failed or returned empty, try cache
         if results.isEmpty {
@@ -276,4 +285,37 @@ class FeedStore: ObservableObject {
     func updateLastRead(item: ReadingItem) {
         lastReadItem = item
     }
+    
+    // MARK: - Configuration Management
+    
+    private func loadConfiguration() async {
+        do {
+            let config = try await localStorage.loadFeedConfig()
+            if !config.isEmpty {
+                self.feeds = config
+            } else {
+                self.feeds = RSSFeed.defaultFeeds
+                try? await localStorage.saveFeedConfig(self.feeds)
+            }
+        } catch {
+            print("Failed to load feed configuration: \(error)")
+            self.feeds = RSSFeed.defaultFeeds
+        }
+    }
+    
+    func updateFeeds(_ newFeeds: [RSSFeed]) {
+        self.feeds = newFeeds
+        Task {
+            try? await localStorage.saveFeedConfig(newFeeds)
+            await loadFeeds(forceRefresh: true)
+        }
+    }
+    
+    func toggleFeedInternal(_ feed: RSSFeed) {
+         // Logic to toggle feed active/inactive if we had that state.
+         // For now, if we remove it from the list, it's gone.
+         // But maybe we want to keep it but mark inactive.
+         // The requirement says "edit this", so removing/adding is fine.
+    }
 }
+

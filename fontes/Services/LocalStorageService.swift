@@ -18,6 +18,7 @@ actor LocalStorageService {
     // File names for different cached data
     private let feedItemsFileName = "cached_feed_items.json"
     private let cacheMetadataFileName = "cache_metadata.json"
+    private let feedConfigFileName = "feed_config.json"
     
     private var cacheDirectory: URL? {
         fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first?.appendingPathComponent("FeedCache")
@@ -35,6 +36,35 @@ actor LocalStorageService {
         if !fileManager.fileExists(atPath: cacheDirectory.path) {
             try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
         }
+    }
+    
+    // MARK: - Feed Configuration
+    
+    /// Save feed configuration to local storage
+    func saveFeedConfig(_ feeds: [RSSFeed]) async throws {
+        guard let cacheDirectory = cacheDirectory else {
+            throw LocalStorageError.cacheDirectoryNotAvailable
+        }
+        
+        let fileURL = cacheDirectory.appendingPathComponent(feedConfigFileName)
+        let data = try encoder.encode(feeds)
+        try data.write(to: fileURL, options: .atomic)
+    }
+    
+    /// Load feed configuration from local storage
+    func loadFeedConfig() async throws -> [RSSFeed] {
+        guard let cacheDirectory = cacheDirectory else {
+            throw LocalStorageError.cacheDirectoryNotAvailable
+        }
+        
+        let fileURL = cacheDirectory.appendingPathComponent(feedConfigFileName)
+        
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            return []
+        }
+        
+        let data = try Data(contentsOf: fileURL)
+        return try decoder.decode([RSSFeed].self, from: data)
     }
     
     // MARK: - Feed Items Cache

@@ -71,6 +71,7 @@ struct DiscoverView: View {
                 }
                 .padding(.bottom)
             }
+            .onScrollHideHeader()
             .simultaneousGesture(
                 DragGesture().onChanged { _ in
                     if activeMenuId != nil {

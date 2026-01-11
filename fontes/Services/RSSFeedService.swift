@@ -8,14 +8,36 @@
 import Foundation
 import SwiftUI
 
-// MARK: - RSS Feed Configuration
-
-struct RSSFeed: Identifiable {
+struct RSSFeed: Identifiable, Codable, Hashable {
     let id: String
     let name: String
     let url: URL
     let logoURL: String
-    let defaultColor: Color
+    let colorHex: String
+    var isEnabled: Bool
+    
+    var defaultColor: Color {
+        Color(hex: colorHex) ?? .blue
+    }
+    
+    init(id: String, name: String, url: URL, logoURL: String, defaultColor: Color, isEnabled: Bool = true) {
+        self.id = id
+        self.name = name
+        self.url = url
+        self.logoURL = logoURL
+        self.colorHex = defaultColor.toHex() ?? "#0000FF"
+        self.isEnabled = isEnabled
+    }
+    
+    // Internal init for decoding
+    private init(id: String, name: String, url: URL, logoURL: String, colorHex: String, isEnabled: Bool) {
+        self.id = id
+        self.name = name
+        self.url = url
+        self.logoURL = logoURL
+        self.colorHex = colorHex
+        self.isEnabled = isEnabled
+    }
     
     static let defaultFeeds: [RSSFeed] = [
         RSSFeed(

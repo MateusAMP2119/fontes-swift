@@ -53,6 +53,8 @@ struct LibraryView: View {
     
     var body: some View {
         ScrollView {
+            Spacer().frame(height: 44)
+
             VStack(spacing: 0) {
                 // Sort Header
                 sortHeader
@@ -65,6 +67,7 @@ struct LibraryView: View {
                 }
             }
         }
+        .onScrollHideHeader()
         .navigationTitle("Your Library")
         .searchable(text: $searchText, prompt: "Find in Your Library")
         .toolbar {

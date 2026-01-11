@@ -149,6 +149,7 @@ struct TodayPage: View {
                     }
                 }
             }
+            .onScrollHideHeader()
             .coordinateSpace(name: "scroll")
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                 if value > 100 && !feedStore.isLoading {
