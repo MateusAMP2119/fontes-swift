@@ -43,13 +43,13 @@ struct FeedIconCollage: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: size * 0.14))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
     
     // MARK: - Fallback Icon
     private var fallbackIcon: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.14)
+            RoundedRectangle(cornerRadius: 6)
                 .fill(feed.color.gradient)
             
             Image(systemName: feed.iconName)

@@ -8,119 +8,208 @@
 import SwiftUI
 
 struct FeedDetailView: View {
-    let feed: Feed
+    @Binding var feed: Feed
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var feedStore = FeedStore.shared
+    @State private var selectedItem: ReadingItem?
+    @FocusState private var isNameFocused: Bool
     
+    // Compute items for this feed
+    var items: [ReadingItem] {
+        let content = feedStore.filteredItems(
+            tags: Set(feed.tags),
+            journalists: Set(feed.journalists),
+            sources: Set(feed.sources)
+        )
+        // Combine featured and list since we don't want a separate main article
+        var allItems = content.list
+        if let featured = content.featured {
+            allItems.insert(featured, at: 0)
+        }
+        return allItems
+    }
+    
+    // Split items into two columns for masonry layout
+    var leftColumnItems: [ReadingItem] {
+        items.enumerated().filter { offset, element in offset % 2 == 0 }.map { $0.element }
+    }
+    
+    var rightColumnItems: [ReadingItem] {
+        items.enumerated().filter { offset, element in offset % 2 != 0 }.map { $0.element }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Header
-                    VStack(spacing: 16) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(feed.color.gradient)
-                                .frame(width: 140, height: 140)
+                    // Compact Header
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .center, spacing: 16) {
+                            FeedIconCollage(feed: feed, size: 80)
                             
-                            Image(systemName: feed.iconName)
-                                .font(.system(size: 60))
-                                .foregroundStyle(.white)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 8) {
+                                    TextField("Feed Name", text: $feed.name)
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .textFieldStyle(.plain)
+                                        .focused($isNameFocused)
+                                    
+                                    Button {
+                                        isNameFocused = true
+                                    } label: {
+                                        Image(systemName: "square.and.pencil")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                
+                                if let description = feed.description {
+                                    Text(description)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+                            }
+                            
+                            Spacer()
                         }
-                        .shadow(color: feed.color.opacity(0.4), radius: 20, y: 10)
+                        .padding(.horizontal)
                         
-                        Text(feed.name)
-                            .font(.title)
-                            .fontWeight(.bold)
-                        
-                        if let description = feed.description {
-                            Text(description)
-                                .font(.subheadline)
+                        // Info Chips
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                if !feed.sources.isEmpty {
+                                    InfoChip(icon: "building.2", text: "\(feed.sources.count) Sources")
+                                }
+                                if !feed.journalists.isEmpty {
+                                    InfoChip(icon: "person.2", text: "\(feed.journalists.count) Journalists")
+                                }
+                                if !feed.tags.isEmpty {
+                                    InfoChip(icon: "tag", text: "\(feed.tags.count) Tags")
+                                }
+                                if !feed.keywords.isEmpty {
+                                    InfoChip(icon: "text.magnifyingglass", text: "\(feed.keywords.count) Keywords")
+                                }
+                                
+                                Divider()
+                                    .frame(height: 20)
+                                
+                                Button {
+                                    // TODO: Show preferences
+                                } label: {
+                                    Image(systemName: "slider.horizontal.3")
+                                        .font(.caption)
+                                        .foregroundStyle(.primary)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            Capsule()
+                                                .fill(Color(.systemGray6))
+                                        )
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    .padding(.top, 36)
+
+                    
+                    if items.isEmpty {
+                        // Empty state
+                        VStack(spacing: 16) {
+                            Image(systemName: "newspaper")
+                                .font(.system(size: 48))
+                                .foregroundStyle(.secondary)
+                            Text("No articles found")
+                                .font(.headline)
                                 .foregroundStyle(.secondary)
                         }
-                    }
-                    .padding(.top, 20)
-                    
-                    // Stats
-                    HStack(spacing: 32) {
-                        statItem(value: feed.sources.count, label: "Sources")
-                        statItem(value: feed.journalists.count, label: "Journalists")
-                        statItem(value: feed.tags.count, label: "Tags")
-                        statItem(value: feed.keywords.count, label: "Keywords")
-                    }
-                    
-                    Divider()
+                        .frame(maxWidth: .infinity, minHeight: 200)
+                    } else {
+                        // Article Grid (Masonry)
+                        HStack(alignment: .top, spacing: 16) {
+                            // Left Column
+                            LazyVStack(spacing: 16) {
+                                ForEach(leftColumnItems) { item in
+                                    Button {
+                                        selectedItem = item
+                                    } label: {
+                                        GridCard(item: item)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                            
+                            // Right Column
+                            LazyVStack(spacing: 16) {
+                                ForEach(rightColumnItems) { item in
+                                    Button {
+                                        selectedItem = item
+                                    } label: {
+                                        GridCard(item: item)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                        }
                         .padding(.horizontal)
-                    
-                    // Content sections
-                    VStack(alignment: .leading, spacing: 20) {
-                        if !feed.sources.isEmpty {
-                            feedSection(title: "Sources", items: feed.sources, icon: "building.2")
-                        }
-                        
-                        if !feed.journalists.isEmpty {
-                            feedSection(title: "Journalists", items: feed.journalists, icon: "person")
-                        }
-                        
-                        if !feed.tags.isEmpty {
-                            feedSection(title: "Tags", items: feed.tags, icon: "tag")
-                        }
-                        
-                        if !feed.keywords.isEmpty {
-                            feedSection(title: "Keywords", items: feed.keywords, icon: "text.magnifyingglass")
-                        }
                     }
-                    .padding(.horizontal)
                 }
+                }
+                .padding(.bottom, 24)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+            .toolbar(.hidden, for: .navigationBar)
+            .presentationDragIndicator(.visible)
+
+            .fullScreenCover(item: $selectedItem) { item in
+                // Determine next item for swipe navigation
+                let nextItem: ReadingItem? = {
+                    if let index = items.firstIndex(where: { (r: ReadingItem) in r.id == item.id }),
+                       index + 1 < items.count {
+                        return items[index + 1]
                     }
-                }
+                    return nil
+                }()
+                
+                ReadingDetailView(
+                    item: item,
+                    nextItem: nextItem,
+                    onNext: { next in
+                        selectedItem = next
+                    }
+                )
             }
         }
     }
-    
-    private func statItem(value: Int, label: String) -> some View {
-        VStack(spacing: 4) {
-            Text("\(value)")
-                .font(.title2)
-                .fontWeight(.bold)
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-    }
-    
-    private func feedSection(title: String, items: [String], icon: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-                Text(title.uppercased())
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fontWeight(.semibold)
-            }
-            
-            FlowLayout(spacing: 8) {
-                ForEach(items, id: \.self) { item in
-                    Text(item)
-                        .font(.subheadline)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule()
-                                .fill(Color(.systemGray6))
-                        )
-                }
-            }
-        }
-    }
-}
+
 
 #Preview {
-    FeedDetailView(feed: Feed.defaultFeed)
+    FeedDetailView(feed: .constant(Feed.defaultFeed))
+}
+
+struct InfoChip: View {
+    let icon: String
+    let text: String
+    var color: Color = .secondary
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption2)
+            Text(text)
+                .font(.caption)
+                .fontWeight(.medium)
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            Capsule()
+                .fill(Color(.systemGray6))
+        )
+    }
 }

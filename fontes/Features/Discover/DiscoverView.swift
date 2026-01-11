@@ -12,9 +12,8 @@ struct DiscoverView: View {
     @State private var selectedArticle: DiscoverArticle?
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
                     // Top Result
                     VStack(alignment: .leading, spacing: 12) {
                         Text("TOP RESULT")
@@ -103,7 +102,6 @@ struct DiscoverView: View {
                     }
                 )
             }
-        }
     }
 }
 

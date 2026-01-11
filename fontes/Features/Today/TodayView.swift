@@ -53,7 +53,6 @@ struct TodayPage: View {
     @State private var selectedItem: ReadingItem?
 
     var body: some View {
-        NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
                     // Offline indicator banner
@@ -182,7 +181,6 @@ struct TodayPage: View {
                     }
                 )
             }
-        }
     }
 }
 

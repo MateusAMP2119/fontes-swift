@@ -16,6 +16,9 @@ struct PageSettings: View {
             Image(systemName: "slider.horizontal.3")
                 .font(.system(size: 20, weight: .medium))
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .glassEffect()
     }
 }
 

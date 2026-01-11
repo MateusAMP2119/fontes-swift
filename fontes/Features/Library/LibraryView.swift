@@ -37,11 +37,11 @@ struct LibraryView: View {
         // Sort
         switch sortOrder {
         case .recent:
-            result.sort { $0.updatedAt > $1.updatedAt }
+            result.sort(by: { $0.updatedAt > $1.updatedAt })
         case .alphabetical:
-            result.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
+            result.sort(by: { $0.name.localizedCompare($1.name) == .orderedAscending })
         case .creator:
-            result.sort { ($0.isDefault ? 0 : 1) < ($1.isDefault ? 0 : 1) }
+            result.sort(by: { ($0.isDefault ? 0 : 1) < ($1.isDefault ? 0 : 1) })
         }
         
         // Pinned items first
@@ -80,7 +80,9 @@ struct LibraryView: View {
             }
         }
         .sheet(item: $selectedFeed) { feed in
-            FeedDetailView(feed: feed)
+            if let index = feeds.firstIndex(where: { $0.id == feed.id }) {
+                FeedDetailView(feed: $feeds[index])
+            }
         }
     }
     
