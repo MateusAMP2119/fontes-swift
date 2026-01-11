@@ -44,13 +44,9 @@ struct GlassTabView: View {
             }
             
             Tab(value: 2) {
-                TodayPage(
-                    selectedTags: selectedTags,
-                    selectedJournalists: selectedJournalists,
-                    selectedSources: selectedSources
-                )
+                LibraryView()
             } label: {
-                Label("Library", systemImage: "paperplane")
+                Label("Library", systemImage: "bookmark")
                     .environment(\.symbolVariants, selectedTab == 2 ? .fill : .none)
             }
             

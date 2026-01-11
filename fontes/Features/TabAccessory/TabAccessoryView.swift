@@ -35,5 +35,7 @@ struct TabAccessoryView: View {
                 .contentShape(Rectangle()) // Make it easier to tap
             Spacer().frame(width: 20)
         }
+        .foregroundColor(.black)
+
     }
 }

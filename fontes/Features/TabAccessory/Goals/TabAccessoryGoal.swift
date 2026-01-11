@@ -12,6 +12,6 @@ struct TabAccessoryGoal: View {
     var body: some View {
         Image(systemName: "circle.circle")
             .font(.system(size: 22))
-            .foregroundColor(.primary)
+            .foregroundColor(.black)
     }
 }

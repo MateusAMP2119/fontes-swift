@@ -18,7 +18,7 @@ struct TabAccessoryFilter: View {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: "line.3.horizontal.decrease")
                     .font(.system(size: 22))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                 
                 if hasActiveFilters {
                     Circle()
