@@ -54,7 +54,9 @@ struct AppLogo: View {
                     .frame(width: 32, height: 16)
             }
         }
-        .frame(width: 48, height: 48)
+        .background(.white)
+        .scaleEffect(0.66)
+        .frame(width: 32, height: 32)
     }
 }
 

@@ -82,26 +82,27 @@ struct GlassTabView: View {
             ActionsView()
                 .presentationDetents([.medium])
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+        .overlay(alignment: .top) {
+            HStack {
                 AppLogo()
-            }.sharedBackgroundVisibility(.hidden)
-            
-            ToolbarItem(placement: .principal) {
+                
+                Spacer()
+                
                 PageSettings(
                     onFiltersTap: {
                         // TODO: Handle filters
                     }
                 )
-            }
-            
-            ToolbarItem(placement: .topBarTrailing) {
+                
+                Spacer()
+                
                 UserSettingsChip(onTap: {
                     // TODO: Handle settings
                 })
-            }.sharedBackgroundVisibility(.hidden)
+            }
+            .padding(.horizontal, 24)
+            .background(.clear)
         }
-        .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
         }
     }
 }

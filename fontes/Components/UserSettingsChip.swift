@@ -23,10 +23,10 @@ struct UserSettingsChip: View {
                 )
                 .overlay(
                     Text("MC")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 12, weight: .semibold)) // Reduced font
                         .foregroundColor(.white)
                 )
-                .frame(width: 40, height: 40)
+                .frame(width: 32, height: 32)
         }
         .buttonStyle(.plain)
     }

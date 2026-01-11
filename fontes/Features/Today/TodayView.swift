@@ -53,15 +53,25 @@ struct TodayPage: View {
     @State private var selectedItem: ReadingItem?
 
     var body: some View {
-            ScrollView {
-                VStack(spacing: 0) {
+        ScrollView {
+            // Invisible Pull to Refresh Tracker
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(
+                        key: ScrollOffsetPreferenceKey.self,
+                        value: proxy.frame(in: .named("scroll")).minY
+                    )
+            }
+            .frame(height: 0)
+            
+            VStack(spacing: 0) {
                     // Offline indicator banner
                     if let statusMessage = feedStore.statusMessage {
                         HStack(spacing: 8) {
                             Image(systemName: "wifi.slash")
-                                .font(.caption)
+                            .font(.caption)
                             Text(statusMessage)
-                                .font(.caption)
+                            .font(.caption)
                         }
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
@@ -147,9 +157,19 @@ struct TodayPage: View {
                     }
                 }
             }
-            .refreshable {
-                await feedStore.refresh()
+            .coordinateSpace(name: "scroll")
+            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                if value > 100 && !feedStore.isLoading {
+                    Task {
+                        // Haptic feedback
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                        
+                        await feedStore.refresh()
+                    }
+                }
             }
+
             .task {
                 // Preload cached data first for instant display
                 await feedStore.preloadCachedData()
