@@ -56,6 +56,21 @@ struct TodayPage: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
+                    // Offline indicator banner
+                    if let statusMessage = feedStore.statusMessage {
+                        HStack(spacing: 8) {
+                            Image(systemName: "wifi.slash")
+                                .font(.caption)
+                            Text(statusMessage)
+                                .font(.caption)
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.orange)
+                    }
+                    
                     if feedStore.isLoading && feedStore.items.isEmpty {
                         // Loading state
                         VStack(spacing: 16) {
@@ -137,6 +152,9 @@ struct TodayPage: View {
                 await feedStore.refresh()
             }
             .task {
+                // Preload cached data first for instant display
+                await feedStore.preloadCachedData()
+                // Then try to fetch fresh data from network
                 await feedStore.loadFeeds()
             }
             .fullScreenCover(item: $selectedItem) { item in

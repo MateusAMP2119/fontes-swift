@@ -16,17 +16,51 @@ class FeedStore: ObservableObject {
     @Published var items: [ReadingItem] = []
     @Published var isLoading = false
     @Published var isInitialLoading = true
+    @Published var imagesPreloaded = false
     @Published var error: Error?
     @Published var lastUpdated: Date?
+    @Published var isOfflineMode = false
+    @Published var dataSource: DataSource = .none
+    
+    enum DataSource {
+        case none
+        case network
+        case cache
+    }
     
     private let service = RSSFeedService.shared
+    private let localStorage = LocalStorageService.shared
+    private let networkMonitor = NetworkMonitor.shared
+    private let imageCache = ImageCacheService.shared
     private let feeds: [RSSFeed]
     
-    // Cache duration in seconds (5 minutes)
+    // Cache duration in seconds (5 minutes for network, 24 hours max for offline)
     private let cacheDuration: TimeInterval = 300
+    private let maxCacheAge: TimeInterval = 86400 // 24 hours
+    
+    // Number of images to preload for initial display
+    private let preloadImageCount = 10
+    
+    private var cancellables = Set<AnyCancellable>()
     
     init(feeds: [RSSFeed] = RSSFeed.defaultFeeds) {
         self.feeds = feeds
+        setupNetworkMonitoring()
+    }
+    
+    private func setupNetworkMonitoring() {
+        networkMonitor.$isConnected
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isConnected in
+                self?.isOfflineMode = !isConnected
+                // If we just came back online and have no items, try to fetch
+                if isConnected && self?.items.isEmpty == true {
+                    Task {
+                        await self?.loadFeeds(forceRefresh: true)
+                    }
+                }
+            }
+            .store(in: &cancellables)
     }
     
     var featuredItem: ReadingItem? {
@@ -64,7 +98,20 @@ class FeedStore: ObservableObject {
         isLoading = true
         error = nil
         
+        // Check if we're offline
+        if !networkMonitor.isConnected {
+            await loadFromCache()
+            return
+        }
+        
+        // Try to fetch from network
         let results = await service.fetchAllFeeds(feeds)
+        
+        // If network fetch failed or returned empty, try cache
+        if results.isEmpty {
+            await loadFromCache()
+            return
+        }
         
         // Convert RSS items to ReadingItems and merge from all feeds
         var allItems: [ReadingItem] = []
@@ -86,16 +133,100 @@ class FeedStore: ObservableObject {
         
         self.items = allItems
         self.lastUpdated = Date()
+        self.dataSource = .network
+        
+        // Preload images for first items before hiding splash screen
+        await preloadInitialImages(for: allItems)
+        
         self.isLoading = false
         self.isInitialLoading = false
         
-        if allItems.isEmpty && !results.isEmpty {
+        // Save to local storage for offline access
+        Task {
+            try? await localStorage.saveFeedItems(allItems)
+        }
+        
+        if allItems.isEmpty {
             self.error = RSSError.parsingFailed
         }
     }
     
+    /// Preload images for initial display
+    private func preloadInitialImages(for items: [ReadingItem]) async {
+        await imageCache.preloadImages(for: items, limit: preloadImageCount)
+        self.imagesPreloaded = true
+    }
+    
+    /// Load items from local cache
+    private func loadFromCache() async {
+        do {
+            let cachedItems = try await localStorage.loadFeedItems()
+            if !cachedItems.isEmpty {
+                self.items = cachedItems
+                self.dataSource = .cache
+                
+                // Get cache metadata for last updated time
+                if let metadata = await localStorage.getCacheMetadata() {
+                    self.lastUpdated = metadata.lastUpdated
+                }
+                
+                // Preload images for cached items
+                await preloadInitialImages(for: cachedItems)
+            } else {
+                self.error = LocalStorageError.fileNotFound
+            }
+        } catch {
+            self.error = error
+        }
+        
+        self.isLoading = false
+        self.isInitialLoading = false
+    }
+    
+    /// Preload cached data on app launch
+    func preloadCachedData() async {
+        // Load from cache first for instant display
+        if let cachedItems = try? await localStorage.loadFeedItems(), !cachedItems.isEmpty {
+            self.items = cachedItems
+            self.dataSource = .cache
+            
+            // Preload images for cached items
+            await preloadInitialImages(for: cachedItems)
+            
+            self.isInitialLoading = false
+            
+            if let metadata = await localStorage.getCacheMetadata() {
+                self.lastUpdated = metadata.lastUpdated
+            }
+        }
+    }
+    
     func refresh() async {
+        // If offline, show error but still try to load from cache
+        if !networkMonitor.isConnected {
+            await loadFromCache()
+            return
+        }
         await loadFeeds(forceRefresh: true)
+    }
+    
+    /// Clear the local cache
+    func clearCache() async {
+        try? await localStorage.clearCache()
+    }
+    
+    /// Status message for UI
+    var statusMessage: String? {
+        if isOfflineMode && dataSource == .cache {
+            if let lastUpdated = lastUpdated {
+                let formatter = RelativeDateTimeFormatter()
+                formatter.unitsStyle = .abbreviated
+                let relativeTime = formatter.localizedString(for: lastUpdated, relativeTo: Date())
+                return "Offline • Updated \(relativeTime)"
+            }
+            return "Offline • Showing cached articles"
+        }
+        return nil
     }
     
     // Filter items based on selected criteria

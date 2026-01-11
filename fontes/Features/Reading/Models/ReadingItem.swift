@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ReadingItem: Identifiable, Hashable {
+struct ReadingItem: Identifiable, Hashable, Codable {
     let id: String
     let title: String
     let source: String
@@ -15,10 +15,18 @@ struct ReadingItem: Identifiable, Hashable {
     let author: String
     let tags: [String]
     let sourceLogo: String
-    let mainColor: Color
+    let mainColorHex: String // Store color as hex for Codable
     let articleURL: String?
     let imageURL: String?
     let publishedDate: Date?
+    
+    var mainColor: Color {
+        Color(hex: mainColorHex) ?? .blue
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id, title, source, time, author, tags, sourceLogo, mainColorHex, articleURL, imageURL, publishedDate
+    }
     
     // Convenience initializer for backward compatibility
     init(id: Int, title: String, source: String, time: String, author: String, tags: [String], sourceLogo: String, mainColor: Color) {
@@ -29,7 +37,7 @@ struct ReadingItem: Identifiable, Hashable {
         self.author = author
         self.tags = tags
         self.sourceLogo = sourceLogo
-        self.mainColor = mainColor
+        self.mainColorHex = mainColor.toHex() ?? "#0000FF"
         self.articleURL = nil
         self.imageURL = nil
         self.publishedDate = nil
@@ -44,7 +52,7 @@ struct ReadingItem: Identifiable, Hashable {
         self.author = author
         self.tags = tags
         self.sourceLogo = sourceLogo
-        self.mainColor = mainColor
+        self.mainColorHex = mainColor.toHex() ?? "#0000FF"
         self.articleURL = articleURL
         self.imageURL = imageURL
         self.publishedDate = publishedDate
@@ -91,7 +99,24 @@ struct ReadingItem: Identifiable, Hashable {
         )
     }
     
-    private static func formatRelativeTime(from date: Date?) -> String {
+    // Create a fresh copy with updated relative time
+    func withUpdatedTime() -> ReadingItem {
+        ReadingItem(
+            id: id,
+            title: title,
+            source: source,
+            time: ReadingItem.formatRelativeTime(from: publishedDate),
+            author: author,
+            tags: tags,
+            sourceLogo: sourceLogo,
+            mainColor: mainColor,
+            articleURL: articleURL,
+            imageURL: imageURL,
+            publishedDate: publishedDate
+        )
+    }
+    
+    static func formatRelativeTime(from date: Date?) -> String {
         guard let date = date else { return "" }
         
         let now = Date()
@@ -113,5 +138,47 @@ struct ReadingItem: Identifiable, Hashable {
             formatter.dateFormat = "MMM d"
             return formatter.string(from: date)
         }
+    }
+}
+
+// MARK: - Color Hex Extension
+
+extension Color {
+    init?(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+        
+        var rgb: UInt64 = 0
+        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
+        
+        let length = hexSanitized.count
+        
+        switch length {
+        case 6:
+            self.init(
+                red: Double((rgb & 0xFF0000) >> 16) / 255.0,
+                green: Double((rgb & 0x00FF00) >> 8) / 255.0,
+                blue: Double(rgb & 0x0000FF) / 255.0
+            )
+        case 8:
+            self.init(
+                red: Double((rgb & 0xFF000000) >> 24) / 255.0,
+                green: Double((rgb & 0x00FF0000) >> 16) / 255.0,
+                blue: Double((rgb & 0x0000FF00) >> 8) / 255.0,
+                opacity: Double(rgb & 0x000000FF) / 255.0
+            )
+        default:
+            return nil
+        }
+    }
+    
+    func toHex() -> String? {
+        guard let components = UIColor(self).cgColor.components else { return nil }
+        
+        let r = components.count > 0 ? components[0] : 0
+        let g = components.count > 1 ? components[1] : 0
+        let b = components.count > 2 ? components[2] : 0
+        
+        return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
     }
 }

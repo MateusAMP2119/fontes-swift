@@ -16,30 +16,17 @@ struct FeaturedCard: View {
                 // Article Image or fallback gradient
                 Group {
                     if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
-                        AsyncImage(url: imageURL) { phase in
-                            switch phase {
-                            case .empty:
-                                Rectangle()
-                                    .fill(item.mainColor.opacity(0.3))
-                                    .overlay {
-                                        ProgressView()
-                                            .tint(.white)
-                                    }
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            case .failure:
-                                Rectangle()
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ))
-                            @unknown default:
-                                Rectangle()
-                                    .fill(item.mainColor)
-                            }
+                        CachedAsyncImage(url: imageURL) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Rectangle()
+                                .fill(item.mainColor.opacity(0.3))
+                                .overlay {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
                         }
                     } else {
                         // Fallback gradient when no image URL
@@ -81,7 +68,7 @@ struct FeaturedCard: View {
             // Content Overlay
             VStack(alignment: .leading, spacing: 8) {
                 if let url = URL(string: item.sourceLogo) {
-                    AsyncImage(url: url) { image in
+                    CachedAsyncImage(url: url) { image in
                         image
                             .resizable()
                             .scaledToFit()

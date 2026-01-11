@@ -16,25 +16,16 @@ struct GridCard: View {
             GeometryReader { geometry in
                 Group {
                     if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
-                        AsyncImage(url: imageURL) { phase in
-                            switch phase {
-                            case .empty:
-                                Rectangle()
-                                    .fill(item.mainColor.opacity(0.3))
-                                    .overlay {
-                                        ProgressView()
-                                    }
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            case .failure:
-                                Rectangle()
-                                    .fill(item.mainColor)
-                            @unknown default:
-                                Rectangle()
-                                    .fill(item.mainColor)
-                            }
+                        CachedAsyncImage(url: imageURL) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Rectangle()
+                                .fill(item.mainColor.opacity(0.3))
+                                .overlay {
+                                    ProgressView()
+                                }
                         }
                     } else {
                         // Fallback color placeholder when no image URL
@@ -53,7 +44,7 @@ struct GridCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         if let url = URL(string: item.sourceLogo) {
-                            AsyncImage(url: url) { image in
+                            CachedAsyncImage(url: url) { image in
                                 image
                                     .resizable()
                                     .scaledToFit()
