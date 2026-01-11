@@ -54,15 +54,7 @@ struct TodayPage: View {
 
     var body: some View {
         ScrollView {
-            // Invisible Pull to Refresh Tracker
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(
-                        key: ScrollOffsetPreferenceKey.self,
-                        value: proxy.frame(in: .named("scroll")).minY
-                    )
-            }
-            .frame(height: 0)
+            Spacer().frame(height: 44)
             
             VStack(spacing: 0) {
                     // Offline indicator banner

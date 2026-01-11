@@ -40,80 +40,81 @@ struct FeaturedCard: View {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
-            
-            // Dark gradient overlay for text readability
-            LinearGradient(
-                gradient: Gradient(colors: [.clear, .black.opacity(0.7)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            
-            // Action Menu
-            VStack {
-                HStack {
-                    Spacer()
-                    ArticleActionMenu(
-                        onSave: { print("Saved \(item.title)") },
-                        onMoreLikeThis: { print("More like This: \(item.title)") },
-                        onBuildAlgorithm: { print("Build algo: \(item.title)") },
-                        showBackground: true,
-                        menuId: "\(item.id)"
-                    )
-                    .foregroundColor(.white) // Override default gray for FeaturedCard
-                }
-                Spacer()
-            }
-            .padding(16)
-            
-            // Content Overlay
-            VStack(alignment: .leading, spacing: 8) {
-                if let url = URL(string: item.sourceLogo) {
-                    CachedAsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                    } placeholder: {
-                        Color.gray.opacity(0.3)
+                
+                // Dark gradient overlay for text readability
+                LinearGradient(
+                    gradient: Gradient(colors: [.clear, .black.opacity(0.7)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                // Action Menu
+                VStack {
+                    HStack {
+                        Spacer()
+                        ArticleActionMenu(
+                            onSave: { print("Saved \(item.title)") },
+                            onMoreLikeThis: { print("More like This: \(item.title)") },
+                            onBuildAlgorithm: { print("Build algo: \(item.title)") },
+                            showBackground: false,
+                            menuId: "\(item.id)"
+                        )
+                        .foregroundColor(.white) // Override default gray for FeaturedCard
                     }
-                    .frame(height: 32)
+                    Spacer()
                 }
+                .padding(16)
                 
-                Text(item.title)
-                    .font(.system(size: 28, weight: .bold)) // Large title
-                    .foregroundColor(.white)
+                // Content Overlay
+                VStack(alignment: .leading, spacing: 8) {
+                    if let url = URL(string: item.sourceLogo) {
+                        CachedAsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            Color.gray.opacity(0.3)
+                        }
+                        .frame(height: 32)
+                    }
+                    
+                    Text(item.title)
+                        .font(.system(size: 28, weight: .bold)) // Large title
+                        .foregroundColor(.white)
+                        .shadow(radius: 2)
+                        .lineLimit(3)
+                    
+                    HStack {
+                        Text(item.author)
+                        Text("•")
+                        Text(item.time)
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.9))
                     .shadow(radius: 2)
-                    .lineLimit(3)
-                
-                HStack {
-                    Text(item.author)
-                    Text("•")
-                    Text(item.time)
-                }
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
-                .shadow(radius: 2)
-                
-                // Tags
-                if !item.tags.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(item.tags, id: \.self) { tag in
-                                Text(tag.uppercased())
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.black.opacity(0.3))
-                                    .cornerRadius(4)
-                                    .foregroundColor(.white)
+                    
+                    // Tags
+                    if !item.tags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(item.tags, id: \.self) { tag in
+                                    Text(tag.uppercased())
+                                        .font(.caption2)
+                                        .fontWeight(.bold)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.3))
+                                        .cornerRadius(4)
+                                        .foregroundColor(.white)
+                                }
                             }
                         }
                     }
                 }
+                .padding(20)
             }
-            .padding(20)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            
         }
     }
 }

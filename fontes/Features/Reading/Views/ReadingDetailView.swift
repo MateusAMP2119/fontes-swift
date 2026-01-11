@@ -67,6 +67,10 @@ struct ReadingDetailView: View {
             }
         }
         .navigationBarHidden(true)
+        .onAppear {
+            // Update last read item when viewing an article
+            FeedStore.shared.updateLastRead(item: item)
+        }
     }
     
     // MARK: - Subviews

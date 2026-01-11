@@ -13,14 +13,16 @@ struct TabAccessoryView: View {
     
     var onFilterTap: () -> Void
     var onGoalTap: () -> Void
+    var onMiniPlayerTap: ((ReadingItem) -> Void)? = nil
     var hasActiveFilters: Bool = false
     
     var body: some View {
         HStack {
             Spacer().frame(width: 20)
-            // Section 1: Contextual Picker
-            Image(systemName: "command.square")
-            Text(".tabViewBottomAccessory")
+            // Section 1: Mini Player
+            MiniPlayerView(onTap: onMiniPlayerTap)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
             Spacer()
             
             // Section 2: Filter

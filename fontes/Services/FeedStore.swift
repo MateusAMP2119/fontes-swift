@@ -21,6 +21,7 @@ class FeedStore: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var isOfflineMode = false
     @Published var dataSource: DataSource = .none
+    @Published var lastReadItem: ReadingItem?
     
     enum DataSource {
         case none
@@ -270,5 +271,9 @@ class FeedStore: ObservableObject {
             seen.insert(normalizedTitle)
             return true
         }
+    }
+    
+    func updateLastRead(item: ReadingItem) {
+        lastReadItem = item
     }
 }

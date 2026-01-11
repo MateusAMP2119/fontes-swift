@@ -22,6 +22,8 @@ struct GlassTabView: View {
     @State private var selectedAlgorithm: Algorithm? = nil
     @State private var algorithms: [Algorithm] = []
     
+    @State private var presentedArticle: ReadingItem? = nil
+    
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
@@ -75,6 +77,9 @@ struct GlassTabView: View {
                 onGoalTap: {
                     // TODO: Implement goal action
                     isShowingActions = true
+                },
+                onMiniPlayerTap: { article in
+                    presentedArticle = article
                 }
             )
         }
@@ -102,6 +107,16 @@ struct GlassTabView: View {
             }
             .padding(.horizontal, 24)
             .background(.clear)
+        }
+        .fullScreenCover(item: $presentedArticle) { article in
+            // Mock next item logic for now, or just show the article
+            ReadingDetailView(
+                item: article,
+                nextItem: nil, // We could calculate this from FeedStore if needed
+                onNext: { next in
+                    presentedArticle = next
+                }
+            )
         }
         }
     }
