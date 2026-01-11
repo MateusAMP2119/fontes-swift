@@ -34,7 +34,14 @@ class FeedStore: ObservableObject {
     private let networkMonitor = NetworkMonitor.shared
     private let imageCache = ImageCacheService.shared
     
-    @Published var feeds: [RSSFeed] = []
+    // Available RSS Feeds from the service (configuration)
+    @Published var rssFeeds: [RSSFeed] = []
+    
+    // User-created Feeds (Smart Feeds)
+    @Published var userFeeds: [Feed] = []
+    
+    // Active User Feeds (IDs)
+    @Published var activeFeedIDs: Set<UUID> = []
     
     // Cache duration in seconds (5 minutes for network, 24 hours max for offline)
     private let cacheDuration: TimeInterval = 300
@@ -109,13 +116,15 @@ class FeedStore: ObservableObject {
         }
         
         // Ensure configuration is loaded before fetching
-        if feeds.isEmpty {
+        if rssFeeds.isEmpty {
             await loadConfiguration()
         }
         
-        // Try to fetch from network
-        let activeFeeds = feeds.filter { $0.isEnabled }
-        let results = await service.fetchAllFeeds(activeFeeds)
+        // Try to fetch from network. We always fetch all enabled RSS feeds to have the data available.
+        // Optimization: In a real app, we might only fetch RSS feeds required by active User Feeds.
+        // For now, based on "Base feed contains all", we fetch everything enabled in RSS config.
+        let activeRSSFeeds = rssFeeds.filter { $0.isEnabled }
+        let results = await service.fetchAllFeeds(activeRSSFeeds)
         
         // If network fetch failed or returned empty, try cache
         if results.isEmpty {
@@ -239,23 +248,29 @@ class FeedStore: ObservableObject {
         return nil
     }
     
-    // Filter items based on selected criteria
-    func filteredItems(
-        tags: Set<String>,
-        journalists: Set<String>,
-        sources: Set<String>
-    ) -> (featured: ReadingItem?, list: [ReadingItem]) {
-        let filtered: [ReadingItem]
+    // Filter items based on active User Feeds
+    var currentDisplayItems: (featured: ReadingItem?, list: [ReadingItem]) {
+        // If no user feeds are active, decided to show Base Feed (All) or nothing.
+        // Plan says: "If activeFeedIDs is empty, fallback to Base Feed"
         
-        if tags.isEmpty && journalists.isEmpty && sources.isEmpty {
-            filtered = items
+        let effectiveFeedIDs: Set<UUID>
+        if activeFeedIDs.isEmpty {
+            if let baseFeed = userFeeds.first(where: { $0.isDefault }) {
+                effectiveFeedIDs = [baseFeed.id]
+            } else {
+                effectiveFeedIDs = []
+            }
         } else {
-            filtered = items.filter { item in
-                let matchesTags = tags.isEmpty || !tags.isDisjoint(with: Set(item.tags))
-                let matchesJournalist = journalists.isEmpty || journalists.contains(item.author)
-                let matchesSource = sources.isEmpty || sources.contains(item.source)
-                
-                return matchesTags && matchesJournalist && matchesSource
+            effectiveFeedIDs = activeFeedIDs
+        }
+        
+        let activeFeeds = userFeeds.filter { effectiveFeedIDs.contains($0.id) }
+        
+        // Filter items: Union of all active feeds
+        // An item is included if it matches ANY of the active feeds
+        let filtered = items.filter { item in
+            activeFeeds.contains { feed in
+                feed.matches(item)
             }
         }
         
@@ -288,34 +303,60 @@ class FeedStore: ObservableObject {
     
     // MARK: - Configuration Management
     
+    // MARK: - Configuration Management
+    
     private func loadConfiguration() async {
         do {
-            let config = try await localStorage.loadFeedConfig()
-            if !config.isEmpty {
-                self.feeds = config
+            // Load RSS Config (Sources)
+            let rssConfig = try await localStorage.loadFeedConfig()
+            if !rssConfig.isEmpty {
+                self.rssFeeds = rssConfig
             } else {
-                self.feeds = RSSFeed.defaultFeeds
-                try? await localStorage.saveFeedConfig(self.feeds)
+                self.rssFeeds = RSSFeed.defaultFeeds
+                try? await localStorage.saveFeedConfig(self.rssFeeds)
             }
+            
+            // Load User Feeds
+            let loadedUserFeeds = try await localStorage.loadUserFeeds()
+            if !loadedUserFeeds.isEmpty {
+                self.userFeeds = loadedUserFeeds
+            } else {
+                self.userFeeds = [Feed.defaultFeed]
+                try? await localStorage.saveUserFeeds(self.userFeeds)
+            }
+            
+            // Load Active Feeds State (Optional: could persist this too)
+            // For now, default to Base Feed if none selected? Or empty?
+            // "Defaults to Base Feed logic handled in currentDisplayItems"
+            
         } catch {
-            print("Failed to load feed configuration: \(error)")
-            self.feeds = RSSFeed.defaultFeeds
+            print("Failed to load configuration: \(error)")
+            self.rssFeeds = RSSFeed.defaultFeeds
+            self.userFeeds = [Feed.defaultFeed]
         }
     }
     
-    func updateFeeds(_ newFeeds: [RSSFeed]) {
-        self.feeds = newFeeds
+    func toggleFeed(_ feed: Feed) {
+        if activeFeedIDs.contains(feed.id) {
+            activeFeedIDs.remove(feed.id)
+        } else {
+            activeFeedIDs.insert(feed.id)
+        }
+    }
+    
+    func addUserFeed(_ feed: Feed) {
+        userFeeds.append(feed)
         Task {
-            try? await localStorage.saveFeedConfig(newFeeds)
-            await loadFeeds(forceRefresh: true)
+            try? await localStorage.saveUserFeeds(userFeeds)
         }
     }
     
-    func toggleFeedInternal(_ feed: RSSFeed) {
-         // Logic to toggle feed active/inactive if we had that state.
-         // For now, if we remove it from the list, it's gone.
-         // But maybe we want to keep it but mark inactive.
-         // The requirement says "edit this", so removing/adding is fine.
+    func removeUserFeed(_ feed: Feed) {
+        userFeeds.removeAll { $0.id == feed.id }
+        activeFeedIDs.remove(feed.id)
+        Task {
+            try? await localStorage.saveUserFeeds(userFeeds)
+        }
     }
 }
 

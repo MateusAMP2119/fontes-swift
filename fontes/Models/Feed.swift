@@ -78,6 +78,17 @@ struct Feed: Identifiable, Hashable, Codable {
         self.isPinned = isPinned
         self.isDefault = isDefault
     }
+    func matches(_ item: ReadingItem) -> Bool {
+        if isDefault {
+            return true
+        }
+        
+        let matchesSource = sources.isEmpty || sources.contains(item.source)
+        let matchesJournalist = journalists.isEmpty || journalists.contains(item.author)
+        let matchesTags = tags.isEmpty || !Set(tags).isDisjoint(with: Set(item.tags))
+        
+        return matchesSource && matchesJournalist && matchesTags
+    }
 }
 
 // MARK: - Default Feed

@@ -8,26 +8,64 @@
 import SwiftUI
 
 struct PageSettings: View {
+    @ObservedObject var feedStore = FeedStore.shared
     var onFiltersTap: () -> Void = {}
     
-    var body: some View {    
-        // Setting button
-        Button(action: onFiltersTap) {
-            Text("Para ti")
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.primary)
-
-            Spacer().frame(width: 8)
-
-            Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 16, weight: .medium))
-            .frame(width: 32, height: 32)
-            .contentShape(Rectangle())
-            .foregroundColor(.primary)
+    var activeFeedText: String {
+        if feedStore.activeFeedIDs.isEmpty {
+            if let defaultFeed = feedStore.userFeeds.first(where: { $0.isDefault }) {
+                return defaultFeed.name
+            }
+            return "Feed"
+        } else if feedStore.activeFeedIDs.count == 1 {
+            if let id = feedStore.activeFeedIDs.first,
+               let feed = feedStore.userFeeds.first(where: { $0.id == id }) {
+                return feed.name
+            }
+            return "Feed"
+        } else {
+            return "\(feedStore.activeFeedIDs.count) Feeds"
         }
-        .padding(.leading, 12)
-        .padding(.trailing, 8)
-        .glassEffect()
+    }
+    
+    var activeFeedColor: Color? {
+        if feedStore.activeFeedIDs.isEmpty {
+            if let defaultFeed = feedStore.userFeeds.first(where: { $0.isDefault }) {
+                return defaultFeed.color
+            }
+            return nil
+        } else if feedStore.activeFeedIDs.count == 1 {
+            if let id = feedStore.activeFeedIDs.first,
+               let feed = feedStore.userFeeds.first(where: { $0.id == id }) {
+                return feed.color
+            }
+            return nil
+        } else {
+            return nil
+        }
+    }
+    
+    var body: some View {
+        Button(action: onFiltersTap) {
+            HStack(spacing: 8) {
+                if let color = activeFeedColor {
+                    Circle()
+                        .fill(color)
+                        .frame(width: 8, height: 8)
+                }
+                
+                Text(activeFeedText)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .glassEffect()
+        }
     }
 }
 

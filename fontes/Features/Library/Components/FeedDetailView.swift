@@ -16,18 +16,15 @@ struct FeedDetailView: View {
     
     // Compute items for this feed
     var items: [ReadingItem] {
-        let content = feedStore.filteredItems(
-            tags: Set(feed.tags),
-            journalists: Set(feed.journalists),
-            sources: Set(feed.sources)
-        )
-        // Combine featured and list since we don't want a separate main article
-        var allItems = content.list
-        if let featured = content.featured {
-            allItems.insert(featured, at: 0)
+        // Filter items that match the current feed
+        let list = feedStore.items.filter { item in
+            feed.matches(item)
         }
-        return allItems
+        
+        return list
     }
+
+
     
     // Split items into two columns for masonry layout
     var leftColumnItems: [ReadingItem] {

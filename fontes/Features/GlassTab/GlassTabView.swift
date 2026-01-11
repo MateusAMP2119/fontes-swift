@@ -14,27 +14,21 @@ struct GlassTabView: View {
     @State private var previousTab = 0
     @State private var isShowingActions = false
     
-    @State private var selectedTags: Set<String> = []
-    @State private var selectedJournalists: Set<String> = []
-    @State private var selectedSources: Set<String> = []
+    @State private var showingPageSettings = false
+
     
     // Algorithm State
     @State private var selectedAlgorithm: Algorithm? = nil
     @State private var algorithms: [Algorithm] = []
     
     @State private var presentedArticle: ReadingItem? = nil
-    @State private var isHeaderVisible: Bool = true
-    @State private var showingPageSettings = false
+    @State private var isHeaderHidden: Bool = false
     
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 Tab(value: 0) {
-                    TodayPage(
-                        selectedTags: selectedTags,
-                        selectedJournalists: selectedJournalists,
-                        selectedSources: selectedSources
-                    )
+                    TodayPage()
                 } label: {
                     Label("Home", systemImage: "text.rectangle.page")
                         .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
@@ -89,11 +83,7 @@ struct GlassTabView: View {
                 .presentationDetents([.medium])
         }
         .sheet(isPresented: $showingPageSettings) {
-            FeedSettingsView(
-                selectedTags: $selectedTags,
-                selectedJournalists: $selectedJournalists,
-                selectedSources: $selectedSources
-            )
+             ActiveFeedsView()
         }
         .overlay(alignment: .top) {
             HStack {
@@ -109,19 +99,20 @@ struct GlassTabView: View {
                 
                 Spacer()
                 
+                
                 UserSettingsChip(onTap: {
                     // TODO: Handle settings
                 })
             }
             .padding(.horizontal, 24)
             .background(.clear)
-            .opacity(isHeaderVisible ? 1 : 0)
-            .offset(y: isHeaderVisible ? 0 : -100)
-            .animation(.easeInOut(duration: 0.3), value: isHeaderVisible)
+            .opacity(isHeaderHidden ? 0 : 1)
+            .offset(y: isHeaderHidden ? -100 : 0)
+            .animation(.easeInOut(duration: 0.25), value: isHeaderHidden)
         }
-        .onPreferenceChange(HeaderVisibilityPreferenceKey.self) { visible in
+        .onPreferenceChange(ScrollStatePreferenceKey.self) { hidden in
             withAnimation {
-                isHeaderVisible = visible
+                isHeaderHidden = hidden
             }
         }
         .fullScreenCover(item: $presentedArticle) { article in

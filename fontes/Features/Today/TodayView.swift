@@ -11,18 +11,9 @@ struct TodayPage: View {
     // Feed Store
     @StateObject private var feedStore = FeedStore.shared
     
-    // Filter State
-    var selectedTags: Set<String>
-    var selectedJournalists: Set<String>
-    var selectedSources: Set<String>
-    
     // Unified data access to handle dynamic filtering
     var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
-        feedStore.filteredItems(
-            tags: selectedTags,
-            journalists: selectedJournalists,
-            sources: selectedSources
-        )
+        feedStore.currentDisplayItems
     }
     
     // Featured item
@@ -199,11 +190,7 @@ struct TodayPage: View {
 
 struct TodayPage_Previews: PreviewProvider {
     static var previews: some View {
-        TodayPage(
-            selectedTags: [],
-            selectedJournalists: [],
-            selectedSources: []
-        )
+        TodayPage()
     }
 }
 
