@@ -26,7 +26,7 @@ struct UserSettingsChip: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                 )
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
         }
         .buttonStyle(.plain)
     }

@@ -13,37 +13,39 @@ struct GridCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Article Image
-            Group {
-                if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
-                    AsyncImage(url: imageURL) { phase in
-                        switch phase {
-                        case .empty:
-                            Rectangle()
-                                .fill(item.mainColor.opacity(0.3))
-                                .overlay {
-                                    ProgressView()
-                                }
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure:
-                            Rectangle()
-                                .fill(item.mainColor)
-                        @unknown default:
-                            Rectangle()
-                                .fill(item.mainColor)
+            GeometryReader { geometry in
+                Group {
+                    if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
+                        AsyncImage(url: imageURL) { phase in
+                            switch phase {
+                            case .empty:
+                                Rectangle()
+                                    .fill(item.mainColor.opacity(0.3))
+                                    .overlay {
+                                        ProgressView()
+                                    }
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                Rectangle()
+                                    .fill(item.mainColor)
+                            @unknown default:
+                                Rectangle()
+                                    .fill(item.mainColor)
+                            }
                         }
+                    } else {
+                        // Fallback color placeholder when no image URL
+                        Rectangle()
+                            .fill(item.mainColor)
                     }
-                } else {
-                    // Fallback color placeholder when no image URL
-                    Rectangle()
-                        .fill(item.mainColor)
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
             }
             .frame(height: 140)
-            .frame(maxWidth: .infinity)
-            .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 4))
             
             // Text Content
