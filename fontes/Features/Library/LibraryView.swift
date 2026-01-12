@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @State private var feeds: [Feed] = [Feed.defaultFeed]
+    @ObservedObject var feedStore = FeedStore.shared
     @State private var searchText: String = ""
     @State private var sortOrder: SortOrder = .recent
     @State private var isGridView: Bool = false
@@ -22,7 +22,7 @@ struct LibraryView: View {
     }
     
     var filteredFeeds: [Feed] {
-        var result = feeds
+        var result = feedStore.userFeeds
         
         // Filter by search
         if !searchText.isEmpty {
@@ -79,12 +79,12 @@ struct LibraryView: View {
         }
         .sheet(isPresented: $showingCreateFeed) {
             CreateFeedView { newFeed in
-                feeds.append(newFeed)
+                feedStore.addUserFeed(newFeed)
             }
         }
         .sheet(item: $selectedFeed) { feed in
-            if let index = feeds.firstIndex(where: { $0.id == feed.id }) {
-                FeedDetailView(feed: $feeds[index])
+            if let index = feedStore.userFeeds.firstIndex(where: { $0.id == feed.id }) {
+                FeedDetailView(feed: $feedStore.userFeeds[index])
             }
         }
     }

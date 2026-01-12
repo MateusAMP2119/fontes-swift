@@ -15,6 +15,7 @@ struct GlassTabView: View {
     @State private var isShowingActions = false
     
     @State private var showingPageSettings = false
+    @State private var showUserSettings = false
 
     
     // Algorithm State
@@ -91,17 +92,21 @@ struct GlassTabView: View {
                 
                 Spacer()
                 
-                PageSettings(
-                    onFiltersTap: {
-                        showingPageSettings = true
-                    }
-                )
+                if selectedTab == 0 {
+                    PageSettings(
+                        onFiltersTap: {
+                            showingPageSettings = true
+                        }
+                    )
+                }
                 
                 Spacer()
                 
                 
                 UserSettingsChip(onTap: {
-                    // TODO: Handle settings
+                    withAnimation {
+                        showUserSettings = true
+                    }
                 })
             }
             .padding(.horizontal, 24)
@@ -110,6 +115,9 @@ struct GlassTabView: View {
             .offset(y: isHeaderHidden ? -100 : 0)
             .animation(.easeInOut(duration: 0.25), value: isHeaderHidden)
         }
+        .overlay(
+            UserSettingsSidebar(isPresented: $showUserSettings)
+        )
         .onPreferenceChange(ScrollStatePreferenceKey.self) { hidden in
             withAnimation {
                 isHeaderHidden = hidden
