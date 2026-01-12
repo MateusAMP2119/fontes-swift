@@ -12,6 +12,7 @@ import SwiftUI
 struct FeedIconCollage: View {
     let feed: Feed
     let size: CGFloat
+    var cornerRadius: CGFloat = 6
     
     private var sourceLogos: [(name: String, logoURL: String, color: Color)] {
         // Match feed sources with RSSFeed to get logos
@@ -49,13 +50,13 @@ struct FeedIconCollage: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
     }
     
     // MARK: - Fallback Icon
     private var fallbackIcon: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(feed.color.gradient)
             
             Image(systemName: feed.iconName)
@@ -90,35 +91,33 @@ struct FeedIconCollage: View {
     
     // MARK: - Two Sources
     private var twoSourcesView: some View {
-        HStack(spacing: 1) {
+        HStack(spacing: 0) {
             ForEach(0..<2, id: \.self) { index in
                 sourceCell(sourceLogos[index])
             }
         }
-        .background(Color(.systemGray4))
     }
     
     // MARK: - Three Sources
     private var threeSourcesView: some View {
-        HStack(spacing: 1) {
+        HStack(spacing: 0) {
             sourceCell(sourceLogos[0])
             
-            VStack(spacing: 1) {
+            VStack(spacing: 0) {
                 sourceCell(sourceLogos[1])
                 sourceCell(sourceLogos[2])
             }
         }
-        .background(Color(.systemGray4))
     }
     
     // MARK: - Four Sources (2x2 Grid)
     private var fourSourcesView: some View {
-        VStack(spacing: 1) {
-            HStack(spacing: 1) {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
                 sourceCell(sourceLogos[0])
                 sourceCell(sourceLogos[1])
             }
-            HStack(spacing: 1) {
+            HStack(spacing: 0) {
                 sourceCell(sourceLogos[2])
                 if sourceLogos.count > 3 {
                     sourceCell(sourceLogos[3])
@@ -127,7 +126,6 @@ struct FeedIconCollage: View {
                 }
             }
         }
-        .background(Color(.systemGray4))
     }
     
     // MARK: - Source Cell
