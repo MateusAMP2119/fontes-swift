@@ -25,7 +25,13 @@ struct FeedIconCollage: View {
     
     var body: some View {
         Group {
-            if sourceLogos.isEmpty {
+            if let imageURL = feed.imageURL, 
+               let image = FeedStore.shared.loadImage(filename: imageURL) {
+                // Custom User Image
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else if sourceLogos.isEmpty {
                 // Fallback to icon if no sources
                 fallbackIcon
             } else if sourceLogos.count == 1 {

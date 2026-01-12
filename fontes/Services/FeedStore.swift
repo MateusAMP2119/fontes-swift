@@ -253,16 +253,7 @@ class FeedStore: ObservableObject {
         // If no user feeds are active, decided to show Base Feed (All) or nothing.
         // Plan says: "If activeFeedIDs is empty, fallback to Base Feed"
         
-        let effectiveFeedIDs: Set<UUID>
-        if activeFeedIDs.isEmpty {
-            if let baseFeed = userFeeds.first(where: { $0.isDefault }) {
-                effectiveFeedIDs = [baseFeed.id]
-            } else {
-                effectiveFeedIDs = []
-            }
-        } else {
-            effectiveFeedIDs = activeFeedIDs
-        }
+        let effectiveFeedIDs: Set<UUID> = activeFeedIDs
         
         let activeFeeds = userFeeds.filter { effectiveFeedIDs.contains($0.id) }
         
@@ -317,12 +308,27 @@ class FeedStore: ObservableObject {
             }
             
             // Load User Feeds
-            let loadedUserFeeds = try await localStorage.loadUserFeeds()
+            var loadedUserFeeds = try await localStorage.loadUserFeeds()
+            
+            // Migration: Rename "All Sources" to "Para ti"
+            if let index = loadedUserFeeds.firstIndex(where: { $0.isDefault && $0.name == "All Sources" }) {
+                loadedUserFeeds[index].name = "Para ti"
+                try? await localStorage.saveUserFeeds(loadedUserFeeds)
+            }
+            
             if !loadedUserFeeds.isEmpty {
                 self.userFeeds = loadedUserFeeds
             } else {
                 self.userFeeds = [Feed.defaultFeed]
                 try? await localStorage.saveUserFeeds(self.userFeeds)
+            }
+            
+            // Default to "All Sources" (Default Feed) if no active feeds are set (initial launch)
+            // If we add persistence for activeFeedIDs later, we should load it here.
+            if self.activeFeedIDs.isEmpty {
+                 if let defaultFeed = self.userFeeds.first(where: { $0.isDefault }) {
+                     self.activeFeedIDs = [defaultFeed.id]
+                 }
             }
             
             // Load Active Feeds State (Optional: could persist this too)
@@ -357,6 +363,41 @@ class FeedStore: ObservableObject {
         Task {
             try? await localStorage.saveUserFeeds(userFeeds)
         }
+    }
+    
+    // MARK: - Image Storage
+    
+    func saveFeedImage(_ image: UIImage) -> String? {
+        guard let data = image.jpegData(compressionQuality: 0.7) else { return nil }
+        let filename = UUID().uuidString + ".jpg"
+        
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        let fileURL = documentsDirectory.appendingPathComponent(filename)
+        
+        do {
+            try data.write(to: fileURL)
+            return filename
+        } catch {
+            print("Error saving image: \(error)")
+            return nil
+        }
+    }
+    
+    func loadImage(filename: String) -> UIImage? {
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        let fileURL = documentsDirectory.appendingPathComponent(filename)
+        
+        if let data = try? Data(contentsOf: fileURL) {
+            return UIImage(data: data)
+        }
+        
+        return nil
     }
 }
 

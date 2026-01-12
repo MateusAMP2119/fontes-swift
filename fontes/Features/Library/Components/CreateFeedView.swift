@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct CreateFeedView: View {
     @Environment(\.dismiss) private var dismiss
@@ -15,6 +16,9 @@ struct CreateFeedView: View {
     @State private var description: String = ""
     @State private var selectedIcon: String = "newspaper"
     @State private var selectedColor: String = "#FF0000"
+    
+    @State private var selectedImageItem: PhotosPickerItem?
+    @State private var selectedImage: UIImage?
     
     @State private var selectedSources: Set<String> = []
     @State private var selectedTags: Set<String> = []
@@ -38,6 +42,30 @@ struct CreateFeedView: View {
                 Section("Feed Details") {
                     TextField("Name", text: $name)
                     TextField("Optional description", text: $description)
+                }
+                
+                Section("Cover Image") {
+                    if let selectedImage {
+                        Image(uiImage: selectedImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 150)
+                            .frame(maxWidth: .infinity)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .listRowInsets(EdgeInsets())
+                            .padding(.vertical, 8)
+                        
+                        Button("Remove Image", role: .destructive) {
+                            withAnimation {
+                                self.selectedImage = nil
+                                self.selectedImageItem = nil
+                            }
+                        }
+                    } else {
+                        PhotosPicker(selection: $selectedImageItem, matching: .images) {
+                            Label("Select from Gallery", systemImage: "photo")
+                        }
+                    }
                 }
                 
                 Section("Sources") {
@@ -129,11 +157,17 @@ struct CreateFeedView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
+                        var imageFilename: String?
+                        if let selectedImage {
+                            imageFilename = feedStore.saveFeedImage(selectedImage)
+                        }
+                        
                         let newFeed = Feed(
                             name: name,
                             description: description.isEmpty ? nil : description,
                             iconName: selectedIcon,
                             colorHex: selectedColor,
+                            imageURL: imageFilename,
                             sources: Array(selectedSources),
                             tags: Array(selectedTags)
                         )
@@ -143,8 +177,18 @@ struct CreateFeedView: View {
                     .disabled(name.isEmpty)
                 }
             }
+            .task(id: selectedImageItem) {
+                guard let selectedImageItem else { return }
+                if let data = try? await selectedImageItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    withAnimation {
+                        selectedImage = image
+                    }
+                }
+            }
         }
     }
+}
     
     private func makeToggleBinding(for item: String, in set: Binding<Set<String>>) -> Binding<Bool> {
         Binding(
@@ -158,7 +202,7 @@ struct CreateFeedView: View {
             }
         )
     }
-}
+
 
 #Preview {
     CreateFeedView { _ in }

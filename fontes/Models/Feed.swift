@@ -15,6 +15,7 @@ struct Feed: Identifiable, Hashable, Codable {
     var description: String?
     var iconName: String
     var colorHex: String
+    var imageURL: String?
     var sources: [String]
     var journalists: [String]
     var tags: [String]
@@ -55,6 +56,7 @@ struct Feed: Identifiable, Hashable, Codable {
         description: String? = nil,
         iconName: String = "newspaper",
         colorHex: String = "#FF0000",
+        imageURL: String? = nil,
         sources: [String] = [],
         journalists: [String] = [],
         tags: [String] = [],
@@ -69,6 +71,7 @@ struct Feed: Identifiable, Hashable, Codable {
         self.description = description
         self.iconName = iconName
         self.colorHex = colorHex
+        self.imageURL = imageURL
         self.sources = sources
         self.journalists = journalists
         self.tags = tags
@@ -97,10 +100,11 @@ extension Feed {
     static var defaultFeed: Feed {
         let allSources = RSSFeed.defaultFeeds.map { $0.name }
         return Feed(
-            name: "All Sources",
+            name: "Para ti",
             description: "All articles from your sources",
             iconName: "newspaper.fill",
             colorHex: "#FF0000",
+            imageURL: nil,
             sources: allSources,
             journalists: [],
             tags: [],

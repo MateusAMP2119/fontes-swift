@@ -16,47 +16,36 @@ struct ActiveFeedsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    Text("Select the feeds you want to see on your Home screen.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
-                }
-                
-                Section("My Feeds") {
+                Section("Fontes ativas") {
                     ForEach(feedStore.userFeeds) { feed in
-                        FeedRow(feed: feed, isSelected: feedStore.activeFeedIDs.contains(feed.id)) {
-                            feedStore.toggleFeed(feed)
-                        }
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            let feed = feedStore.userFeeds[index]
-                            if !feed.isDefault {
-                                feedStore.removeUserFeed(feed)
+                        FeedRow(feed: feed, isOn: Binding(
+                            get: { feedStore.activeFeedIDs.contains(feed.id) },
+                            set: { isActive in
+                                feedStore.toggleFeed(feed)
                             }
-                        }
+                        ))
                     }
                 }
+                .padding(.top, 24)
                 
                 Section {
                     Button(action: {
                         showingCreateFeed = true
                     }) {
-                        Label("Create New Feed", systemImage: "plus")
+                        HStack {
+                            Image(systemName: "plus")
+                            Text("Create New Feed")
+                        }
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
                 }
             }
-            .navigationTitle("Your Feeds")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
+            .scrollContentBackground(.hidden)
+            .background(Color.white)
             .sheet(isPresented: $showingCreateFeed) {
                 CreateFeedView { newFeed in
                     feedStore.addUserFeed(newFeed)
@@ -69,47 +58,35 @@ struct ActiveFeedsView: View {
 
 struct FeedRow: View {
     let feed: Feed
-    let isSelected: Bool
-    let action: () -> Void
+    @Binding var isOn: Bool
     
     var body: some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: feed.iconName)
-                    .font(.title3)
-                    .foregroundStyle(feed.color)
-                    .frame(width: 32, height: 32)
-                    .background(feed.color.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+        HStack {
+            Image(systemName: feed.iconName)
+                .font(.title3)
+                .foregroundStyle(feed.color)
+                .frame(width: 32, height: 32)
+                .background(feed.color.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            
+            VStack(alignment: .leading) {
+                Text(feed.name)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
                 
-                VStack(alignment: .leading) {
-                    Text(feed.name)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    
-                    if let description = feed.description {
-                        Text(description)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(Color.accentColor)
-                } else {
-                    Image(systemName: "circle")
-                        .font(.title3)
-                        .foregroundStyle(.secondary.opacity(0.5))
+                if let description = feed.description {
+                    Text(description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
-            .contentShape(Rectangle())
+            
+            Spacer()
+            
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
         }
-        .buttonStyle(.plain)
     }
 }
 
