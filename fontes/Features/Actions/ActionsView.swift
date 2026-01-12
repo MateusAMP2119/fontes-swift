@@ -50,7 +50,7 @@ struct ActionsView: View {
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .glassEffect(.regular.tint(.clear).interactive())
+                    .glassEffect(.regular.interactive())
                 
                 HStack {
                     Spacer()

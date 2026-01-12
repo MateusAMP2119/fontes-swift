@@ -30,11 +30,6 @@ struct TabAccessoryView: View {
                 onTap: onFilterTap,
                 hasActiveFilters: hasActiveFilters)
                 .contentShape(Rectangle()) // Make it easier to tap
-            Spacer()
-            
-            // Section 3: Reading Goal
-            TabAccessoryGoal()
-                .contentShape(Rectangle()) // Make it easier to tap
             Spacer().frame(width: 20)
         }
         .foregroundColor(.black)
