@@ -48,7 +48,7 @@ class FeedStore: ObservableObject {
     private let maxCacheAge: TimeInterval = 86400 // 24 hours
     
     // Number of images to preload for initial display
-    private let preloadImageCount = 10
+    private let preloadImageCount = 30
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -171,8 +171,13 @@ class FeedStore: ObservableObject {
     }
     
     /// Preload images for initial display
+    /// Preload images for initial display
     private func preloadInitialImages(for items: [ReadingItem]) async {
-        await imageCache.preloadImages(for: items, limit: preloadImageCount)
+        print("Starting preloading for ALL \(items.count) items")
+        let start = Date()
+        // Pass a large limit to cover all items
+        await imageCache.preloadImages(for: items, limit: items.count)
+        print("Finished preloading in \(Date().timeIntervalSince(start))s")
         self.imagesPreloaded = true
     }
     

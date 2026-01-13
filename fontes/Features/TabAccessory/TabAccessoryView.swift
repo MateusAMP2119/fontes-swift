@@ -15,6 +15,7 @@ struct TabAccessoryView: View {
     var onGoalTap: () -> Void
     var onMiniPlayerTap: ((ReadingItem) -> Void)? = nil
     var hasActiveFilters: Bool = false
+    var systemScheme: ColorScheme
     
     var body: some View {
         HStack {
@@ -32,7 +33,7 @@ struct TabAccessoryView: View {
                 .contentShape(Rectangle()) // Make it easier to tap
             Spacer().frame(width: 20)
         }
-        .foregroundColor(.black)
+        .foregroundColor(systemScheme == .dark ? .white : .black)
 
     }
 }

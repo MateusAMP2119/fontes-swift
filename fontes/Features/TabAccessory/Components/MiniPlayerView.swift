@@ -35,14 +35,13 @@ struct MiniPlayerView: View {
                 Text(headerText)
                     .font(.caption2)
                     .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
+                    .opacity(0.6)
                 
                 // Bottom Text (Title)
                 if let item = displayedItem {
                     Text(item.title)
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.primary)
                         .lineLimit(1)
                 }
             }

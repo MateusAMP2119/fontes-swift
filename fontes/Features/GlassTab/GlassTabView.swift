@@ -25,6 +25,8 @@ struct GlassTabView: View {
     @State private var presentedArticle: ReadingItem? = nil
     @State private var isHeaderHidden: Bool = false
     
+    @Environment(\.colorScheme) var scheme
+    
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
@@ -76,7 +78,8 @@ struct GlassTabView: View {
                 },
                 onMiniPlayerTap: { article in
                     presentedArticle = article
-                }
+                },
+                systemScheme: scheme
             )
         }
         .sheet(isPresented: $isShowingActions) {

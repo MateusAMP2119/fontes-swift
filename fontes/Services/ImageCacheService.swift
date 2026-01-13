@@ -6,39 +6,72 @@
 //
 
 import SwiftUI
+import CryptoKit
+
+/// Thread-safe memory cache shared instance
+final class MemoryCache {
+    static let shared = MemoryCache()
+    private let cache = NSCache<NSString, UIImage>()
+    
+    init() {
+        cache.countLimit = 200
+    }
+    
+    func object(forKey key: String) -> UIImage? {
+        cache.object(forKey: key as NSString)
+    }
+    
+    func setObject(_ image: UIImage, forKey key: String) {
+        cache.setObject(image, forKey: key as NSString)
+    }
+    
+    func removeAll() {
+        cache.removeAllObjects()
+    }
+}
 
 /// Service responsible for caching images to disk for offline access and faster loading
 actor ImageCacheService {
     static let shared = ImageCacheService()
     
     private let fileManager = FileManager.default
-    private let memoryCache = NSCache<NSString, UIImage>()
+    // private let memoryCache = NSCache<NSString, UIImage>() // Removed in favor of MemoryCache.shared
     
     private var cacheDirectory: URL? {
-        fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first?.appendingPathComponent("ImageCache")
+        fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("ImageCache")
     }
     
     init() {
         createCacheDirectoryIfNeeded()
-        memoryCache.countLimit = 100 // Max 100 images in memory
     }
     
     private func createCacheDirectoryIfNeeded() {
-        guard let cacheDirectory = cacheDirectory else { return }
+        guard let cacheDirectory = cacheDirectory else {
+            print("ERROR: Could not resolve cache directory path")
+            return
+        }
         
         if !fileManager.fileExists(atPath: cacheDirectory.path) {
-            try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
+            do {
+                try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
+                print("Created cache directory at: \(cacheDirectory.path)")
+            } catch {
+                print("ERROR: Failed to create cache directory: \(error)")
+            }
         }
     }
     
     // MARK: - Cache Key Generation
     
-    private func cacheKey(for url: URL) -> String {
-        // Create a safe filename from the URL
-        let hash = url.absoluteString.data(using: .utf8)?.base64EncodedString() ?? UUID().uuidString
-        return hash.replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "+", with: "-")
-            .prefix(100) + ".img"
+    nonisolated func cacheKey(for url: URL) -> String {
+        // Use SHA256 for a consistent, safe filename from the URL
+        if let data = url.absoluteString.data(using: .utf8) {
+            let hashed = SHA256.hash(data: data)
+            return hashed.compactMap { String(format: "%02x", $0) }.joined()
+        }
+        
+        // Fallback (should normally not happen with valid URLs)
+        return UUID().uuidString
     }
     
     // MARK: - Image Retrieval
@@ -48,7 +81,7 @@ actor ImageCacheService {
         let key = cacheKey(for: url)
         
         // Check memory cache first
-        if let cachedImage = memoryCache.object(forKey: key as NSString) {
+        if let cachedImage = MemoryCache.shared.object(forKey: key) {
             return cachedImage
         }
         
@@ -56,16 +89,20 @@ actor ImageCacheService {
         guard let cacheDirectory = cacheDirectory else { return nil }
         let fileURL = cacheDirectory.appendingPathComponent(key)
         
-        guard fileManager.fileExists(atPath: fileURL.path),
-              let data = try? Data(contentsOf: fileURL),
-              let image = UIImage(data: data) else {
-            return nil
+        if fileManager.fileExists(atPath: fileURL.path) {
+            do {
+                let data = try Data(contentsOf: fileURL)
+                if let image = UIImage(data: data) {
+                    // Store in memory cache for faster access next time
+                    MemoryCache.shared.setObject(image, forKey: key)
+                    return image
+                }
+            } catch {
+                print("ERROR: Failed to load image from disk: \(error)")
+            }
         }
         
-        // Store in memory cache for faster access next time
-        memoryCache.setObject(image, forKey: key as NSString)
-        
-        return image
+        return nil
     }
     
     /// Download and cache image
@@ -80,24 +117,39 @@ actor ImageCacheService {
             let (data, response) = try await URLSession.shared.data(from: url)
             
             guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode),
-                  let image = UIImage(data: data) else {
+                  (200...299).contains(httpResponse.statusCode) else {
+                print("ERROR: Invalid response for \(url)")
+                return nil
+            }
+            
+            guard let image = UIImage(data: data) else {
+                print("ERROR: Failed to decode image data from \(url)")
                 return nil
             }
             
             // Save to disk cache
             let key = cacheKey(for: url)
             if let cacheDirectory = cacheDirectory {
+                // Ensure directory exists (just in case)
+                if !fileManager.fileExists(atPath: cacheDirectory.path) {
+                    createCacheDirectoryIfNeeded()
+                }
+                
                 let fileURL = cacheDirectory.appendingPathComponent(key)
-                try? data.write(to: fileURL, options: .atomic)
+                do {
+                    try data.write(to: fileURL, options: .atomic)
+                    // print("Saved image to disk: \(fileURL.lastPathComponent)")
+                } catch {
+                    print("ERROR: Failed to write image to \(fileURL.path): \(error)")
+                }
             }
             
             // Save to memory cache
-            memoryCache.setObject(image, forKey: key as NSString)
+            MemoryCache.shared.setObject(image, forKey: key)
             
             return image
         } catch {
-            print("Failed to cache image from \(url): \(error)")
+            print("ERROR: Failed to download image from \(url): \(error)")
             return nil
         }
     }
@@ -137,7 +189,7 @@ actor ImageCacheService {
     
     /// Clear all cached images
     func clearCache() async {
-        memoryCache.removeAllObjects()
+        MemoryCache.shared.removeAll()
         
         guard let cacheDirectory = cacheDirectory else { return }
         
@@ -185,6 +237,38 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
         self.url = url
         self.content = content
         self.placeholder = placeholder
+        
+        // Attempt synchronous load from memory cache
+        if let url = url {
+             // We can use the nonisolated cache key generation manually or expose it
+             // Let's replicate the safe hash logic or make cacheKey nonisolated (it is pure logic)
+             // I made cacheKey nonisolated above.
+             // Accessing ImageCacheService.shared.cacheKey is possible? 
+             // No, standard actors don't expose nonisolated methods easily to sync context without warnings in some swift versions,
+             // but `nonisolated` keyword allows it.
+             
+             // However, `ImageCacheService.shared` is an actor instance.
+             // Calling `ImageCacheService.shared.cacheKey(for: url)` from sync context:
+             // "Actor-isolated instance method 'cacheKey(for:)' can not be referenced from a non-isolated context"
+             // Unless it IS nonisolated. I marked it nonisolated above.
+             
+             // Wait, I need to verify if I can call it.
+             // If not, I'll dulicate logic or move it to MemoryCache.
+             // Let's duplicates logic for safety/speed here to avoid actor hop entirely?
+             // Or better: Move `cacheKey` to `MemoryCache` or a static helper.
+        }
+        
+        // Checking cache synchronously in init to set initial state
+         if let url = url,
+            let data = url.absoluteString.data(using: .utf8) {
+             let hashed = SHA256.hash(data: data)
+             let key = hashed.compactMap { String(format: "%02x", $0) }.joined()
+             
+             if let cached = MemoryCache.shared.object(forKey: key) {
+                 _image = State(initialValue: cached)
+                 _isLoading = State(initialValue: false)
+             }
+         }
     }
     
     var body: some View {
@@ -193,36 +277,33 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
                 content(Image(uiImage: image))
             } else if isLoading {
                 placeholder()
+                    .task(id: url) {
+                        await loadImage()
+                    }
             } else {
+                // Loaded but failed (nil image), or url was nil
                 placeholder()
             }
-        }
-        .task(id: url) {
-            await loadImage()
         }
     }
     
     private func loadImage() async {
-        guard let url = url else {
-            isLoading = false
-            return
-        }
+        guard let url = url, image == nil else { return }
         
-        isLoading = true
+        // isLoading is already managed by init or body state, but we ensure it's true if we are here
+        // actually if image is nil and we are here, isLoading should be true.
         
-        // Try to get from cache first (instant)
         if let cachedImage = await ImageCacheService.shared.getImage(for: url) {
             self.image = cachedImage
-            isLoading = false
+            self.isLoading = false
             return
         }
         
-        // Download and cache
         if let downloadedImage = await ImageCacheService.shared.cacheImage(from: url) {
             self.image = downloadedImage
         }
         
-        isLoading = false
+        self.isLoading = false
     }
 }
 
