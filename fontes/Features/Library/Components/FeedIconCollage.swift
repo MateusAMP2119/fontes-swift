@@ -71,20 +71,15 @@ struct FeedIconCollage: View {
             Rectangle()
                 .fill(Color(.systemBackground))
             
-            AsyncImage(url: URL(string: source.logoURL)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(size * 0.15)
-                case .failure:
-                    sourceInitials(source.name, color: source.color)
-                case .empty:
-                    ProgressView()
-                @unknown default:
-                    sourceInitials(source.name, color: source.color)
-                }
+            CachedAsyncImage(url: URL(string: source.logoURL)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(size * 0.15)
+            } placeholder: {
+                // If it's just loading, we can show initials or a spinner
+                // Since this might be small, initials are better than a tiny spinner
+               sourceInitials(source.name, color: source.color)
             }
         }
     }
@@ -134,21 +129,13 @@ struct FeedIconCollage: View {
             Rectangle()
                 .fill(Color(.systemBackground))
             
-            AsyncImage(url: URL(string: source.logoURL)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(4)
-                case .failure:
-                    sourceInitials(source.name, color: source.color)
-                case .empty:
-                    ProgressView()
-                        .scaleEffect(0.5)
-                @unknown default:
-                    sourceInitials(source.name, color: source.color)
-                }
+            CachedAsyncImage(url: URL(string: source.logoURL)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(4)
+            } placeholder: {
+                sourceInitials(source.name, color: source.color)
             }
         }
     }

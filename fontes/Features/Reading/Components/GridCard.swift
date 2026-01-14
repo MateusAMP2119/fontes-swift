@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GridCard: View {
     let item: ReadingItem
+    @ObservedObject var feedStore = FeedStore.shared
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -38,57 +39,65 @@ struct GridCard: View {
             }
             .frame(height: 140)
             .clipShape(RoundedRectangle(cornerRadius: 4))
+            .overlay(alignment: .bottomTrailing) {
+                Button {
+                    feedStore.toggleSaved(item)
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                    generator.impactOccurred()
+                } label: {
+                    Image(systemName: feedStore.isSaved(item) ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(feedStore.isSaved(item) ? .black : .white)
+                        .symbolEffect(.bounce, value: feedStore.isSaved(item))
+                        .frame(width: 32, height: 32)
+                        .contentShape(Rectangle())
+                        .shadow(radius: 2)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .offset(x: 5, y: 5)
+                .padding(8)
+            }
             
             // Text Content
-            ZStack(alignment: .topTrailing) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        if let url = URL(string: item.sourceLogo) {
-                            CachedAsyncImage(url: url) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                Color.gray.opacity(0.3)
-                            }
-                            .frame(height: 32)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    if let url = URL(string: item.sourceLogo) {
+                        CachedAsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            Color.gray.opacity(0.3)
                         }
-                        
-                        Spacer()
+                        .frame(height: 32)
                     }
                     
-                    Text(item.title)
-                        .font(.system(size: 16, weight: .bold))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .foregroundColor(.primary)
-                    
-                    Text("\(item.author) • \(item.time)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    if !item.tags.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 4) {
-                                ForEach(item.tags, id: \.self) { tag in
-                                    Text(tag)
-                                        .font(.caption2)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.gray.opacity(0.1))
-                                        .cornerRadius(4)
-                                }
+                    Spacer()
+                }
+                
+                Text(item.title)
+                    .font(.system(size: 16, weight: .bold))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(.primary)
+                
+                Text("\(item.author) • \(item.time)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                if !item.tags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 4) {
+                            ForEach(item.tags, id: \.self) { tag in
+                                Text(tag)
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.gray.opacity(0.1))
+                                    .cornerRadius(4)
                             }
                         }
                     }
                 }
-                
-                ArticleActionMenu(
-                    onSave: { print("Saved \(item.title)") },
-                    onMoreLikeThis: { print("More like This: \(item.title)") },
-                    onBuildAlgorithm: { print("Build algo: \(item.title)") },
-                    showBackground: false,
-                    menuId: "\(item.id)"
-                )
             }
         }
     }

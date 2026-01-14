@@ -31,7 +31,7 @@ struct GlassTabView: View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 Tab(value: 0) {
-                    TodayPage()
+                    TodayView()
                 } label: {
                     Label("Home", systemImage: "text.rectangle.page")
                         .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)

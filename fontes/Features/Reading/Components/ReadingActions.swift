@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct ReadingActions: View {
+    let currentItem: ReadingItem
     let nextItem: ReadingItem
     let showHint: Bool
+    
+    @ObservedObject var feedStore = FeedStore.shared
     
     var body: some View {
         VStack(spacing: 12) {
@@ -53,7 +56,7 @@ struct ReadingActions: View {
             HStack(spacing: 12) {
                 // Left: Back Button (Isolated)
                 Button(action: {
-                    // Back action
+                    // Back action handled by parent/env
                 }) {
                     Image(systemName: "chevron.backward")
                         .frame(width: 44, height: 44)
@@ -65,27 +68,51 @@ struct ReadingActions: View {
                 
                 Spacer()
                 
-                // Right: Actions Pill (Comments, Perspectives)
-                HStack(spacing: 20) {
-                    Button(action: {
-                        // Comments action
-                    }) {
-                        Image(systemName: "bubble.left")
-                            .frame(width: 44, height: 44)
+                // Right: Save Action
+                Menu {
+                    // Saved Folders
+                    ForEach(feedStore.savedFolders) { folder in
+                        let isSavedInFolder = folder.itemIDs.contains(currentItem.id)
+                        Button {
+                            if isSavedInFolder {
+                                feedStore.removeFromFolder(folder, item: currentItem)
+                            } else {
+                                feedStore.addToFolder(folder, item: currentItem)
+                            }
+                        } label: {
+                            Label {
+                                Text(folder.name)
+                            } icon: {
+                                Image(systemName: isSavedInFolder ? "checkmark" : folder.iconName)
+                            }
+                        }
                     }
                     
-                    Button(action: {
-                        // Perspectives action
-                    }) {
-                        Image(systemName: "square.stack.3d.up")
-                            .frame(width: 44, height: 44)
+                    Divider()
+                    
+                    Button {
+                        // Create Folder Action - In a real app this would trigger a sheet
+                        // For now we just create a default "Read Later" if it doesn't exist
+                        if !feedStore.savedFolders.contains(where: { $0.name == "Read Later" }) {
+                            feedStore.createFolder(name: "Read Later")
+                        }
+                    } label: {
+                        Label("New Folder", systemImage: "folder.badge.plus")
                     }
+                    
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: feedStore.isSaved(currentItem) ? "bookmark.fill" : "bookmark")
+                            .font(.system(size: 20))
+                        Text(feedStore.isSaved(currentItem) ? "Saved" : "Save")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(.regularMaterial)
+                    .clipShape(Capsule())
+                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
             }
             .padding(.horizontal, 16)
         }

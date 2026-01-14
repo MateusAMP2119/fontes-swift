@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import UIKit
 
-struct TodayPage: View {
+struct TodayView: View {
     // Feed Store
-    @StateObject private var feedStore = FeedStore.shared
+    @ObservedObject private var feedStore = FeedStore.shared
     
     // Unified data access to handle dynamic filtering
     var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
@@ -41,7 +42,12 @@ struct TodayPage: View {
     }
 
     @State private var activeMenuId: String? = nil
+
     @State private var selectedItem: ReadingItem?
+    
+    // Toast & Folder Selection
+    @State private var showFolderSelection = false
+    @State private var itemForFolderSelection: ReadingItem?
 
     var body: some View {
         ScrollView {
@@ -117,6 +123,16 @@ struct TodayPage: View {
                                                 .transition(.scale.combined(with: .opacity))
                                         }
                                         .buttonStyle(PlainButtonStyle())
+                                        .onAppear {
+                                            // Aggressive Prefetching Trigger (Left)
+                                            // Trigger when we are 15 items away from the end
+                                            if let index = items.firstIndex(where: { $0.id == item.id }),
+                                               index >= items.count - 15 {
+                                                Task {
+                                                    await feedStore.loadMore()
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 
@@ -130,67 +146,116 @@ struct TodayPage: View {
                                                 .transition(.scale.combined(with: .opacity))
                                         }
                                         .buttonStyle(PlainButtonStyle())
+                                        .onAppear {
+                                            // Aggressive Prefetching Trigger (Right)
+                                            // Trigger when we are 15 items away from the end
+                                            if let index = items.firstIndex(where: { $0.id == item.id }),
+                                               index >= items.count - 15 {
+                                                Task {
+                                                    await feedStore.loadMore()
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
+                            
+                            // Infinite Scroll Loading Indicator & Trigger
+                            if feedStore.canLoadMore {
+                                HStack {
+                                    Spacer()
+                                    ProgressView()
+                                        .id(UUID()) // Force redraw to ensure onAppear fires if needed
+                                        .onAppear {
+                                            Task {
+                                                await feedStore.loadMore()
+                                            }
+                                        }
+                                    Spacer()
+                                }
+                                .padding(.vertical, 32)
+                            }
                         }
+
                         .padding(.horizontal)
                         .animation(.default, value: items.map { $0.id })
                         .animation(.default, value: featuredItem?.id)
                     }
                 }
             }
-            .onScrollHideHeader()
-            .coordinateSpace(name: "scroll")
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                if value > 100 && !feedStore.isLoading {
-                    Task {
-                        // Haptic feedback
-                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                        generator.impactOccurred()
-                        
-                        await feedStore.refresh()
-                    }
+        .onScrollHideHeader()
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+            if value > 100 && !feedStore.isLoading {
+                Task {
+                    // Haptic feedback
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                    generator.impactOccurred()
+                    
+                    await feedStore.refresh()
                 }
             }
-
-            .task {
-                // Preload cached data first for instant display
-                await feedStore.preloadCachedData()
-                // Then try to fetch fresh data from network
-                await feedStore.loadFeeds()
-            }
-            .fullScreenCover(item: $selectedItem) { item in
-                // Determine next item
-                let nextItem: ReadingItem? = {
-                    // Create a flattened list of all visible items to easily find the next one
-                    var visibleItems: [ReadingItem] = []
-                    if let featured = featuredItem {
-                        visibleItems.append(featured)
-                    }
-                    visibleItems.append(contentsOf: items)
-                    
-                    if let index = visibleItems.firstIndex(where: { $0.id == item.id }), 
-                       index + 1 < visibleItems.count {
-                        return visibleItems[index + 1]
-                    }
-                    return nil
-                }()
+        }
+        .task {
+            // Preload cached data first for instant display
+            await feedStore.preloadCachedData()
+            // Then try to fetch fresh data from network
+            await feedStore.loadFeeds()
+        }
+        .fullScreenCover(item: $selectedItem) { item in
+            // Determine next item
+            let nextItem: ReadingItem? = {
+                // Create a flattened list of all visible items to easily find the next one
+                var visibleItems: [ReadingItem] = []
+                if let featured = featuredItem {
+                    visibleItems.append(featured)
+                }
+                visibleItems.append(contentsOf: items)
                 
-                ReadingDetailView(
-                    item: item,
-                    nextItem: nextItem,
-                    onNext: { next in
-                        selectedItem = next
+                if let index = visibleItems.firstIndex(where: { $0.id == item.id }), 
+                   index + 1 < visibleItems.count {
+                    return visibleItems[index + 1]
+                }
+                return nil
+            }()
+            
+            ReadingDetailView(
+                item: item,
+                nextItem: nextItem,
+                onNext: { next in
+                    selectedItem = next
+                }
+            )
+        }
+        .overlay(alignment: .bottom) {
+            if feedStore.showingSaveToast {
+                SaveToastView {
+                    // On Change
+                    if let item = feedStore.lastSavedItem {
+                        itemForFolderSelection = item
+                        showFolderSelection = true
+                        // Hide toast
+                        withAnimation {
+                            feedStore.showingSaveToast = false
+                        }
                     }
-                )
+                }
+                .padding(.bottom, 20)
+                .transition(.scale(scale: 0.8).combined(with: .opacity))
             }
+        }
+        .sheet(isPresented: $showFolderSelection) {
+            if let item = itemForFolderSelection {
+                FolderSelectionView(item: item)
+            }
+        }
     }
 }
 
-struct TodayPage_Previews: PreviewProvider {
+
+struct TodayView_Previews: PreviewProvider {
     static var previews: some View {
-        TodayPage()
+        TodayView()
     }
 }
 

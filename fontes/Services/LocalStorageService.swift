@@ -70,6 +70,7 @@ actor LocalStorageService {
     // MARK: - User Feeds Configuration
     
     private let userFeedsFileName = "user_feeds_config.json"
+    private let savedFoldersFileName = "saved_folders.json"
     
     /// Save user feeds configuration to local storage
     func saveUserFeeds(_ feeds: [Feed]) async throws {
@@ -96,6 +97,35 @@ actor LocalStorageService {
         
         let data = try Data(contentsOf: fileURL)
         return try decoder.decode([Feed].self, from: data)
+    }
+    
+    // MARK: - Saved Folders Configuration
+    
+    /// Save saved folders to local storage
+    func saveSavedFolders(_ folders: [SavedFolder]) async throws {
+        guard let cacheDirectory = cacheDirectory else {
+            throw LocalStorageError.cacheDirectoryNotAvailable
+        }
+        
+        let fileURL = cacheDirectory.appendingPathComponent(savedFoldersFileName)
+        let data = try encoder.encode(folders)
+        try data.write(to: fileURL, options: .atomic)
+    }
+    
+    /// Load saved folders from local storage
+    func loadSavedFolders() async throws -> [SavedFolder] {
+        guard let cacheDirectory = cacheDirectory else {
+            throw LocalStorageError.cacheDirectoryNotAvailable
+        }
+        
+        let fileURL = cacheDirectory.appendingPathComponent(savedFoldersFileName)
+        
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            return []
+        }
+        
+        let data = try Data(contentsOf: fileURL)
+        return try decoder.decode([SavedFolder].self, from: data)
     }
     
     // MARK: - Feed Items Cache

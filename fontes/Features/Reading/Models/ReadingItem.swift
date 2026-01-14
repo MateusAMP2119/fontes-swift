@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct ReadingItem: Identifiable, Hashable, Codable {
     let id: String
@@ -134,11 +135,16 @@ struct ReadingItem: Identifiable, Hashable, Codable {
             let days = Int(interval / 86400)
             return "\(days)d"
         } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM d"
-            return formatter.string(from: date)
+            return ReadingItem.dateFormatter.string(from: date)
         }
     }
+    
+    // Cached formatter to avoid expensive recreation
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter
+    }()
 }
 
 

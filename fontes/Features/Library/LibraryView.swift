@@ -66,13 +66,21 @@ struct LibraryView: View {
                     listContent
                 }
             }
+            .padding(.bottom, 32)
         }
         .onScrollHideHeader()
         .navigationTitle("Your Library")
         .searchable(text: $searchText, prompt: "Find in Your Library")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showingCreateFeed = true }) {
+                Menu {
+                    Button(action: { showingCreateFeed = true }) {
+                        Label("New Feed", systemImage: "newspaper")
+                    }
+                    Button(action: { createNewFolder() }) {
+                        Label("New Folder", systemImage: "folder.badge.plus")
+                    }
+                } label: {
                     Image(systemName: "plus")
                 }
             }
@@ -87,6 +95,24 @@ struct LibraryView: View {
                 FeedDetailView(feed: $feedStore.userFeeds[index])
             }
         }
+        .alert("New Folder", isPresented: $showingCreateFolder) {
+            TextField("Folder Name", text: $newFolderName)
+            Button("Cancel", role: .cancel) { }
+            Button("Create") {
+                if !newFolderName.isEmpty {
+                    feedStore.createFolder(name: newFolderName)
+                    newFolderName = ""
+                }
+            }
+        }
+    }
+    
+    @State private var showingCreateFolder = false
+    @State private var newFolderName = ""
+    
+    private func createNewFolder() {
+        newFolderName = ""
+        showingCreateFolder = true
     }
     
     // MARK: - Sort Header
@@ -135,10 +161,45 @@ struct LibraryView: View {
     
     // MARK: - List Content
     private var listContent: some View {
-        LazyVStack(spacing: 0) {
-            ForEach(filteredFeeds) { feed in
-                LibraryFeedRow(feed: feed) {
-                    selectedFeed = feed
+        LazyVStack(spacing: 24, pinnedViews: [.sectionHeaders]) {
+            // Section 1: Feeds
+            if !filteredFeeds.isEmpty {
+                Section {
+                    ForEach(filteredFeeds) { feed in
+                        LibraryFeedRow(feed: feed) {
+                            selectedFeed = feed
+                        }
+                    }
+                } header: {
+                    sectionHeader("Feeds")
+                }
+            }
+            
+            // Section 2: Saved Folders
+            if !feedStore.savedFolders.isEmpty {
+                Section {
+                    ForEach(feedStore.savedFolders) { folder in
+                        // Placeholder row for folder
+                        HStack {
+                            Image(systemName: "folder.fill")
+                                .foregroundStyle(.blue)
+                                .font(.title2)
+                            Text(folder.name)
+                                .font(.headline)
+                            Spacer()
+                            Text("\(folder.itemIDs.count)")
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(12)
+                        .padding(.horizontal, 16)
+                    }
+                } header: {
+                    sectionHeader("Saved Folders")
                 }
             }
         }
@@ -146,18 +207,71 @@ struct LibraryView: View {
     
     // MARK: - Grid Content
     private var gridContent: some View {
-        LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 100), spacing: 16)],
-            spacing: 16
-        ) {
-            ForEach(filteredFeeds) { feed in
-                LibraryFeedGridItem(feed: feed) {
-                    selectedFeed = feed
+        VStack(spacing: 24) {
+            // Section 1: Feeds
+            if !filteredFeeds.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionHeader("Feeds")
+                        .padding(.horizontal, 16)
+                    
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: 100), spacing: 16)],
+                        spacing: 16
+                    ) {
+                        ForEach(filteredFeeds) { feed in
+                            LibraryFeedGridItem(feed: feed) {
+                                selectedFeed = feed
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+            }
+            
+            // Section 2: Saved Folders
+            if !feedStore.savedFolders.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionHeader("Saved Folders")
+                        .padding(.horizontal, 16)
+                    
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: 100), spacing: 16)],
+                        spacing: 16
+                    ) {
+                        ForEach(feedStore.savedFolders) { folder in
+                            // Placeholder grid item for folder
+                            VStack {
+                                Image(systemName: "folder.fill")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.blue)
+                                    .frame(height: 60)
+                                Text(folder.name)
+                                    .font(.caption)
+                                    .lineLimit(1)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding(.horizontal, 16)
                 }
             }
         }
-        .padding(.horizontal, 16)
         .padding(.top, 8)
+    }
+    
+    private func sectionHeader(_ title: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.title3)
+                .fontWeight(.bold)
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(.systemBackground))
     }
 }
 

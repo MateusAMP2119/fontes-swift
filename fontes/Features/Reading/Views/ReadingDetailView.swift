@@ -63,7 +63,7 @@ struct ReadingDetailView: View {
             // MARK: - Bottom Actions
             VStack {
                 Spacer()
-                ReadingActions(nextItem: item, showHint: false)
+                ReadingActions(currentItem: item, nextItem: item, showHint: false)
             }
         }
         .navigationBarHidden(true)
@@ -76,16 +76,21 @@ struct ReadingDetailView: View {
     // MARK: - Subviews
     private var headerImage: some View {
         ZStack {
-            if let url = URL(string: "https://picsum.photos/800/600") {
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image {
-                        image.resizable().scaledToFill()
-                    } else {
-                        Color.gray.opacity(0.3)
-                    }
+            if let imageURLString = item.imageURL, let url = URL(string: imageURLString) {
+                CachedAsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Rectangle()
+                        .fill(item.mainColor.opacity(0.3))
+                        .overlay {
+                            ProgressView()
+                        }
                 }
             } else {
-                Color.gray.opacity(0.3)
+                Rectangle()
+                    .fill(item.mainColor.opacity(0.3))
             }
         }
     }

@@ -43,14 +43,29 @@ class FeedStore: ObservableObject {
     // Active User Feeds (IDs)
     @Published var activeFeedIDs: Set<UUID> = []
     
+    // User-created Saved Folders
+    @Published var savedFolders: [SavedFolder] = []
+    
+    // Toast State
+    @Published var showingSaveToast = false
+    @Published var lastSavedItem: ReadingItem?
+    
     // Cache duration in seconds (5 minutes for network, 24 hours max for offline)
     private let cacheDuration: TimeInterval = 300
     private let maxCacheAge: TimeInterval = 86400 // 24 hours
     
     // Number of images to preload for initial display
-    private let preloadImageCount = 30
+    private let pageSize = 30
+    
+    private var allFetchedItems: [ReadingItem] = []
     
     private var cancellables = Set<AnyCancellable>()
+    
+    // Pagination State
+    var canLoadMore: Bool {
+        items.count < allFetchedItems.count
+    }
+    @Published var isFetchingMore = false
     
     init() {
         setupNetworkMonitoring()
@@ -81,6 +96,8 @@ class FeedStore: ObservableObject {
     var gridItems: [ReadingItem] {
         Array(items.dropFirst())
     }
+    
+    // ... items based getters ...
     
     // Available sources for filtering
     var availableSources: [String] {
@@ -120,65 +137,79 @@ class FeedStore: ObservableObject {
             await loadConfiguration()
         }
         
-        // Try to fetch from network. We always fetch all enabled RSS feeds to have the data available.
-        // Optimization: In a real app, we might only fetch RSS feeds required by active User Feeds.
-        // For now, based on "Base feed contains all", we fetch everything enabled in RSS config.
+        // Prepare for sequential fetching
         let activeRSSFeeds = rssFeeds.filter { $0.isEnabled }
-        let results = await service.fetchAllFeeds(activeRSSFeeds)
         
-        // If network fetch failed or returned empty, try cache
-        if results.isEmpty {
-            await loadFromCache()
-            return
-        }
-        
-        // Convert RSS items to ReadingItems and merge from all feeds
-        var allItems: [ReadingItem] = []
-        
-        for (feed, rssItems) in results {
-            let readingItems = rssItems.map { ReadingItem.from(rssItem: $0, feed: feed) }
-            allItems.append(contentsOf: readingItems)
-        }
-        
-        // Sort by date (newest first)
-        allItems.sort { item1, item2 in
-            guard let date1 = item1.publishedDate else { return false }
-            guard let date2 = item2.publishedDate else { return true }
-            return date1 > date2
-        }
-        
-        // Remove duplicates based on title similarity
-        allItems = removeDuplicates(from: allItems)
-        
-        self.items = allItems
-        self.lastUpdated = Date()
-        self.dataSource = .network
-        
-        // Preload images for first items before hiding splash screen
-        await preloadInitialImages(for: allItems)
-        
-        self.isLoading = false
-        self.isInitialLoading = false
-        
-        // Save to local storage for offline access
-        Task {
-            try? await localStorage.saveFeedItems(allItems)
-        }
-        
-        if allItems.isEmpty {
-            self.error = RSSError.parsingFailed
-        }
-    }
-    
-    /// Preload images for initial display
-    /// Preload images for initial display
-    private func preloadInitialImages(for items: [ReadingItem]) async {
-        print("Starting preloading for ALL \(items.count) items")
-        let start = Date()
-        // Pass a large limit to cover all items
-        await imageCache.preloadImages(for: items, limit: items.count)
-        print("Finished preloading in \(Date().timeIntervalSince(start))s")
-        self.imagesPreloaded = true
+        // Run fetching in detached task to avoid blocking main thread
+        await Task.detached(priority: .userInitiated) {
+            var allItems: [ReadingItem] = []
+            var lastSavedCount = 0
+            let saveInterval = 60
+            
+            // Local deduplication helper
+            func dedup(_ items: [ReadingItem]) -> [ReadingItem] {
+                var seen = Set<String>()
+                return items.filter { item in
+                    let normalizedTitle = item.title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                    if seen.contains(normalizedTitle) { return false }
+                    seen.insert(normalizedTitle)
+                    return true
+                }
+            }
+
+            for feed in activeRSSFeeds {
+                do {
+                    // Fetch feed sequentially (one at a time)
+                    let rssItems = try await RSSFeedService.shared.fetchFeed(feed)
+                    let newItems = rssItems.map { ReadingItem.from(rssItem: $0, feed: feed) }
+                    
+                    allItems.append(contentsOf: newItems)
+                    
+                    // Periodically save to storage
+                    if allItems.count - lastSavedCount >= saveInterval {
+                        let currentItems = dedup(allItems).sorted {
+                            ($0.publishedDate ?? Date()) > ($1.publishedDate ?? Date())
+                        }
+                        try? await LocalStorageService.shared.saveFeedItems(currentItems)
+                        lastSavedCount = allItems.count
+                    }
+                } catch {
+                    print("Error fetching feed \(feed.name): \(error)")
+                }
+            }
+            
+            // Final processing
+            let finalItems = dedup(allItems).sorted {
+                ($0.publishedDate ?? Date()) > ($1.publishedDate ?? Date())
+            }
+            
+            // Update MainActor state
+            await MainActor.run {
+                self.allFetchedItems = finalItems
+                
+                // Pagination: only expose first page initially
+                let initialPage = Array(finalItems.prefix(self.pageSize))
+                self.items = initialPage
+                
+                self.lastUpdated = Date()
+                self.dataSource = .network
+                self.isLoading = false
+                self.isInitialLoading = false
+                
+                if finalItems.isEmpty {
+                    self.error = RSSError.parsingFailed
+                }
+                
+                // Preload images for FIRST page in background
+                Task(priority: .background) {
+                    await self.preloadImagesForBatch(initialPage)
+                }
+            }
+            
+            // Final save to ensure consistency
+            try? await LocalStorageService.shared.saveFeedItems(finalItems)
+            
+        }.value
     }
     
     /// Load items from local cache
@@ -186,7 +217,10 @@ class FeedStore: ObservableObject {
         do {
             let cachedItems = try await localStorage.loadFeedItems()
             if !cachedItems.isEmpty {
-                self.items = cachedItems
+                self.allFetchedItems = cachedItems
+                let initialPage = Array(cachedItems.prefix(pageSize))
+                self.items = initialPage
+                
                 self.dataSource = .cache
                 
                 // Get cache metadata for last updated time
@@ -194,8 +228,10 @@ class FeedStore: ObservableObject {
                     self.lastUpdated = metadata.lastUpdated
                 }
                 
-                // Preload images for cached items
-                await preloadInitialImages(for: cachedItems)
+                // Preload images for cached items in background
+                Task(priority: .background) {
+                    await preloadImagesForBatch(initialPage)
+                }
             } else {
                 self.error = LocalStorageError.fileNotFound
             }
@@ -207,17 +243,56 @@ class FeedStore: ObservableObject {
         self.isInitialLoading = false
     }
     
+    /// Load more items from the fetched set
+    func loadMore() async {
+        // Prevent concurrent loads or loading if done
+        guard canLoadMore, !isLoading, !isFetchingMore else { return }
+        
+        isFetchingMore = true
+        defer { isFetchingMore = false }
+        
+        let currentCount = items.count
+        let nextBatch = Array(allFetchedItems.dropFirst(currentCount).prefix(pageSize))
+        
+        guard !nextBatch.isEmpty else { return }
+        
+        print("Loading more... \(nextBatch.count) items")
+        
+        // Append to items immediately for instant UI update
+        self.items.append(contentsOf: nextBatch)
+        
+        // Preload next batch images in background (don't block UI)
+        Task(priority: .background) {
+            await preloadImagesForBatch(nextBatch)
+        }
+    }
+    
+    /// Preload images for a specific batch of items
+    private func preloadImagesForBatch(_ items: [ReadingItem]) async {
+        print("Preloading images for batch of \(items.count) items")
+        await imageCache.preloadImages(for: items, limit: items.count)
+        if self.items.count <= pageSize {
+             self.imagesPreloaded = true
+        }
+    }
+    
     /// Preload cached data on app launch
     func preloadCachedData() async {
         // Load from cache first for instant display
         if let cachedItems = try? await localStorage.loadFeedItems(), !cachedItems.isEmpty {
-            self.items = cachedItems
+            self.allFetchedItems = cachedItems
+            
+            let initialPage = Array(cachedItems.prefix(pageSize))
+            self.items = initialPage
+            
             self.dataSource = .cache
             
-            // Preload images for cached items
-            await preloadInitialImages(for: cachedItems)
-            
             self.isInitialLoading = false
+            
+            // Preload images for cached items in background
+            Task(priority: .background) {
+                await preloadImagesForBatch(initialPage)
+            }
             
             if let metadata = await localStorage.getCacheMetadata() {
                 self.lastUpdated = metadata.lastUpdated
@@ -321,6 +396,12 @@ class FeedStore: ObservableObject {
                 try? await localStorage.saveUserFeeds(loadedUserFeeds)
             }
             
+            // Preload all RSS feed logos for FeedIconCollage
+            let logoURLs = self.rssFeeds.compactMap { URL(string: $0.logoURL) }
+            Task {
+                await imageCache.preloadImages(urls: logoURLs)
+            }
+            
             if !loadedUserFeeds.isEmpty {
                 self.userFeeds = loadedUserFeeds
             } else {
@@ -335,6 +416,10 @@ class FeedStore: ObservableObject {
                      self.activeFeedIDs = [defaultFeed.id]
                  }
             }
+            
+            // Load Saved Folders
+            let loadedFolders = try await localStorage.loadSavedFolders()
+            self.savedFolders = loadedFolders
             
             // Load Active Feeds State (Optional: could persist this too)
             // For now, default to Base Feed if none selected? Or empty?
@@ -367,6 +452,109 @@ class FeedStore: ObservableObject {
         activeFeedIDs.remove(feed.id)
         Task {
             try? await localStorage.saveUserFeeds(userFeeds)
+        }
+    }
+    
+    // MARK: - Saved Folders Management
+    
+    func createFolder(name: String, iconName: String = "folder") {
+        let folder = SavedFolder(name: name, iconName: iconName)
+        savedFolders.append(folder)
+        saveSavedFolders()
+    }
+    
+    func deleteFolder(_ folder: SavedFolder) {
+        savedFolders.removeAll { $0.id == folder.id }
+        saveSavedFolders()
+    }
+    
+    func updateFolder(_ folder: SavedFolder) {
+        if let index = savedFolders.firstIndex(where: { $0.id == folder.id }) {
+            savedFolders[index] = folder
+            saveSavedFolders()
+        }
+    }
+    
+    private func saveSavedFolders() {
+        Task {
+            try? await localStorage.saveSavedFolders(savedFolders)
+        }
+    }
+    
+    // MARK: - Folder Item Management
+    
+    func addToFolder(_ folder: SavedFolder, item: ReadingItem) {
+        if let index = savedFolders.firstIndex(where: { $0.id == folder.id }) {
+            var updatedFolder = savedFolders[index]
+            if !updatedFolder.itemIDs.contains(item.id) {
+                updatedFolder.itemIDs.append(item.id)
+                updatedFolder.updatedAt = Date()
+                savedFolders[index] = updatedFolder
+                saveSavedFolders()
+            }
+        }
+    }
+    
+    func removeFromFolder(_ folder: SavedFolder, item: ReadingItem) {
+        if let index = savedFolders.firstIndex(where: { $0.id == folder.id }) {
+            var updatedFolder = savedFolders[index]
+            updatedFolder.itemIDs.removeAll { $0 == item.id }
+            updatedFolder.updatedAt = Date()
+            savedFolders[index] = updatedFolder
+            saveSavedFolders()
+        }
+    }
+    
+    func savedInFolders(_ item: ReadingItem) -> [SavedFolder] {
+        savedFolders.filter { $0.itemIDs.contains(item.id) }
+    }
+    
+    func isSaved(_ item: ReadingItem) -> Bool {
+        !savedInFolders(item).isEmpty
+    }
+    
+    func toggleSaved(_ item: ReadingItem) {
+        if isSaved(item) {
+            // Remove from ALL folders
+            let folders = savedInFolders(item)
+            for folder in folders {
+                removeFromFolder(folder, item: item)
+            }
+            // Hide toast if we just unsaved the item being shown
+            if lastSavedItem?.id == item.id {
+                showingSaveToast = false
+                lastSavedItem = nil
+            }
+        } else {
+            // Add to "Saved Stories" folder, creating if needed
+            let defaultFromName = "Saved Stories"
+            if let savedFolder = savedFolders.first(where: { $0.name == defaultFromName }) {
+                addToFolder(savedFolder, item: item)
+            } else {
+                createFolder(name: defaultFromName)
+                // Re-fetch because createFolder appends to savedFolders
+                if let newFolder = savedFolders.first(where: { $0.name == defaultFromName }) {
+                    addToFolder(newFolder, item: item)
+                }
+            }
+            
+            // Trigger Toast
+            lastSavedItem = item
+            withAnimation {
+                showingSaveToast = true
+            }
+            
+            // Auto hide after 3 seconds
+            Task {
+                try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+                if lastSavedItem?.id == item.id {
+                    await MainActor.run {
+                        withAnimation {
+                            showingSaveToast = false
+                        }
+                    }
+                }
+            }
         }
     }
     

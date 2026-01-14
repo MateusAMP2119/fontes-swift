@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FeaturedCard: View {
     let item: ReadingItem
+    @ObservedObject var feedStore = FeedStore.shared
     
     var body: some View {
         GeometryReader { geometry in
@@ -49,21 +50,7 @@ struct FeaturedCard: View {
                 )
                 
                 // Action Menu
-                VStack {
-                    HStack {
-                        Spacer()
-                        ArticleActionMenu(
-                            onSave: { print("Saved \(item.title)") },
-                            onMoreLikeThis: { print("More like This: \(item.title)") },
-                            onBuildAlgorithm: { print("Build algo: \(item.title)") },
-                            showBackground: false,
-                            menuId: "\(item.id)"
-                        )
-                        .foregroundColor(.white) // Override default gray for FeaturedCard
-                    }
-                    Spacer()
-                }
-                .padding(16)
+
                 
                 // Content Overlay
                 VStack(alignment: .leading, spacing: 8) {
@@ -93,25 +80,45 @@ struct FeaturedCard: View {
                     .foregroundColor(.white.opacity(0.9))
                     .shadow(radius: 2)
                     
-                    // Tags
-                    if !item.tags.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(item.tags, id: \.self) { tag in
-                                    Text(tag.uppercased())
-                                        .font(.caption2)
-                                        .fontWeight(.bold)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.black.opacity(0.3))
-                                        .cornerRadius(4)
-                                        .foregroundColor(.white)
+                    // Tags and Action Row
+                    HStack(alignment: .bottom, spacing: 12) {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ForEach(item.tags, id: \.self) { tag in
+                                        Text(tag.uppercased())
+                                            .font(.caption2)
+                                            .fontWeight(.bold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.black.opacity(0.3))
+                                            .cornerRadius(4)
+                                            .foregroundColor(.white)
+                                    }
                                 }
                             }
+                        Spacer()
+
+                        // Button
+                        Button {
+                            feedStore.toggleSaved(item)
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                        } label: {
+                            Image(systemName: feedStore.isSaved(item) ? "bookmark.fill" : "bookmark")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
+                                .symbolEffect(.bounce, value: feedStore.isSaved(item))
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                                .shadow(radius: 2)
                         }
+                        .offset(x: 10, y: 10)
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding(20)
+                
+
             }
             .clipShape(RoundedRectangle(cornerRadius: 4))
             
