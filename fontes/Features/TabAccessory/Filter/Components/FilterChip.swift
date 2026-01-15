@@ -48,7 +48,7 @@ struct FilterChip: View {
             .foregroundColor(.primary)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.primary : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? Color.red : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)

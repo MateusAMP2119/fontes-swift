@@ -14,6 +14,7 @@ struct GridCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Article Image
+            // Article Image
             GeometryReader { geometry in
                 Group {
                     if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
@@ -38,8 +39,7 @@ struct GridCard: View {
                 .clipped()
             }
             .frame(height: 140)
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            .overlay(alignment: .bottomTrailing) {
+            .overlay(alignment: .topTrailing) {
                 Button {
                     feedStore.toggleSaved(item)
                     let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -47,16 +47,15 @@ struct GridCard: View {
                 } label: {
                     Image(systemName: feedStore.isSaved(item) ? "bookmark.fill" : "bookmark")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(feedStore.isSaved(item) ? .black : .white)
+                        .foregroundColor(.white)
                         .symbolEffect(.bounce, value: feedStore.isSaved(item))
                         .frame(width: 32, height: 32)
+                        .background(.black.opacity(0.4))
                         .contentShape(Rectangle())
-                        .shadow(radius: 2)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .offset(x: 5, y: 5)
-                .padding(8)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 4))
             
             // Text Content
             VStack(alignment: .leading, spacing: 6) {

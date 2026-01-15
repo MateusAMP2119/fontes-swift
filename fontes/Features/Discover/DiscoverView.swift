@@ -83,25 +83,7 @@ struct DiscoverView: View {
             )
             .environment(\.activeMenuId, $activeMenuId)
             .fullScreenCover(item: $selectedArticle) { article in
-                // Determine next item
-                let nextItem: ReadingItem? = {
-                    // Flatten list: Top Result + Magazines
-                    
-                    
-                    return nil
-                }()
-                
-                ReadingDetailView(
-                    item: article.asReadingItem,
-                    nextItem: nextItem,
-                    onNext: { nextReadingItem in
-                        // Find the corresponding DiscoverArticle to update the selection
-                        // This assumes we can find it by ID or matching properties. 
-                        // Since 'next' comes from our list, we can search our list again.
-                        
-                        
-                    }
-                )
+                ReadingDetailView(item: article.asReadingItem)
             }
     }
 }

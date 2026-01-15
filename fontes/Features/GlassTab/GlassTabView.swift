@@ -9,13 +9,19 @@ import SwiftUI
 
 struct GlassTabView: View {
     @Namespace private var transition
+    
+    @ObservedObject var feedStore = FeedStore.shared
 
     @State private var selectedTab = 0
     @State private var previousTab = 0
     @State private var isShowingActions = false
     
     @State private var showingPageSettings = false
+    @State private var showingFilterSheet = false
     @State private var showUserSettings = false
+    
+    // Filter State - Now in FeedStore
+    // Removed local state variables
 
     
     // Algorithm State
@@ -24,6 +30,7 @@ struct GlassTabView: View {
     
     @State private var presentedArticle: ReadingItem? = nil
     @State private var isHeaderHidden: Bool = false
+    @State private var bottomAccessoryHeight: CGFloat = 0
     
     @Environment(\.colorScheme) var scheme
     
@@ -70,7 +77,7 @@ struct GlassTabView: View {
         .tabViewBottomAccessory {
             TabAccessoryView(
                 onFilterTap: {
-                    showingPageSettings = true
+                    showingFilterSheet = true
                 },
                 onGoalTap: {
                     // TODO: Implement goal action
@@ -79,9 +86,17 @@ struct GlassTabView: View {
                 onMiniPlayerTap: { article in
                     presentedArticle = article
                 },
+                hasActiveFilters: feedStore.hasActiveFilters,
                 systemScheme: scheme
             )
+            .background(GeometryReader { geometry in
+                Color.clear.preference(key: ViewHeightKey.self, value: geometry.size.height)
+            })
         }
+        .onPreferenceChange(ViewHeightKey.self) { height in
+            self.bottomAccessoryHeight = height
+        }
+        .environment(\.bottomContentHeight, bottomAccessoryHeight)
         .sheet(isPresented: $isShowingActions) {
             ActionsView()
                 .presentationDetents([.medium])
@@ -127,16 +142,19 @@ struct GlassTabView: View {
             }
         }
         .fullScreenCover(item: $presentedArticle) { article in
-            // Mock next item logic for now, or just show the article
-            ReadingDetailView(
-                item: article,
-                nextItem: nil, // We could calculate this from FeedStore if needed
-                onNext: { next in
-                    presentedArticle = next
-                }
-            )
+            ReadingDetailView(item: article)
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            FilterSheetView()
         }
         }
+    }
+}
+
+struct ViewHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

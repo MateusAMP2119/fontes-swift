@@ -15,22 +15,23 @@ struct SaveToastView: View {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundColor(.green)
             
-            Text("Saved")
+            Text("Guardado para mais tarde")
                 .font(.subheadline)
                 .fontWeight(.medium)
             
-            Button("Change") {
+            Button("Mudar") {
                 onChange()
             }
             .font(.subheadline)
-            .fontWeight(.bold)
-            .foregroundColor(.blue)
+            .fontWeight(.medium)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .foregroundColor(.white)
+            .glassEffect(.regular.tint(.red).interactive())
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .glassEffect(.regular)
-        .clipShape(Capsule())
-        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
     }
 }
 

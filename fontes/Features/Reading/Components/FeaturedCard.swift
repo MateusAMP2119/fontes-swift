@@ -12,36 +12,36 @@ struct FeaturedCard: View {
     @ObservedObject var feedStore = FeedStore.shared
     
     var body: some View {
-        GeometryReader { geometry in
             ZStack(alignment: .bottomLeading) {
                 // Article Image or fallback gradient
-                Group {
-                    if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
-                        CachedAsyncImage(url: imageURL) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
+                GeometryReader { geometry in
+                    Group {
+                        if let imageURLString = item.imageURL, let imageURL = URL(string: imageURLString) {
+                            CachedAsyncImage(url: imageURL) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Rectangle()
+                                    .fill(item.mainColor.opacity(0.3))
+                                    .overlay {
+                                        ProgressView()
+                                            .tint(.white)
+                                    }
+                            }
+                        } else {
+                            // Fallback gradient when no image URL
                             Rectangle()
-                                .fill(item.mainColor.opacity(0.3))
-                                .overlay {
-                                    ProgressView()
-                                        .tint(.white)
-                                }
+                                .fill(LinearGradient(
+                                    gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
                         }
-                    } else {
-                        // Fallback gradient when no image URL
-                        Rectangle()
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [item.mainColor, item.mainColor.opacity(0.8)]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
                     }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .clipped()
-                
                 // Dark gradient overlay for text readability
                 LinearGradient(
                     gradient: Gradient(colors: [.clear, .black.opacity(0.7)]),
@@ -98,30 +98,36 @@ struct FeaturedCard: View {
                             }
                         Spacer()
 
-                        // Button
+                    }
+                }
+                .padding(20)
+                
+                // Save Button (Top Right)
+                VStack {
+                    HStack {
+                        Spacer()
                         Button {
                             feedStore.toggleSaved(item)
                             let generator = UIImpactFeedbackGenerator(style: .medium)
                             generator.impactOccurred()
                         } label: {
                             Image(systemName: feedStore.isSaved(item) ? "bookmark.fill" : "bookmark")
-                                .font(.system(size: 20, weight: .semibold))
+                                .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
                                 .symbolEffect(.bounce, value: feedStore.isSaved(item))
-                                .frame(width: 44, height: 44)
+                                .frame(width: 48, height: 48)
+                                .background(.black.opacity(0.4))
                                 .contentShape(Rectangle())
-                                .shadow(radius: 2)
                         }
-                        .offset(x: 10, y: 10)
                         .buttonStyle(PlainButtonStyle())
                     }
+                    Spacer()
                 }
-                .padding(20)
                 
 
             }
             .clipShape(RoundedRectangle(cornerRadius: 4))
             
-        }
+
     }
 }

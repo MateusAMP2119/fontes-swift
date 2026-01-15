@@ -46,6 +46,15 @@ class FeedStore: ObservableObject {
     // User-created Saved Folders
     @Published var savedFolders: [SavedFolder] = []
     
+    // Active Filters (WHERE clause style)
+    @Published var activeTags: Set<String> = []
+    @Published var activeAuthors: Set<String> = []
+    @Published var activeSources: Set<String> = []
+    
+    var hasActiveFilters: Bool {
+        !activeTags.isEmpty || !activeAuthors.isEmpty || !activeSources.isEmpty
+    }
+    
     // Toast State
     @Published var showingSaveToast = false
     @Published var lastSavedItem: ReadingItem?
@@ -339,9 +348,28 @@ class FeedStore: ObservableObject {
         
         // Filter items: Union of all active feeds
         // An item is included if it matches ANY of the active feeds
-        let filtered = items.filter { item in
+        var filtered = items.filter { item in
             activeFeeds.contains { feed in
                 feed.matches(item)
+            }
+        }
+        
+        // Apply "WHERE" clause filters (AND logic between categories)
+        if !activeTags.isEmpty {
+            filtered = filtered.filter { item in
+                !Set(item.tags).isDisjoint(with: activeTags)
+            }
+        }
+        
+        if !activeAuthors.isEmpty {
+            filtered = filtered.filter { item in
+                activeAuthors.contains(item.author)
+            }
+        }
+        
+        if !activeSources.isEmpty {
+            filtered = filtered.filter { item in
+                activeSources.contains(item.source)
             }
         }
         
@@ -457,8 +485,8 @@ class FeedStore: ObservableObject {
     
     // MARK: - Saved Folders Management
     
-    func createFolder(name: String, iconName: String = "folder") {
-        let folder = SavedFolder(name: name, iconName: iconName)
+    func createFolder(name: String, iconName: String = "folder", imageURL: String? = nil, description: String? = nil) {
+        let folder = SavedFolder(name: name, iconName: iconName, imageURL: imageURL, description: description)
         savedFolders.append(folder)
         saveSavedFolders()
     }

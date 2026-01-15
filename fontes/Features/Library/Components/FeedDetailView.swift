@@ -129,26 +129,24 @@ struct FeedDetailView: View {
                             // Left Column
                             LazyVStack(spacing: 16) {
                                 ForEach(leftColumnItems) { item in
-                                    Button {
-                                        selectedItem = item
-                                    } label: {
                                         GridCard(item: item)
                                             .transition(.scale.combined(with: .opacity))
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                selectedItem = item
+                                            }
                                 }
                             }
                             
                             // Right Column
                             LazyVStack(spacing: 16) {
                                 ForEach(rightColumnItems) { item in
-                                    Button {
-                                        selectedItem = item
-                                    } label: {
                                         GridCard(item: item)
                                             .transition(.scale.combined(with: .opacity))
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                selectedItem = item
+                                            }
                                 }
                             }
                         }
@@ -163,22 +161,7 @@ struct FeedDetailView: View {
             .presentationDragIndicator(.visible)
 
             .fullScreenCover(item: $selectedItem) { item in
-                // Determine next item for swipe navigation
-                let nextItem: ReadingItem? = {
-                    if let index = items.firstIndex(where: { (r: ReadingItem) in r.id == item.id }),
-                       index + 1 < items.count {
-                        return items[index + 1]
-                    }
-                    return nil
-                }()
-                
-                ReadingDetailView(
-                    item: item,
-                    nextItem: nextItem,
-                    onNext: { next in
-                        selectedItem = next
-                    }
-                )
+                ReadingDetailView(item: item)
             }
         }
     }

@@ -10,8 +10,6 @@ import Foundation
 
 struct ReadingDetailView: View {
     let item: ReadingItem
-    var nextItem: ReadingItem? = nil
-    var onNext: ((ReadingItem) -> Void)? = nil
     
     @Environment(\.dismiss) var dismiss
     
@@ -22,27 +20,47 @@ struct ReadingDetailView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     // Header Image
                     headerImage
-                        .frame(height: 300)
-                        .clipped()
                     
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 20) {
                         // Title & Metadata
-                        Text(item.title)
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(.primary)
-                        
-                        metadataView
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(item.title)
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.primary)
+                            
+                            if let subtitle = item.subtitle {
+                                Text(subtitle)
+                                    .font(.title3)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            metadataView
+                        }
                         
                         // Tags
                         if !item.tags.isEmpty {
                             tagsView
                         }
                         
-                        // Placeholder Content
-                        contentPlaceholder
+                        Divider()
+                            .padding(.vertical, 8)
+                        
+                        // Article Content
+                        if !item.content.isEmpty {
+                            Text(item.content)
+                                .font(.body)
+                                .lineSpacing(6)
+                                .foregroundColor(.primary)
+                        } else {
+                            // Fallback if no content is available yet
+                            Text("No content available for this article.")
+                                .font(.body)
+                                .italic()
+                                .foregroundColor(.secondary)
+                        }
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 120)
+                    .padding(.bottom, 40)
                 }
             }
             .edgesIgnoringSafeArea(.top)
@@ -52,21 +70,20 @@ struct ReadingDetailView: View {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.primary)
-                        .frame(width: 44, height: 44)
-                        .glassEffect()
                 }
                 Spacer()
             }
             .padding(.horizontal)
-            
-            // MARK: - Bottom Actions
-            VStack {
-                Spacer()
-                ReadingActions(currentItem: item, nextItem: item, showHint: false)
-            }
         }
         .navigationBarHidden(true)
+        .highPriorityGesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.height > 100 && abs(value.translation.width) < 50 {
+                        dismiss()
+                    }
+                }
+        )
         .onAppear {
             // Update last read item when viewing an article
             FeedStore.shared.updateLastRead(item: item)
@@ -80,10 +97,11 @@ struct ReadingDetailView: View {
                 CachedAsyncImage(url: url) { image in
                     image
                         .resizable()
-                        .scaledToFill()
+                        .scaledToFit()
                 } placeholder: {
                     Rectangle()
                         .fill(item.mainColor.opacity(0.3))
+                        .frame(height: 300)
                         .overlay {
                             ProgressView()
                         }
@@ -91,19 +109,30 @@ struct ReadingDetailView: View {
             } else {
                 Rectangle()
                     .fill(item.mainColor.opacity(0.3))
+                    .frame(height: 300)
+                    .overlay(
+                        Image(systemName: "newspaper")
+                            .font(.system(size: 40))
+                            .foregroundColor(.secondary)
+                    )
             }
         }
     }
     
     private var metadataView: some View {
-        HStack(spacing: 4) {
-            Text(item.author.isEmpty ? "Author Name" : item.author)
-                .fontWeight(.medium)
+        HStack(spacing: 8) {
+            if !item.author.isEmpty {
+                Text(item.author)
+                    .fontWeight(.medium)
+            }
+            
             Text("·")
+                .foregroundColor(.secondary)
+            
             Text(item.time.isEmpty ? "Date" : item.time)
+                .foregroundColor(.secondary)
         }
         .font(.subheadline)
-        .foregroundColor(.secondary)
     }
     
     private var tagsView: some View {
@@ -113,45 +142,16 @@ struct ReadingDetailView: View {
                     Text(tag.uppercased())
                         .font(.caption2)
                         .fontWeight(.bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.secondary.opacity(0.15))
-                        .cornerRadius(4)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.secondary.opacity(0.1))
+                        .cornerRadius(6)
                         .foregroundColor(.primary)
                 }
             }
         }
     }
-    
-    private var contentPlaceholder: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("With schools closed, Lahaina parents left children at home while they worked; confirmed death toll of 110 is expected to rise")
-                .font(.system(size: 18))
-                .foregroundColor(.secondary)
-                .lineSpacing(4)
-            
-            Text("This is an immersive reading view for the article titled \"\(item.title)\". In a real application, the full content of the article would be fetched and displayed here.")
-                .font(.system(size: 18))
-                .lineSpacing(6)
-            
-            ForEach(0..<5) { _ in
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.")
-                    .font(.system(size: 18))
-                    .lineSpacing(6)
-            }
-        }
-    }
-    
-
-    
-    private func triggerNextArticle(_ next: ReadingItem) {
-        withAnimation {
-            onNext?(next)
-        }
-    }
 }
-
-
 
 // MARK: - Previews
 
@@ -168,23 +168,6 @@ struct ReadingDetailView_Previews: PreviewProvider {
             mainColor: Color.red
         )
         
-        let nextItem = ReadingItem(
-            id: 2,
-            title: "Another interesting article for you to read",
-            source: "Theverge",
-            time: "4h ago",
-            author: "Nilay Patel",
-            tags: ["Tech", "Analysis"],
-            sourceLogo: "https://example.com/logo2.png",
-            mainColor: Color.blue
-        )
-        
-        return ReadingDetailView(
-            item: mockItem,
-            nextItem: nextItem,
-            onNext: { newItem in
-                print("Transit to: \(newItem.title)")
-            }
-        )
+        return ReadingDetailView(item: mockItem)
     }
 }

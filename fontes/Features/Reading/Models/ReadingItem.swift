@@ -11,6 +11,7 @@ import Foundation
 struct ReadingItem: Identifiable, Hashable, Codable {
     let id: String
     let title: String
+    let subtitle: String? // Added subtitle
     let source: String
     let time: String
     let author: String
@@ -20,19 +21,21 @@ struct ReadingItem: Identifiable, Hashable, Codable {
     let articleURL: String?
     let imageURL: String?
     let publishedDate: Date?
+    let content: String // Added content
     
     var mainColor: Color {
         Color(hex: mainColorHex) ?? .blue
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, title, source, time, author, tags, sourceLogo, mainColorHex, articleURL, imageURL, publishedDate
+        case id, title, subtitle, source, time, author, tags, sourceLogo, mainColorHex, articleURL, imageURL, publishedDate, content
     }
     
     // Convenience initializer for backward compatibility
     init(id: Int, title: String, source: String, time: String, author: String, tags: [String], sourceLogo: String, mainColor: Color) {
         self.id = String(id)
         self.title = title
+        self.subtitle = nil
         self.source = source
         self.time = time
         self.author = author
@@ -42,12 +45,14 @@ struct ReadingItem: Identifiable, Hashable, Codable {
         self.articleURL = nil
         self.imageURL = nil
         self.publishedDate = nil
+        self.content = ""
     }
     
     // Full initializer
-    init(id: String, title: String, source: String, time: String, author: String, tags: [String], sourceLogo: String, mainColor: Color, articleURL: String? = nil, imageURL: String? = nil, publishedDate: Date? = nil) {
+    init(id: String, title: String, subtitle: String? = nil, source: String, time: String, author: String, tags: [String], sourceLogo: String, mainColor: Color, articleURL: String? = nil, imageURL: String? = nil, publishedDate: Date? = nil, content: String = "") {
         self.id = id
         self.title = title
+        self.subtitle = subtitle
         self.source = source
         self.time = time
         self.author = author
@@ -57,6 +62,7 @@ struct ReadingItem: Identifiable, Hashable, Codable {
         self.articleURL = articleURL
         self.imageURL = imageURL
         self.publishedDate = publishedDate
+        self.content = content
     }
     
     func hash(into hasher: inout Hasher) {
@@ -88,6 +94,7 @@ struct ReadingItem: Identifiable, Hashable, Codable {
         return ReadingItem(
             id: rssItem.link.isEmpty ? UUID().uuidString : rssItem.link,
             title: rssItem.title,
+            subtitle: nil, // RSSItem doesn't specifically have subtitle
             source: feed.name,
             time: timeString,
             author: author,
@@ -96,7 +103,8 @@ struct ReadingItem: Identifiable, Hashable, Codable {
             mainColor: feed.defaultColor,
             articleURL: rssItem.link,
             imageURL: rssItem.imageURL,
-            publishedDate: rssItem.pubDate
+            publishedDate: rssItem.pubDate,
+            content: rssItem.description // Using description as content
         )
     }
     
@@ -105,6 +113,7 @@ struct ReadingItem: Identifiable, Hashable, Codable {
         ReadingItem(
             id: id,
             title: title,
+            subtitle: subtitle,
             source: source,
             time: ReadingItem.formatRelativeTime(from: publishedDate),
             author: author,
@@ -113,7 +122,8 @@ struct ReadingItem: Identifiable, Hashable, Codable {
             mainColor: mainColor,
             articleURL: articleURL,
             imageURL: imageURL,
-            publishedDate: publishedDate
+            publishedDate: publishedDate,
+            content: content
         )
     }
     

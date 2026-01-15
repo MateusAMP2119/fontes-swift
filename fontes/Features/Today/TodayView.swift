@@ -11,6 +11,7 @@ import UIKit
 struct TodayView: View {
     // Feed Store
     @ObservedObject private var feedStore = FeedStore.shared
+    @Environment(\.bottomContentHeight) private var bottomContentHeight
     
     // Unified data access to handle dynamic filtering
     var filteredContent: (featured: ReadingItem?, list: [ReadingItem]) {
@@ -101,14 +102,13 @@ struct TodayView: View {
                         VStack(spacing: 24) {
                             // Featured Card
                             if let featuredItem = featuredItem {
-                                Button {
-                                    selectedItem = featuredItem
-                                } label: {
                                     FeaturedCard(item: featuredItem)
                                         .frame(height: 400)
                                         .transition(.scale.combined(with: .opacity))
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                                        .contentShape(Rectangle()) // Ensure tap target is good
+                                        .onTapGesture {
+                                            selectedItem = featuredItem
+                                        }
                             }
                             
                             // Masonry Grid
@@ -116,13 +116,12 @@ struct TodayView: View {
                                 // Left Column
                                 LazyVStack(spacing: 24) {
                                     ForEach(leftColumnItems) { item in
-                                        Button {
-                                            selectedItem = item
-                                        } label: {
-                                            GridCard(item: item)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
+                                        GridCard(item: item)
+                                            .transition(.scale.combined(with: .opacity))
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                selectedItem = item
+                                            }
                                         .onAppear {
                                             // Aggressive Prefetching Trigger (Left)
                                             // Trigger when we are 15 items away from the end
@@ -139,13 +138,12 @@ struct TodayView: View {
                                 // Right Column
                                 LazyVStack(spacing: 24) {
                                     ForEach(rightColumnItems) { item in
-                                        Button {
-                                            selectedItem = item
-                                        } label: {
-                                            GridCard(item: item)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
+                                        GridCard(item: item)
+                                            .transition(.scale.combined(with: .opacity))
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                selectedItem = item
+                                            }
                                         .onAppear {
                                             // Aggressive Prefetching Trigger (Right)
                                             // Trigger when we are 15 items away from the end
@@ -203,29 +201,7 @@ struct TodayView: View {
             await feedStore.loadFeeds()
         }
         .fullScreenCover(item: $selectedItem) { item in
-            // Determine next item
-            let nextItem: ReadingItem? = {
-                // Create a flattened list of all visible items to easily find the next one
-                var visibleItems: [ReadingItem] = []
-                if let featured = featuredItem {
-                    visibleItems.append(featured)
-                }
-                visibleItems.append(contentsOf: items)
-                
-                if let index = visibleItems.firstIndex(where: { $0.id == item.id }), 
-                   index + 1 < visibleItems.count {
-                    return visibleItems[index + 1]
-                }
-                return nil
-            }()
-            
-            ReadingDetailView(
-                item: item,
-                nextItem: nextItem,
-                onNext: { next in
-                    selectedItem = next
-                }
-            )
+            ReadingDetailView(item: item)
         }
         .overlay(alignment: .bottom) {
             if feedStore.showingSaveToast {
@@ -240,7 +216,7 @@ struct TodayView: View {
                         }
                     }
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, bottomContentHeight + 10) // Dynamic positioning
                 .transition(.scale(scale: 0.8).combined(with: .opacity))
             }
         }
