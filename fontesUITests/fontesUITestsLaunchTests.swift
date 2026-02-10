@@ -1,13 +1,13 @@
 //
-//  fontesUITestsLaunchTests.swift
-//  fontesUITests
+//  FontesUITestsLaunchTests.swift
+//  FontesUITests
 //
 //  Created by Mateus Costa on 15/12/2025.
 //
 
 import XCTest
 
-final class fontesUITestsLaunchTests: XCTestCase {
+final class FontesUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

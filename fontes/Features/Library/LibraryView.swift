@@ -1,6 +1,6 @@
 //
 //  LibraryView.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 11/01/2026.
 //
@@ -10,16 +10,20 @@ import SwiftUI
 struct LibraryView: View {
     @ObservedObject var feedStore = FeedStore.shared
     @State private var searchText: String = ""
-    @State private var sortOrder: SortOrder = .recent
-    @State private var isGridView: Bool = false
     @State private var showingCreateFeed: Bool = false
     @State private var selectedFeed: Feed?
     
-    enum SortOrder: String, CaseIterable {
-        case recent = "Recents"
-        case alphabetical = "Alphabetical"
-        case creator = "Creator"
+    enum TabSelection: String, CaseIterable {
+        case feeds = "Feeds"
+        case folders = "Pastas"
     }
+    
+    @State private var selectedTab: TabSelection = .feeds
+    
+    // Create feed/folder state
+    @State private var showingCreateOptions = false
+    @State private var showingCreateFolder = false
+    @State private var newFolderName = ""
     
     var filteredFeeds: [Feed] {
         var result = feedStore.userFeeds
@@ -34,57 +38,75 @@ struct LibraryView: View {
             }
         }
         
-        // Sort
-        switch sortOrder {
-        case .recent:
-            result.sort(by: { $0.updatedAt > $1.updatedAt })
-        case .alphabetical:
-            result.sort(by: { $0.name.localizedCompare($1.name) == .orderedAscending })
-        case .creator:
-            result.sort(by: { ($0.isDefault ? 0 : 1) < ($1.isDefault ? 0 : 1) })
+        // Pinned items first, then alphabetical
+        result.sort {
+            if $0.isPinned != $1.isPinned {
+                return $0.isPinned
+            }
+            return $0.name.localizedCompare($1.name) == .orderedAscending
         }
         
-        // Pinned items first
-        let pinned = result.filter { $0.isPinned }
-        let unpinned = result.filter { !$0.isPinned }
+        return result
+    }
+    
+    var filteredFolders: [SavedFolder] {
+        var result = feedStore.savedFolders
         
-        return pinned + unpinned
+        if !searchText.isEmpty {
+            result = result.filter { folder in
+                folder.name.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        
+        return result
     }
     
     var body: some View {
-        ScrollView {
-            Spacer().frame(height: 44)
-
-            VStack(spacing: 0) {
-                // Sort Header
-                sortHeader
+        VStack(spacing: 0) {
+            // Custom Header
+            headerView
+            
+            // Search Bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
                 
-                // Content
-                if isGridView {
-                    gridContent
-                } else {
-                    listContent
+                TextField("Pesquisar na biblioteca", text: $searchText)
+            }
+            .padding(10)
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
+            
+            // Chips
+            HStack(spacing: 12) {
+                ForEach(TabSelection.allCases, id: \.self) { tab in
+                    FilterChip(
+                        text: tab.rawValue,
+                        isSelected: selectedTab == tab,
+                        action: { selectedTab = tab }
+                    )
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
+            
+            // Content List
+            List {
+                switch selectedTab {
+                case .feeds:
+                    feedsSection
+                case .folders:
+                    foldersSection
                 }
             }
-            .padding(.bottom, 32)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
-        .onScrollHideHeader()
-        .navigationTitle("Your Library")
-        .searchable(text: $searchText, prompt: "Find in Your Library")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(action: { showingCreateFeed = true }) {
-                        Label("New Feed", systemImage: "newspaper")
-                    }
-                    Button(action: { createNewFolder() }) {
-                        Label("New Folder", systemImage: "folder.badge.plus")
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
-        }
+        .background(Color.white)
+        .toolbar(.hidden, for: .navigationBar) // Hide default navigation bar
         .sheet(isPresented: $showingCreateFeed) {
             CreateFeedView { newFeed in
                 feedStore.addUserFeed(newFeed)
@@ -95,183 +117,186 @@ struct LibraryView: View {
                 FeedDetailView(feed: $feedStore.userFeeds[index])
             }
         }
-        .alert("New Folder", isPresented: $showingCreateFolder) {
-            TextField("Folder Name", text: $newFolderName)
-            Button("Cancel", role: .cancel) { }
-            Button("Create") {
+        .sheet(isPresented: $showingCreateOptions) {
+            createOptionsSheet
+                .presentationDetents([.fraction(0.25)])
+                .presentationDragIndicator(.visible)
+        }
+        .alert("Nova Pasta", isPresented: $showingCreateFolder) {
+            TextField("Nome da Pasta", text: $newFolderName)
+            Button("Cancelar", role: .cancel) { }
+            Button("Criar") {
                 if !newFolderName.isEmpty {
                     feedStore.createFolder(name: newFolderName)
                     newFolderName = ""
+                    // Switch to folders tab to see the new folder
+                    selectedTab = .folders
                 }
             }
         }
     }
     
-    @State private var showingCreateFolder = false
-    @State private var newFolderName = ""
-    
-    private func createNewFolder() {
-        newFolderName = ""
-        showingCreateFolder = true
-    }
-    
-    // MARK: - Sort Header
-    private var sortHeader: some View {
+    // MARK: - Header
+    private var headerView: some View {
         HStack {
-            // Sort menu
-            Menu {
-                ForEach(SortOrder.allCases, id: \.self) { order in
-                    Button {
-                        sortOrder = order
-                    } label: {
-                        HStack {
-                            Text(order.rawValue)
-                            if sortOrder == order {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                }
-            } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.up.arrow.down")
-                        .font(.caption)
-                    Text(sortOrder.rawValue)
-                        .font(.subheadline)
-                }
-                .foregroundStyle(.secondary)
-            }
+            Text("Biblioteca")
+                .font(.title).bold()
             
             Spacer()
             
-            // View toggle
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    isGridView.toggle()
-                }
-            } label: {
-                Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
+            Button(action: {
+                showingCreateOptions = true
+            }) {
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .frame(width: 40, height: 40)
+                    .background(Color(.systemGray6))
+                    .clipShape(Circle())
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 26)
+        .padding(.top, 24)
+        .padding(.bottom, 16)
     }
     
-    // MARK: - List Content
-    private var listContent: some View {
-        LazyVStack(spacing: 24, pinnedViews: [.sectionHeaders]) {
-            // Section 1: Feeds
-            if !filteredFeeds.isEmpty {
-                Section {
-                    ForEach(filteredFeeds) { feed in
-                        LibraryFeedRow(feed: feed) {
-                            selectedFeed = feed
-                        }
-                    }
-                } header: {
-                    sectionHeader("Feeds")
+    // MARK: - Feeds Section
+    @ViewBuilder
+    private var feedsSection: some View {
+        if filteredFeeds.isEmpty {
+            emptyStateView(
+                icon: "newspaper",
+                title: "Nenhum feed encontrado",
+                message: "Toque em + para criar o seu primeiro feed."
+            )
+            .listRowSeparator(.hidden)
+        } else {
+            ForEach(filteredFeeds) { feed in
+                LibraryFeedRow(feed: feed) {
+                    selectedFeed = feed
                 }
-            }
-            
-            // Section 2: Saved Folders
-            if !feedStore.savedFolders.isEmpty {
-                Section {
-                    ForEach(feedStore.savedFolders) { folder in
-                        // Placeholder row for folder
-                        HStack {
-                            Image(systemName: "folder.fill")
-                                .foregroundStyle(.blue)
-                                .font(.title2)
-                            Text(folder.name)
-                                .font(.headline)
-                            Spacer()
-                            Text("\(folder.itemIDs.count)")
-                                .foregroundStyle(.secondary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal, 16)
-                    }
-                } header: {
-                    sectionHeader("Saved Folders")
-                }
+                .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                .listRowSeparator(.hidden)
             }
         }
     }
     
-    // MARK: - Grid Content
-    private var gridContent: some View {
-        VStack(spacing: 24) {
-            // Section 1: Feeds
-            if !filteredFeeds.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    sectionHeader("Feeds")
-                        .padding(.horizontal, 16)
+    // MARK: - Folders Section
+    @ViewBuilder
+    private var foldersSection: some View {
+        if filteredFolders.isEmpty {
+            emptyStateView(
+                icon: "folder",
+                title: "Nenhuma pasta encontrada",
+                message: "Organize os seus items guardados em pastas."
+            )
+            .listRowSeparator(.hidden)
+        } else {
+            ForEach(feedStore.savedFolders) { folder in
+                HStack(spacing: 16) {
+                    // Start of Folder Row Design
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.secondarySystemBackground))
+                            .frame(width: 60, height: 60)
+                        
+                        Image(systemName: "folder.fill")
+                            .font(.title2)
+                            .foregroundStyle(.blue)
+                    }
                     
-                    LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 100), spacing: 16)],
-                        spacing: 16
-                    ) {
-                        ForEach(filteredFeeds) { feed in
-                            LibraryFeedGridItem(feed: feed) {
-                                selectedFeed = feed
-                            }
-                        }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(folder.name)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        
+                        Text("\(folder.itemIDs.count) items")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.horizontal, 16)
-                }
-            }
-            
-            // Section 2: Saved Folders
-            if !feedStore.savedFolders.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    sectionHeader("Saved Folders")
-                        .padding(.horizontal, 16)
                     
-                    LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 100), spacing: 16)],
-                        spacing: 16
-                    ) {
-                        ForEach(feedStore.savedFolders) { folder in
-                            // Placeholder grid item for folder
-                            VStack {
-                                Image(systemName: "folder.fill")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.blue)
-                                    .frame(height: 60)
-                                Text(folder.name)
-                                    .font(.caption)
-                                    .lineLimit(1)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.secondarySystemBackground))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding(.horizontal, 16)
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color(.tertiaryLabel))
                 }
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
+                // Basic tap action logic for folders - placeholder for now
+                .onTapGesture {
+                    // Navigate to folder detail or expand
+                    // For now just print
+                    print("Tapped folder: \(folder.name)")
+                }
+                .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                .listRowSeparator(.hidden)
             }
         }
-        .padding(.top, 8)
     }
     
-    private func sectionHeader(_ title: String) -> some View {
-        HStack {
+    private func emptyStateView(icon: String, title: String, message: String) -> some View {
+        VStack(spacing: 16) {
+            Spacer().frame(height: 48)
+            Image(systemName: icon)
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary.opacity(0.5))
             Text(title)
-                .font(.title3)
-                .fontWeight(.bold)
+                .font(.headline)
+                .foregroundStyle(.primary)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+    
+    // MARK: - Create Options Sheet
+    private var createOptionsSheet: some View {
+        VStack(spacing: 0) {
+            Text("Criar Novo")
+                .font(.headline)
+                .padding(.top, 24)
+                .padding(.bottom, 24)
+            
+            Divider()
+            
+            Button {
+                showingCreateOptions = false
+                showingCreateFeed = true
+            } label: {
+                HStack {
+                    Image(systemName: "newspaper")
+                        .frame(width: 24)
+                    Text("Novo Feed")
+                    Spacer()
+                }
+                .padding()
+                .foregroundStyle(.primary)
+            }
+
+            Divider()
+            
+            Button {
+                showingCreateOptions = false
+                newFolderName = ""
+                showingCreateFolder = true
+            } label: {
+                HStack {
+                    Image(systemName: "folder.badge.plus")
+                        .frame(width: 24)
+                    Text("Nova Pasta")
+                    Spacer()
+                }
+                .padding()
+                .foregroundStyle(.primary)
+            }
+            
+            Spacer()
+        }
     }
 }
 

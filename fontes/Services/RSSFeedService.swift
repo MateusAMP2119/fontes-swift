@@ -1,6 +1,6 @@
 //
 //  RSSFeedService.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 10/01/2026.
 //

@@ -1,6 +1,6 @@
 //
 //  LibraryFeedRow.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 11/01/2026.
 //
@@ -22,97 +22,72 @@ struct LibraryFeedRow: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                // Feed Icon Collage
-                FeedIconCollage(feed: feed, size: 56)
+                FeedIconCollage(feed: feed, size: 60)
                 
-                // Feed Info
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(feed.name)
-                        .font(.body)
-                        .fontWeight(.medium)
+                        .font(.headline)
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                     
                     if let description = feed.description {
                         Text(description)
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
                     
                     HStack(spacing: 8) {
                         // Sources Chip
-                        Text("\(feed.sources.count) fontes")
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                        Text("\(feed.sources.count) Fontes")
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(Color(.systemGray6))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                         
                         // News Chip
                         Text("\(newCount) novas")
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(Color(.systemGray6))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                     }
                     .foregroundStyle(.secondary)
-                    .padding(.top, 2)
                 }
-                .padding(.vertical, 2)
                 
                 Spacer()
                 
-                // Pinned indicator
+                // Keep Pinned indicator but with updated style/position if needed,
+                // or just rely on the list order. Let's keep it subtle.
                 if feed.isPinned {
                     Image(systemName: "pin.fill")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
                 }
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color(.tertiaryLabel))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 }
 
-// MARK: - Grid Variant for compact view
-struct LibraryFeedGridItem: View {
-    let feed: Feed
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: 8) {
-                // Feed Icon Collage
-                FeedIconCollage(feed: feed, size: 100)
-                
-                // Feed Name
-                Text(feed.name)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.primary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(width: 100)
-        }
-        .buttonStyle(.plain)
-    }
-}
+// MARK: - Grid Variant REMOVED (No longer used)
+// Kept commented out just in case or we can just delete it.
+// Deleted as per plan to move to list-only.
 
 #Preview("Row") {
     VStack(spacing: 0) {
         LibraryFeedRow(feed: Feed.defaultFeed) {}
+            .padding()
     }
-}
-
-#Preview("Grid") {
-    LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 16) {
-        LibraryFeedGridItem(feed: Feed.defaultFeed) {}
-    }
-    .padding()
 }

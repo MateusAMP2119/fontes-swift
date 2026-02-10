@@ -1,6 +1,6 @@
 //
 //  FeedRow.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 12/01/2026.
 //
@@ -37,7 +37,7 @@ struct FeedRow: View {
                 
                 HStack(spacing: 8) {
                     // Sources Chip
-                    Text("\(feed.sources.count) fontes")
+                    Text("\(feed.sources.count) Fontes")
                         .font(.caption.weight(.medium))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

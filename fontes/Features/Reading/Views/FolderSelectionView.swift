@@ -1,6 +1,6 @@
 //
 //  FolderSelectionView.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 14/01/2026.
 //
@@ -14,6 +14,7 @@ struct FolderSelectionView: View {
     
     @State private var searchText = ""
     @State private var showingCreateFolder = false
+    @State private var selectedFolderIDs: Set<UUID> = []
 
     var filteredFolders: [SavedFolder] {
         if searchText.isEmpty {
@@ -24,95 +25,150 @@ struct FolderSelectionView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Custom Header
-            HStack {
-                Text("Salvar na pasta")
-                    .font(.title).bold()
-                
-                Spacer()
-                
-                Button(action: {
-                    showingCreateFolder = true
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "plus")
-                        Text("Criar")
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                }
-                .glassEffect(.regular.tint(.red).interactive())
-                
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "xmark")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.gray)
-                    .frame(width: 32, height: 32)
-                }
-                .glassEffect(.regular.interactive())
-                .clipShape(Circle())
-            }
-            .padding(.horizontal, 26)
-            .padding(.top, 24)
-            .padding(.bottom, 16)
-            
-            // Search Bar
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                
-                TextField("Pesquisar pasta...", text: $searchText)
-            }
-            .padding(10)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .padding(.horizontal, 20)
-            .padding(.bottom, 16)
-            
-            // List
-            List {
-                ForEach(filteredFolders) { folder in
-                    FolderRow(folder: folder, isSelected: folder.itemIDs.contains(item.id))
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleFolder(folder)
+        ZStack {
+            if showingCreateFolder {
+                CreateFolderView(
+                    onCreate: { name, description, imageFilename in
+                        createNewFolder(name: name, description: description, imageURL: imageFilename)
+                        withAnimation {
+                            showingCreateFolder = false
                         }
-                        .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                    },
+                    onCancel: {
+                        withAnimation {
+                            showingCreateFolder = false
+                        }
+                    }
+                )
+                .transition(.asymmetric(insertion: .scale(scale: 0.9).combined(with: .opacity), removal: .opacity))
+                .zIndex(1)
+            } else {
+                VStack(spacing: 0) {
+                    // Custom Header
+                    HStack {
+                        Text("Salvar na pasta")
+                            .font(.title).bold()
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                showingCreateFolder = true
+                            }
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus")
+                                Text("Criar")
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                        }
+                        .glassEffect(.regular.tint(.red).interactive())
+                        
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.gray)
+                            .frame(width: 32, height: 32)
+                        }
+                        .glassEffect(.regular.interactive())
+                        .clipShape(Circle())
+                    }
+                    .padding(.horizontal, 26)
+                    .padding(.top, 24)
+                    .padding(.bottom, 16)
+                    
+                    // Search Bar
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        
+                        TextField("Pesquisar pasta...", text: $searchText)
+                    }
+                    .padding(10)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 16)
+                    
+                    // List
+                    List {
+                        ForEach(filteredFolders) { folder in
+                            FolderRow(folder: folder, isSelected: selectedFolderIDs.contains(folder.id))
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    toggleFolder(folder)
+                                }
+                                .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                        }
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    
+                    // Save Button
+                    Button(action: {
+                        saveChanges()
+                    }) {
+                        Text("Guardar")
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 10)
+                    }
+                    .glassEffect(.regular.tint(.red).interactive())
+                    .disabled(selectedFolderIDs.isEmpty)
+                    .opacity(selectedFolderIDs.isEmpty ? 0.5 : 1.0)
                 }
+                .background(Color.white)
+                .transition(.opacity)
+                .zIndex(0)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
         }
-        .background(Color.white)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.hidden)
-        .sheet(isPresented: $showingCreateFolder) {
-            CreateFolderView { name, description, imageFilename in
-                createNewFolder(name: name, description: description, imageURL: imageFilename)
-            }
+        .onAppear {
+            initializeSelection()
         }
     }
     
+    private func initializeSelection() {
+        // Initialize with empty selection by default
+        selectedFolderIDs = []
+    }
+    
     private func toggleFolder(_ folder: SavedFolder) {
-        if folder.itemIDs.contains(item.id) {
-            feedStore.removeFromFolder(folder, item: item)
+        if selectedFolderIDs.contains(folder.id) {
+            selectedFolderIDs.remove(folder.id)
         } else {
-            feedStore.addToFolder(folder, item: item)
+            selectedFolderIDs.insert(folder.id)
         }
     }
     
     private func createNewFolder(name: String, description: String?, imageURL: String?) {
         feedStore.createFolder(name: name, imageURL: imageURL, description: description)
         
-        // Auto-add to the new folder
+        // Auto-select the new folder locally
         if let newFolder = feedStore.savedFolders.last {
-            feedStore.addToFolder(newFolder, item: item)
+            selectedFolderIDs.insert(newFolder.id)
         }
+    }
+    
+    private func saveChanges() {
+        // Only ADD to selected folders. Do not remove from folders not selected,
+        // because we start with an empty selection state.
+        for folder in feedStore.savedFolders {
+            let isSelected = selectedFolderIDs.contains(folder.id)
+            let isAlreadySaved = folder.itemIDs.contains(item.id)
+            
+            if isSelected && !isAlreadySaved {
+                feedStore.addToFolder(folder, item: item)
+            }
+        }
+        dismiss()
     }
 }
 
@@ -138,10 +194,7 @@ struct FolderRow: View {
         let validItems = FeedStore.shared.items.filter { folder.itemIDs.contains($0.id) }
         let distinctSources = Array(Set(validItems.map { $0.source })).prefix(4).map { String($0) }
         sources = distinctSources
-        // Optional: Attempt to get a few sources from the items in this folder to populate the collage
-        // This would require access to the items.
-        // For efficiency, we might just skip this or limit it.
-        // Let's grab up to 4 sources from the items in the folder.
+        
         return Feed(
             id: folder.id,
             name: folder.name,
@@ -191,4 +244,3 @@ struct FolderRow: View {
         .padding(.vertical, 4)
     }
 }
-

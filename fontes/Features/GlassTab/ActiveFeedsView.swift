@@ -1,6 +1,6 @@
 //
 //  ActiveFeedsView.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 11/01/2026.
 //
@@ -65,7 +65,7 @@ struct ActiveFeedsView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
                 
-                TextField("Pesquisar pelas tuas fontes", text: $searchText)
+                TextField("Pesquisar pelas tuas Fontes", text: $searchText)
             }
             .padding(10)
             .background(Color(.systemGray6))

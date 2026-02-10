@@ -1,6 +1,6 @@
 //
-//  fontesApp.swift
-//  fontes
+//  FontesApp.swift
+//  Fontes
 //
 //  Created by Mateus Costa on 15/12/2025.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct fontesApp: App {
+struct FontesApp: App {
     @AppStorage("isDarkMode") private var isDarkMode = false
 
     var body: some Scene {

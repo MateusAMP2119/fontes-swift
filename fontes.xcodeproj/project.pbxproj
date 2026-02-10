@@ -12,37 +12,37 @@
 			containerPortal = A78BE76E2EEFEB2400540D8E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A78BE7752EEFEB2400540D8E;
-			remoteInfo = fontes;
+			remoteInfo = Fontes;
 		};
 		A78BE78E2EEFEB2500540D8E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A78BE76E2EEFEB2400540D8E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A78BE7752EEFEB2400540D8E;
-			remoteInfo = fontes;
+			remoteInfo = Fontes;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A78BE7762EEFEB2400540D8E /* fontes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fontes.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A78BE7832EEFEB2500540D8E /* fontesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fontesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A78BE78D2EEFEB2500540D8E /* fontesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fontesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A78BE7762EEFEB2400540D8E /* Fontes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fontes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A78BE7832EEFEB2500540D8E /* FontesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FontesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A78BE78D2EEFEB2500540D8E /* FontesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FontesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A78BE7782EEFEB2400540D8E /* fontes */ = {
+		A78BE7782EEFEB2400540D8E /* Fontes */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = fontes;
+			path = Fontes;
 			sourceTree = "<group>";
 		};
-		A78BE7862EEFEB2500540D8E /* fontesTests */ = {
+		A78BE7862EEFEB2500540D8E /* FontesTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = fontesTests;
+			path = FontesTests;
 			sourceTree = "<group>";
 		};
-		A78BE7902EEFEB2500540D8E /* fontesUITests */ = {
+		A78BE7902EEFEB2500540D8E /* FontesUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = fontesUITests;
+			path = FontesUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		A78BE76D2EEFEB2400540D8E = {
 			isa = PBXGroup;
 			children = (
-				A78BE7782EEFEB2400540D8E /* fontes */,
-				A78BE7862EEFEB2500540D8E /* fontesTests */,
-				A78BE7902EEFEB2500540D8E /* fontesUITests */,
+				A78BE7782EEFEB2400540D8E /* Fontes */,
+				A78BE7862EEFEB2500540D8E /* FontesTests */,
+				A78BE7902EEFEB2500540D8E /* FontesUITests */,
 				A78BE7772EEFEB2400540D8E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		A78BE7772EEFEB2400540D8E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A78BE7762EEFEB2400540D8E /* fontes.app */,
-				A78BE7832EEFEB2500540D8E /* fontesTests.xctest */,
-				A78BE78D2EEFEB2500540D8E /* fontesUITests.xctest */,
+				A78BE7762EEFEB2400540D8E /* Fontes.app */,
+				A78BE7832EEFEB2500540D8E /* FontesTests.xctest */,
+				A78BE78D2EEFEB2500540D8E /* FontesUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A78BE7752EEFEB2400540D8E /* fontes */ = {
+		A78BE7752EEFEB2400540D8E /* Fontes */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A78BE7972EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "fontes" */;
+			buildConfigurationList = A78BE7972EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "Fontes" */;
 			buildPhases = (
 				A78BE7722EEFEB2400540D8E /* Sources */,
 				A78BE7732EEFEB2400540D8E /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A78BE7782EEFEB2400540D8E /* fontes */,
+				A78BE7782EEFEB2400540D8E /* Fontes */,
 			);
-			name = fontes;
+			name = Fontes;
 			packageProductDependencies = (
 			);
-			productName = fontes;
-			productReference = A78BE7762EEFEB2400540D8E /* fontes.app */;
+			productName = Fontes;
+			productReference = A78BE7762EEFEB2400540D8E /* Fontes.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A78BE7822EEFEB2500540D8E /* fontesTests */ = {
+		A78BE7822EEFEB2500540D8E /* FontesTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A78BE79A2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "fontesTests" */;
+			buildConfigurationList = A78BE79A2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "FontesTests" */;
 			buildPhases = (
 				A78BE77F2EEFEB2500540D8E /* Sources */,
 				A78BE7802EEFEB2500540D8E /* Frameworks */,
@@ -131,18 +131,18 @@
 				A78BE7852EEFEB2500540D8E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A78BE7862EEFEB2500540D8E /* fontesTests */,
+				A78BE7862EEFEB2500540D8E /* FontesTests */,
 			);
-			name = fontesTests;
+			name = FontesTests;
 			packageProductDependencies = (
 			);
-			productName = fontesTests;
-			productReference = A78BE7832EEFEB2500540D8E /* fontesTests.xctest */;
+			productName = FontesTests;
+			productReference = A78BE7832EEFEB2500540D8E /* FontesTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		A78BE78C2EEFEB2500540D8E /* fontesUITests */ = {
+		A78BE78C2EEFEB2500540D8E /* FontesUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A78BE79D2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "fontesUITests" */;
+			buildConfigurationList = A78BE79D2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "FontesUITests" */;
 			buildPhases = (
 				A78BE7892EEFEB2500540D8E /* Sources */,
 				A78BE78A2EEFEB2500540D8E /* Frameworks */,
@@ -154,13 +154,13 @@
 				A78BE78F2EEFEB2500540D8E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A78BE7902EEFEB2500540D8E /* fontesUITests */,
+				A78BE7902EEFEB2500540D8E /* FontesUITests */,
 			);
-			name = fontesUITests;
+			name = FontesUITests;
 			packageProductDependencies = (
 			);
-			productName = fontesUITests;
-			productReference = A78BE78D2EEFEB2500540D8E /* fontesUITests.xctest */;
+			productName = FontesUITests;
+			productReference = A78BE78D2EEFEB2500540D8E /* FontesUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A78BE7712EEFEB2400540D8E /* Build configuration list for PBXProject "fontes" */;
+			buildConfigurationList = A78BE7712EEFEB2400540D8E /* Build configuration list for PBXProject "Fontes" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A78BE7752EEFEB2400540D8E /* fontes */,
-				A78BE7822EEFEB2500540D8E /* fontesTests */,
-				A78BE78C2EEFEB2500540D8E /* fontesUITests */,
+				A78BE7752EEFEB2400540D8E /* Fontes */,
+				A78BE7822EEFEB2500540D8E /* FontesTests */,
+				A78BE78C2EEFEB2500540D8E /* FontesUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		A78BE7852EEFEB2500540D8E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A78BE7752EEFEB2400540D8E /* fontes */;
+			target = A78BE7752EEFEB2400540D8E /* Fontes */;
 			targetProxy = A78BE7842EEFEB2500540D8E /* PBXContainerItemProxy */;
 		};
 		A78BE78F2EEFEB2500540D8E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A78BE7752EEFEB2400540D8E /* fontes */;
+			target = A78BE7752EEFEB2400540D8E /* Fontes */;
 			targetProxy = A78BE78E2EEFEB2500540D8E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -410,7 +410,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = marreco.fontes;
+				PRODUCT_BUNDLE_IDENTIFIER = marreco.Fontes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -442,7 +442,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = marreco.fontes;
+				PRODUCT_BUNDLE_IDENTIFIER = marreco.Fontes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -464,7 +464,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = marreco.fontesTests;
+				PRODUCT_BUNDLE_IDENTIFIER = marreco.FontesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -472,7 +472,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fontes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fontes";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Fontes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Fontes";
 			};
 			name = Debug;
 		};
@@ -486,7 +486,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = marreco.fontesTests;
+				PRODUCT_BUNDLE_IDENTIFIER = marreco.FontesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -494,7 +494,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fontes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fontes";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Fontes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Fontes";
 			};
 			name = Release;
 		};
@@ -506,7 +506,7 @@
 				DEVELOPMENT_TEAM = SC8X3XN7R6;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = marreco.fontesUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = marreco.FontesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -514,7 +514,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = fontes;
+				TEST_TARGET_NAME = Fontes;
 			};
 			name = Debug;
 		};
@@ -526,7 +526,7 @@
 				DEVELOPMENT_TEAM = SC8X3XN7R6;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = marreco.fontesUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = marreco.FontesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -534,14 +534,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = fontes;
+				TEST_TARGET_NAME = Fontes;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A78BE7712EEFEB2400540D8E /* Build configuration list for PBXProject "fontes" */ = {
+		A78BE7712EEFEB2400540D8E /* Build configuration list for PBXProject "Fontes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A78BE7952EEFEB2500540D8E /* Debug */,
@@ -550,7 +550,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A78BE7972EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "fontes" */ = {
+		A78BE7972EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "Fontes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A78BE7982EEFEB2500540D8E /* Debug */,
@@ -559,7 +559,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A78BE79A2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "fontesTests" */ = {
+		A78BE79A2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "FontesTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A78BE79B2EEFEB2500540D8E /* Debug */,
@@ -568,7 +568,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A78BE79D2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "fontesUITests" */ = {
+		A78BE79D2EEFEB2500540D8E /* Build configuration list for PBXNativeTarget "FontesUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A78BE79E2EEFEB2500540D8E /* Debug */,

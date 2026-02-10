@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "fontes_title.png",
+      "filename" : "Fontes_title.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "fontes_title@2x.png",
+      "filename" : "Fontes_title@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "fontes_title@3x.png",
+      "filename" : "Fontes_title@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

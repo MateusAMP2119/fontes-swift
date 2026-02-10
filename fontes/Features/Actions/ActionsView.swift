@@ -19,7 +19,7 @@ struct ActionsView: View {
     private var quickActions: [QuickAction] {
         [
             QuickAction(
-                title: "As minhas fontes",
+                title: "As minhas Fontes",
                 subtitle: "Cria ou edita páginas personalizadas.",
                 systemImage: "newspaper.fill",
                 isBeta: false,

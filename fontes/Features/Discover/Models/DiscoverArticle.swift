@@ -1,6 +1,6 @@
 //
 //  DiscoverArticle.swift
-//  fontes
+//  Fontes
 //
 //  Created by Mateus Costa on 27/12/2025.
 //
